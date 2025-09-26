@@ -11,31 +11,21 @@ class Product extends Model
 
     protected $fillable = [
         'name',
-        'slug',
         'description',
         'short_description',
         'price',
-        'sale_price',
-        'sku',
         'stock',
-        'min_stock',
         'category_id',
         'images',
         'attributes',
         'is_active',
-        'is_featured',
-        'weight',
-        'dimensions',
     ];
 
     protected $casts = [
         'price' => 'decimal:2',
-        'sale_price' => 'decimal:2',
-        'weight' => 'decimal:2',
         'images' => 'array',
         'attributes' => 'array',
         'is_active' => 'boolean',
-        'is_featured' => 'boolean',
     ];
 
     // Relationships
@@ -70,27 +60,12 @@ class Product extends Model
         return $query->where('is_active', true);
     }
 
-    public function scopeFeatured($query)
-    {
-        return $query->where('is_featured', true);
-    }
-
     public function scopeInStock($query)
     {
         return $query->where('stock', '>', 0);
     }
 
     // Accessors & Mutators
-    public function getCurrentPriceAttribute()
-    {
-        return $this->sale_price ?? $this->price;
-    }
-
-    public function getIsOnSaleAttribute()
-    {
-        return !is_null($this->sale_price) && $this->sale_price < $this->price;
-    }
-
     public function getAverageRatingAttribute()
     {
         return $this->reviews()->where('is_approved', true)->avg('rating');

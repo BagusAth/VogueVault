@@ -105,19 +105,16 @@
         <!-- Featured Products Section -->
         <div class="row mb-4" id="products">
             <div class="col-md-12">
-                <h2 class="mb-3">Featured Products</h2>
+                <h2 class="mb-3">Latest Products</h2>
             </div>
-            @forelse(App\Models\Product::active()->featured()->get() as $product)
+            @forelse(App\Models\Product::active()->latest()->take(6)->get() as $product)
                 <div class="col-md-4 mb-3">
                     <div class="card product-card">
                         <div class="card-body">
                             <h5 class="card-title">{{ $product->name }}</h5>
                             <p class="card-text">{{ $product->short_description }}</p>
                             <div class="d-flex justify-content-between align-items-center">
-                                <span class="h5 text-primary">${{ $product->current_price }}</span>
-                                @if($product->is_on_sale)
-                                    <small class="text-muted text-decoration-line-through">${{ $product->price }}</small>
-                                @endif
+                                <span class="h5 text-primary">${{ number_format($product->price, 2) }}</span>
                             </div>
                             <a href="#" class="btn btn-primary w-100 mt-2">Add to Cart</a>
                         </div>
@@ -125,7 +122,7 @@
                 </div>
             @empty
                 <div class="col-md-12">
-                    <div class="alert alert-info">No featured products available yet.</div>
+                    <div class="alert alert-info">No products available yet.</div>
                 </div>
             @endforelse
         </div>

@@ -14,21 +14,14 @@ return new class extends Migration
         Schema::create('products', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->string('slug')->unique();
             $table->text('description')->nullable();
             $table->text('short_description')->nullable();
             $table->decimal('price', 10, 2);
-            $table->decimal('sale_price', 10, 2)->nullable();
-            $table->string('sku')->unique();
             $table->integer('stock')->default(0);
-            $table->integer('min_stock')->default(0);
             $table->foreignId('category_id')->constrained()->onDelete('cascade');
             $table->json('images')->nullable(); // Store multiple product images
             $table->json('attributes')->nullable(); // Store size, color, material etc.
             $table->boolean('is_active')->default(true);
-            $table->boolean('is_featured')->default(false);
-            $table->decimal('weight', 8, 2)->nullable();
-            $table->string('dimensions')->nullable();
             $table->timestamps();
         });
     }

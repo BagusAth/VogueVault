@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>VogueVault - Login & Registration</title>
+    <title>VogueVault</title>
     <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
     <link rel="stylesheet" href="{{ asset('css/login.css') }}">
 </head>
@@ -37,7 +37,6 @@
                     <a href="#">Forgot Password?</a>
                 </div>
                 <button type="submit" class="btn">Login</button>
-                <p>Login to access VogueVault</p>
             </form>
         </div>
 
@@ -72,7 +71,6 @@
                     <i class='bx bxs-lock-alt'></i>
                 </div>
                 <button type="submit" class="btn">Register</button>
-                <p>Join VogueVault community</p>
             </form>
         </div>
 
