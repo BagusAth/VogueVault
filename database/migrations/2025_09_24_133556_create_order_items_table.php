@@ -19,7 +19,7 @@ return new class extends Migration
             $table->decimal('product_price', 10, 2); // Price at time of order
             $table->integer('quantity');
             $table->decimal('total_price', 10, 2); // quantity * product_price
-            $table->json('product_attributes')->nullable(); // Size, color ordered
+            $table->json('selected_attributes')->nullable(); // Size, color ordered
             $table->timestamps();
         });
     }
