@@ -16,7 +16,6 @@ return new class extends Migration
             $table->foreignId('product_id')->constrained()->onDelete('cascade');
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
             $table->integer('rating'); // 1-5 stars
-            $table->string('title')->nullable();
             $table->text('review')->nullable();
             $table->boolean('is_verified_purchase')->default(false);
             $table->boolean('is_approved')->default(false);

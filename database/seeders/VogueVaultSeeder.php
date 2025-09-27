@@ -30,6 +30,18 @@ class VogueVaultSeeder extends Seeder
         // Create sample users
         DB::table('users')->insertOrIgnore([
             [
+                'name' => 'Bagus Athallah',
+                'email' => 'bagus@gmail.com',
+                'password' => Hash::make('bagus123'),
+                'role' => 'user',
+                'email_verified_at' => now(),
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]
+        ]);
+
+        DB::table('users')->insertOrIgnore([
+            [
                 'name' => 'John Customer',
                 'email' => 'customer@example.com',
                 'password' => Hash::make('password'),
@@ -42,9 +54,9 @@ class VogueVaultSeeder extends Seeder
 
         // Create categories
         DB::table('categories')->insert([
-            ['name' => "Women's Clothing", 'slug' => 'womens-clothing', 'description' => 'Trendy clothing for women', 'is_active' => true, 'created_at' => now(), 'updated_at' => now()],
-            ['name' => "Men's Clothing", 'slug' => 'mens-clothing', 'description' => 'Fashion clothing for men', 'is_active' => true, 'created_at' => now(), 'updated_at' => now()],
-            ['name' => 'Accessories', 'slug' => 'accessories', 'description' => 'Stylish accessories', 'is_active' => true, 'created_at' => now(), 'updated_at' => now()],
+            ['name' => "Women's Clothing", 'description' => 'Trendy clothing for women', 'is_active' => true, 'created_at' => now(), 'updated_at' => now()],
+            ['name' => "Men's Clothing", 'description' => 'Fashion clothing for men', 'is_active' => true, 'created_at' => now(), 'updated_at' => now()],
+            ['name' => 'Accessories', 'description' => 'Stylish accessories', 'is_active' => true, 'created_at' => now(), 'updated_at' => now()],
         ]);
 
         // Create sample products

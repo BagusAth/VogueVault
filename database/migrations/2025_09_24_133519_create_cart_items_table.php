@@ -18,11 +18,10 @@ return new class extends Migration
             $table->integer('quantity');
             $table->decimal('price', 10, 2); // Price at time of adding to cart
             $table->json('product_attributes')->nullable(); // Size, color selected
-            $table->string('attributes_hash')->nullable(); // Hash of attributes for uniqueness
             $table->timestamps();
             
             // Unique constraint to prevent duplicate cart items with same attributes
-            $table->unique(['cart_id', 'product_id', 'attributes_hash']);
+            $table->unique(['cart_id', 'product_id']);
         });
     }
 
