@@ -37,7 +37,7 @@ class LoginController extends Controller
             if ($user->role === 'admin') {
                 return redirect()->route('admin.dashboard')->with('success', 'Welcome Admin!');
             } else {
-                return redirect()->route('customer.dashboard')->with('success', 'Welcome to VogueVault!');
+                return redirect()->route('customer.home')->with('success', 'Welcome to VogueVault!');
             }
         }
 
