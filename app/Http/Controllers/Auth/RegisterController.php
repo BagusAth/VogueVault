@@ -15,7 +15,7 @@ class RegisterController extends Controller
      */
     public function showRegistrationForm()
     {
-        return view('auth.register');
+        return view('Login', ['activeTab' => 'register']);
     }
 
     /**
@@ -27,9 +27,10 @@ class RegisterController extends Controller
         $validator = $this->validator($request->all());
         
         if ($validator->fails()) {
-            return redirect()->back()
-                           ->withErrors($validator)
-                           ->withInput();
+            return redirect()->route('register')
+                             ->withErrors($validator)
+                             ->withInput()
+                             ->with('auth_tab', 'register');
         }
 
         // Create new user
@@ -40,7 +41,9 @@ class RegisterController extends Controller
             'role' => 'user', // Default role for new registrations
         ]);
 
-        return redirect()->route('login')->with('success', 'Registration successful! Please log in.');
+    return redirect()->route('login')
+             ->with('success', 'Registration successful! Please log in.')
+             ->with('auth_tab', 'login');
     }
 
     /**

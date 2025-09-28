@@ -10,7 +10,13 @@
     <link rel="stylesheet" href="{{ asset('css/login.css') }}">
 </head>
 <body>
-    <div class="container">
+    @php
+        $activeTab = $activeTab
+            ?? session('auth_tab')
+            ?? ((($errors->any() && !$errors->has('email')) || old('name') || old('password')) ? 'register' : 'login');
+    @endphp
+
+    <div class="container {{ $activeTab === 'register' ? 'active' : '' }}">
         <!-- Login Form -->
         <div class="form-box login">
             <form action="{{ route('login') }}" method="POST">
