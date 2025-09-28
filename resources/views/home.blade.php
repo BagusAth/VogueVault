@@ -45,9 +45,39 @@
                             <i class="bi bi-question-circle"></i>
                             <span class="nav-text">Help</span>
                         </a>
-                        <a href="#" class="nav-icon profile-icon" data-bs-toggle="tooltip" title="Profile">
-                            <i class="bi bi-person-circle"></i>
-                        </a>
+                        <!-- Profile Dropdown -->
+                        <div class="dropdown d-inline-block">
+                            <a class="nav-icon profile-icon dropdown-toggle text-decoration-none"
+                            href="#" id="profileDropdown" role="button"
+                            data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="bi bi-person-circle"></i>
+                            </a>
+
+                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="profileDropdown">
+                                @auth
+                                    <li class="dropdown-item text-center">
+                                        <strong>{{ Auth::user()->name }}</strong>
+                                    </li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li>
+                                        <form action="{{ route('logout') }}" method="POST">
+                                            @csrf
+                                            <button type="submit" class="dropdown-item text-danger">
+                                                <i class="bi bi-box-arrow-right me-1"></i> Logout
+                                            </button>
+                                        </form>
+                                    </li>
+                                @endauth
+
+                                @guest
+                                    <li>
+                                        <a class="dropdown-item" href="{{ route('login') }}">
+                                            <i class="bi bi-box-arrow-in-right me-1"></i> Login
+                                        </a>
+                                    </li>
+                                @endguest
+                            </ul>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -60,7 +90,7 @@
             <div class="hero-overlay">
                 <div class="container">
                     <div class="row justify-content-center">
-                        <div class="col-lg-8 text-center">
+                        <div class="col-lg-10 text-center">
                             <!-- Tagline -->
                             <h1 class="hero-tagline">Refresh Your Look, Redefine Your Day.</h1>
                             
