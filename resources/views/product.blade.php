@@ -15,7 +15,7 @@
         $primaryImage = $images[0] ?? $placeholderImage;
         $rating = round($product->average_rating ?? 0, 1);
         $reviewCount = $product->review_count ?? 0;
-        $formattedPrice = number_format($product->price, 2, ',', '.');
+        $formattedPrice = number_format($product->price, 0, ',', '.');
         $categoryName = optional($product->category)->name;
     @endphp
 
