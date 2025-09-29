@@ -26,6 +26,19 @@ class VogueVaultSeeder extends Seeder
             'created_at' => now(),
             'updated_at' => now(),
         ]);
+        
+        // Create admin user
+        DB::table('users')->insert([
+            'name' => 'Admin bowo',
+            'email' => 'bowo@voguevault.com',
+            'password' => Hash::make('bowo123'),
+            'role' => 'admin',
+            'phone' => '+1-555-0123',
+            'address' => '123 Fashion Ave, Style City, SC 12345',
+            'email_verified_at' => now(),
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
 
         // Create sample users
         DB::table('users')->insertOrIgnore([
