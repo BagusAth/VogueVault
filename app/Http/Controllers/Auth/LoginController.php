@@ -13,7 +13,9 @@ class LoginController extends Controller
      */
     public function showLoginForm()
     {
-        return view('Login');
+        $activeTab = session('auth_tab', 'login');
+
+        return view('Login', compact('activeTab'));
     }
 
     /**
