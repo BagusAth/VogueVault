@@ -4,12 +4,12 @@
             <div class="row align-items-center py-3">
                 <!-- Logo -->
                 <div class="col-auto">
-                    <div class="logo-container">
+                    <a href="{{ route('home') }}" class="logo-container">
                         <div class="logo-icon">
                             <i class="bi bi-building"></i>
                         </div>
                         <span class="logo-text">VogueVault</span>
-                    </div>
+                    </a>
                 </div>
                 
                 <!-- Right Navigation -->
