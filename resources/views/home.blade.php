@@ -50,6 +50,12 @@
                                     </div>
                                 </form>
                                 
+                                @if(session('search_error'))
+                                    <div class="search-message alert alert-warning mt-3" role="alert">
+                                        {{ session('search_error') }}
+                                    </div>
+                                @endif
+
                                 <!-- Search Suggestions -->
                                 <div class="search-suggestions mt-3">
                                     <button type="button" class="btn suggestion-btn" data-query="Women's Clothes">
