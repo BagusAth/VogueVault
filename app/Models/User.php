@@ -76,6 +76,11 @@ class User extends Authenticatable
         return $this->role === 'admin';
     }
 
+    /**
+     * Get current cart or create a new one.
+     * 
+     * @return \App\Models\Cart
+     */
     public function getCurrentCart()
     {
         return $this->carts()->latest()->first() ?? $this->carts()->create();

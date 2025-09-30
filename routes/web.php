@@ -6,6 +6,8 @@ use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\Admin\ProductController as AdminProductController;
+use App\Http\Controllers\CartController;
+use App\Http\Controllers\QuickCheckoutController;
 
 /*
 |--------------------------------------------------------------------------
@@ -52,8 +54,14 @@ Route::middleware(['auth', 'customer'])->group(function () {
         return view('cust.dashboard');
     })->name('customer.dashboard');
 
-    // Cart, Checkout, Notification → hanya untuk user login
-    Route::get('/cart', [HomeController::class, 'cart'])->name('cart');
+    // Cart pakai CartController
+    Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
+    Route::post('/cart/add/{product}', [CartController::class, 'add'])->name('cart.add');
+    Route::post('/cart/update/{item}', [CartController::class, 'update'])->name('cart.update');
+    Route::delete('/cart/remove/{item}', [CartController::class, 'remove'])->name('cart.remove');
+    Route::delete('/cart/clear', [CartController::class, 'clear'])->name('cart.clear');
+
+    // Checkout & Notification
     Route::get('/checkout', [HomeController::class, 'checkout'])->name('checkout');
     Route::get('/notifications', [HomeController::class, 'notifications'])->name('notifications');
 });
