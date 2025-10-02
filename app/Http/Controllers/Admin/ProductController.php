@@ -17,7 +17,7 @@ class ProductController extends Controller
             ->latest()
             ->get();
 
-        return view('admin.products.index', [
+        return view('admin.product', [
             'products' => $products,
             'placeholderImage' => asset('images/placeholder_img.jpg'),
         ]);

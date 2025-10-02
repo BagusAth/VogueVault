@@ -35,12 +35,23 @@
         .layout {
             min-height: 100vh;
             display: flex;
+            gap: 24px;
+            padding: 24px 24px 24px 24px;
+        }
+
+        .sidebar-container {
+            width: 280px;
+            background-color: #ffffff;
+            border-radius: 28px;
+            padding: 24px 0;
+            box-shadow: 0 20px 60px rgba(58, 102, 73, 0.12);
+            display: flex;
         }
 
         .sidebar {
-            width: 260px;
+            width: 100%;
             background: radial-gradient(circle at top left, #ffffff 0%, var(--sidebar-bg) 45%, #deddc5 100%);
-            padding: 32px 24px;
+            padding: 0 24px;
             display: flex;
             flex-direction: column;
             gap: 32px;
@@ -100,7 +111,7 @@
 
         .content {
             flex: 1;
-            padding: 32px 48px;
+            padding: 24px 40px;
             display: flex;
             flex-direction: column;
             gap: 24px;
@@ -222,20 +233,13 @@
         @media (max-width: 1024px) {
             .layout {
                 flex-direction: column;
+                padding: 16px;
             }
 
-            .sidebar {
+            .sidebar-container {
                 width: 100%;
-                flex-direction: row;
-                align-items: center;
-                justify-content: space-between;
-                border-radius: 0 0 28px 28px;
-            }
-
-            .nav-links {
-                flex-direction: row;
-                flex-wrap: wrap;
-                gap: 10px;
+                border-radius: 24px;
+                padding: 16px 0;
             }
 
             .content {
@@ -249,45 +253,7 @@
 </head>
 <body>
     <div class="layout">
-        <aside class="sidebar">
-            <div class="brand">
-                <div class="brand-icon">
-                    <i class="bi bi-shop"></i>
-                </div>
-                VogueVault
-            </div>
-
-            <nav class="nav-links">
-                <a href="{{ route('admin.dashboard') }}" class="nav-item">
-                    <i class="bi bi-speedometer2"></i>
-                    Dashboard
-                </a>
-                <a href="{{ route('admin.products.index') }}" class="nav-item active">
-                    <i class="bi bi-bag"></i>
-                    Product
-                </a>
-                <span class="nav-item">
-                    <i class="bi bi-layout-text-window"></i>
-                    Order
-                </span>
-                <span class="nav-item">
-                    <i class="bi bi-bell"></i>
-                    Notification
-                </span>
-                <span class="nav-item">
-                    <i class="bi bi-question-circle"></i>
-                    Help
-                </span>
-            </nav>
-
-            <div class="nav-footer">
-                <i class="bi bi-person-circle"></i>
-                <div>
-                    <div style="font-weight:600;">{{ auth()->user()->name ?? 'Admin' }}</div>
-                    <div style="font-size:12px;color:var(--muted);">Administrator</div>
-                </div>
-            </div>
-        </aside>
+        @include('admin.partials.sidebar', ['active' => 'products'])
 
         <main class="content">
             <div class="content-header">
@@ -310,7 +276,7 @@
                             $imageUrl = $imageUrl ?: $placeholderImage;
 
                             $description = $product->short_description ?? $product->description;
-                            $description = $description ? \Illuminate\Support\Str::limit(strip_tags($description), 90) : 'Belum ada deskripsi.';
+                            $description = $description ? Str::limit(strip_tags($description), 90) : 'Belum ada deskripsi.';
 
                             $sales = $product->total_sold ?? 0;
                         @endphp
