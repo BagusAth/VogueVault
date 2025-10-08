@@ -3,120 +3,86 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Dashboard - VogueVault</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <style>
-        :root {
-            --primary-color: #819A91;
-            --secondary-color: #A7C1A8;
-            --tertiary-color: #D1D8BE;
-            --background-color: #EEEFE0;
-        }
-        
-        body {
-            background-color: var(--background-color);
-        }
-        
-        .navbar-brand {
-            color: var(--primary-color) !important;
-            font-weight: bold;
-        }
-        
-        .btn-primary {
-            background-color: var(--primary-color);
-            border-color: var(--primary-color);
-        }
-        
-        .card {
-            border: none;
-            border-radius: 15px;
-            box-shadow: 0 0 20px rgba(129, 154, 145, 0.1);
-        }
-    </style>
+    <title>Admin · Dashboard - VogueVault</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="{{ asset('css/admin/product.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/admin/dashboard.css') }}">
+@php
+    $userCount = \App\Models\User::count();
+    $categoryCount = \App\Models\Category::count();
+    $productCount = \App\Models\Product::count();
+    $orderCount = 0;
+@endphp
 </head>
 <body>
-    <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
-        <div class="container">
-            <a class="navbar-brand" href="#">VogueVault Admin</a>
-            <div class="navbar-nav ms-auto">
-                <span class="navbar-text me-3">
-                    Welcome, {{ auth()->user()->name }}!
-                </span>
-                <form action="{{ route('logout') }}" method="POST" class="d-inline">
-                    @csrf
-                    <button type="submit" class="btn btn-outline-danger btn-sm">Logout</button>
-                </form>
-            </div>
-        </div>
-    </nav>
+    <div class="layout">
+        @include('admin.partials.sidebar', ['active' => 'dashboard'])
 
-    <div class="container mt-4">
-        @if(session('success'))
-            <div class="alert alert-success alert-dismissible fade show" role="alert">
-                {{ session('success') }}
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-            </div>
-        @endif
+        <main class="content">
+            <header class="topbar">
+                <div class="topbar-info">
+                    <span class="topbar-title">Dashboard Overview</span>
+                    <span class="topbar-subtitle">Welcome back, {{ auth()->user()->name }}. Here's how we're doing today.</span>
+                </div>
+                <div class="topbar-actions">
+                    <form action="{{ route('logout') }}" method="POST">
+                        @csrf
+                        <button type="submit" class="logout-button">
+                            <i class="bi bi-box-arrow-right"></i> Logout
+                        </button>
+                    </form>
+                </div>
+            </header>
 
-        <div class="row">
-            <div class="col-md-3">
-                <div class="card text-center">
-                    <div class="card-body">
-                        <h5 class="card-title">Total Users</h5>
-                        <h2 class="text-primary">{{ App\Models\User::count() }}</h2>
-                    </div>
+            @if(session('success'))
+                <div class="dashboard-alert success" role="alert">
+                    {{ session('success') }}
                 </div>
-            </div>
-            <div class="col-md-3">
-                <div class="card text-center">
-                    <div class="card-body">
-                        <h5 class="card-title">Categories</h5>
-                        <h2 class="text-primary">{{ App\Models\Category::count() }}</h2>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="card text-center">
-                    <div class="card-body">
-                        <h5 class="card-title">Products</h5>
-                        <h2 class="text-primary">{{ App\Models\Product::count() }}</h2>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="card text-center">
-                    <div class="card-body">
-                        <h5 class="card-title">Orders</h5>
-                        <h2 class="text-primary">0</h2>
-                    </div>
-                </div>
-            </div>
-        </div>
+            @endif
 
-        <div class="row mt-4">
-            <div class="col-md-12">
-                <div class="card">
-                    <div class="card-header">
-                        <h5 class="card-title mb-0">Admin Actions</h5>
-                    </div>
-                    <div class="card-body">
-                        <div class="row">
-                            <div class="col-md-4">
-                                <a href="#" class="btn btn-primary w-100 mb-3">Manage Products</a>
-                            </div>
-                            <div class="col-md-4">
-                                <a href="#" class="btn btn-primary w-100 mb-3">Manage Categories</a>
-                            </div>
-                            <div class="col-md-4">
-                                <a href="#" class="btn btn-primary w-100 mb-3">Manage Orders</a>
-                            </div>
-                        </div>
-                    </div>
+            <section class="stats-grid">
+                <article class="stat-card">
+                    <span class="stat-label">Total Users</span>
+                    <span class="stat-value">{{ number_format($userCount, 0, ',', '.') }}</span>
+                    <span class="stat-meta"><i class="bi bi-people"></i> Registered customers</span>
+                </article>
+                <article class="stat-card">
+                    <span class="stat-label">Categories</span>
+                    <span class="stat-value">{{ number_format($categoryCount, 0, ',', '.') }}</span>
+                    <span class="stat-meta"><i class="bi bi-grid"></i> Product groupings</span>
+                </article>
+                <article class="stat-card">
+                    <span class="stat-label">Products</span>
+                    <span class="stat-value">{{ number_format($productCount, 0, ',', '.') }}</span>
+                    <span class="stat-meta"><i class="bi bi-bag"></i> Active listings</span>
+                </article>
+                <article class="stat-card">
+                    <span class="stat-label">Orders</span>
+                    <span class="stat-value">{{ number_format($orderCount, 0, ',', '.') }}</span>
+                    <span class="stat-meta"><i class="bi bi-receipt"></i> Awaiting fulfillment</span>
+                </article>
+            </section>
+
+            <section class="quick-actions">
+                <div class="quick-actions-header">
+                    <h2 class="quick-actions-title">Quick Actions</h2>
                 </div>
-            </div>
-        </div>
+                <div class="quick-actions-body">
+                    <a href="{{ route('admin.products.index') }}" class="quick-action">
+                        <i class="bi bi-bag-plus"></i>
+                        Manage Products
+                    </a>
+                    <span class="quick-action disabled">
+                        <i class="bi bi-diagram-3"></i>
+                        Manage Categories (Soon)
+                    </span>
+                    <span class="quick-action disabled">
+                        <i class="bi bi-truck"></i>
+                        Manage Orders (Soon)
+                    </span>
+                </div>
+            </section>
+        </main>
     </div>
-
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

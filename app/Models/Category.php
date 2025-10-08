@@ -4,10 +4,14 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Str;
+use Illuminate\Support\Collection;
 
 class Category extends Model
 {
     use HasFactory;
+
+    protected ?string $cachedDisplayImageUrl = null;
 
     protected $fillable = [
         'name',
@@ -28,5 +32,47 @@ class Category extends Model
     public function scopeActive($query)
     {
         return $query->where('is_active', true);
+    }
+
+    public function getDisplayImageUrlAttribute(): string
+    {
+        if ($this->cachedDisplayImageUrl !== null) {
+            return $this->cachedDisplayImageUrl;
+        }
+
+        if ($resolved = $this->resolveMediaUrl($this->image)) {
+            return $this->cachedDisplayImageUrl = $resolved;
+        }
+
+        $productSource = $this->relationLoaded('products')
+            ? $this->products
+            : $this->products()->active()->latest()->take(1)->get();
+
+        $firstProduct = $productSource instanceof Collection
+            ? $productSource->first()
+            : null;
+
+        if ($firstProduct) {
+            $firstImage = collect($firstProduct->images ?? [])->first();
+
+            if ($resolved = $this->resolveMediaUrl($firstImage)) {
+                return $this->cachedDisplayImageUrl = $resolved;
+            }
+        }
+
+        return $this->cachedDisplayImageUrl = asset('images/placeholder_img.jpg');
+    }
+
+    protected function resolveMediaUrl(?string $path): ?string
+    {
+        if (!$path) {
+            return null;
+        }
+
+        if (Str::startsWith($path, ['http://', 'https://'])) {
+            return $path;
+        }
+
+        return asset('storage/' . ltrim($path, '/'));
     }
 }
