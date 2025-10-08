@@ -40,7 +40,14 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::get('/admin/dashboard', function () {
         return view('admin.dashboard');
     })->name('admin.dashboard');
+
+    // Order page
+    Route::get('/admin/order', function () {
+        return view('admin.order');
+    })->name('admin.order');
+
 });
+
 
 // --- Customer ---
 Route::middleware(['auth', 'customer'])->group(function () {
@@ -54,3 +61,6 @@ Route::middleware(['auth', 'customer'])->group(function () {
     Route::get('/checkout', [HomeController::class, 'checkout'])->name('checkout');
     Route::get('/notifications', [HomeController::class, 'notifications'])->name('notifications');
 });
+
+
+
