@@ -5,6 +5,7 @@ use App\Http\Controllers\HomeController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\ProductController;
+use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\Admin\ProductController as AdminProductController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\CheckoutController;
@@ -16,6 +17,7 @@ use App\Http\Controllers\CheckoutController;
 */
 Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/search', [HomeController::class, 'search'])->name('search');
+Route::get('/categories/{category}', [CategoryController::class, 'show'])->name('categories.show');
 
 /*
 |--------------------------------------------------------------------------

@@ -16,35 +16,59 @@ document.addEventListener('DOMContentLoaded', function() {
  */
 function initializeCarousel() {
     const nextBtn = document.getElementById('productsNext');
+    const prevBtn = document.getElementById('productsPrev');
     const scrollArea = document.querySelector('.products-scroll-area');
     
-    if (!nextBtn || !scrollArea) return;
+    if (!scrollArea) return;
     
     // Handle next button click
-    nextBtn.addEventListener('click', function() {
-        const scrollAmount = 220; // Width of one product item + gap
-        scrollArea.scrollBy({
-            left: scrollAmount,
-            behavior: 'smooth'
+    const scrollByAmount = () => {
+        const visibleWidth = scrollArea.clientWidth;
+        return visibleWidth > 0 ? Math.max(visibleWidth * 0.8, 220) : 220;
+    };
+
+    if (nextBtn) {
+        nextBtn.addEventListener('click', function() {
+            scrollArea.scrollBy({
+                left: scrollByAmount(),
+                behavior: 'smooth'
+            });
         });
-    });
+    }
+
+    if (prevBtn) {
+        prevBtn.addEventListener('click', function() {
+            scrollArea.scrollBy({
+                left: -scrollByAmount(),
+                behavior: 'smooth'
+            });
+        });
+    }
     
     // Auto-hide/show navigation button based on scroll position
     function updateNavigation() {
         const maxScroll = scrollArea.scrollWidth - scrollArea.clientWidth;
         const currentScroll = scrollArea.scrollLeft;
-        
-        if (currentScroll >= maxScroll - 10) {
-            nextBtn.style.opacity = '0.5';
-            nextBtn.style.pointerEvents = 'none';
-        } else {
-            nextBtn.style.opacity = '1';
-            nextBtn.style.pointerEvents = 'auto';
+
+        const controlsNeeded = maxScroll > 8;
+
+        [nextBtn, prevBtn].forEach(btn => {
+            if (!btn) return;
+            btn.style.display = controlsNeeded ? 'flex' : 'none';
+        });
+
+        if (prevBtn) {
+            prevBtn.disabled = currentScroll <= 8;
+        }
+
+        if (nextBtn) {
+            nextBtn.disabled = currentScroll >= maxScroll - 8;
         }
     }
     
     // Listen for scroll events
     scrollArea.addEventListener('scroll', updateNavigation);
+    window.addEventListener('resize', updateNavigation);
     
     // Initial check
     updateNavigation();

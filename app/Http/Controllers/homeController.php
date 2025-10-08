@@ -19,15 +19,21 @@ class HomeController extends Controller
     public function index()
     {
         // Get new products from the last 7 days
-        $newProducts = Product::where('created_at', '>=', Carbon::now()->subDays(7))
-                              ->orderBy('created_at', 'desc')
-                              ->limit(6)
-                              ->get();
-        
-        // Get all active categories
-        $categories = Category::where('is_active', true)
-                             ->orderBy('name', 'asc')
-                             ->get();
+    $newProducts = Product::where('created_at', '>=', Carbon::now()->subDays(7))
+                  ->active()
+                  ->orderBy('created_at', 'desc')
+                  ->get();
+
+        // Get all active categories with product counts and representative images
+        $categories = Category::active()
+            ->withCount(['products as products_count' => function (Builder $query) {
+                $query->active();
+            }])
+            ->with(['products' => function ($query) {
+                $query->active()->select('id', 'category_id', 'images')->latest()->take(1);
+            }])
+            ->orderBy('name', 'asc')
+            ->get();
         
         return view('home', compact('newProducts', 'categories'));
     }
