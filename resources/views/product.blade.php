@@ -7,6 +7,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
     <link rel="stylesheet" href="{{ asset('css/product.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 <body>
     @include('partials.navbar')
@@ -202,5 +203,42 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="{{ asset('js/product.js') }}"></script>
 
+    @if(session('success'))
+    <script>
+    Swal.fire({
+        toast: true,
+        position: 'top-end',
+        icon: 'success',
+        title: '{{ session('success') }}',
+        showConfirmButton: false,
+        timer: 2000,
+        timerProgressBar: true
+    });
+    </script>
+    @endif
+
+    <script>
+    document.addEventListener("DOMContentLoaded", () => {
+    const qtyInput = document.getElementById("quantity");
+    const cartQty = document.getElementById("cartQuantity");
+    const buyQty = document.getElementById("buyNowQuantity");
+
+    function syncQty() {
+        cartQty.value = qtyInput.value;
+        buyQty.value = qtyInput.value;
+    }
+
+    document.querySelectorAll(".qty-btn").forEach(btn => {
+        btn.addEventListener("click", () => {
+            let val = parseInt(qtyInput.value) || 1;
+            if (btn.dataset.action === "plus") val++;
+            if (btn.dataset.action === "minus" && val > 1) val--;
+            qtyInput.value = val;
+            syncQty();
+        });
+    });
+    syncQty();
+    });
+</script>
 </body>
 </html>
