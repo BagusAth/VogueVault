@@ -7,6 +7,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
     <link rel="stylesheet" href="{{ asset('css/product.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 <body>
     @include('partials.navbar')
@@ -17,9 +18,25 @@
         $reviewCount = $product->review_count ?? 0;
         $formattedPrice = number_format($product->price, 0, ',', '.');
         $categoryName = optional($product->category)->name;
+
+        $formatGroupLabel = function (string $key): string {
+            return ucwords(str_replace(['_', '-'], ' ', $key));
+        };
+
+        // Helper function to generate variant URLs
+        $generateVariantUrl = function (string $groupKey, string $optionValue) use ($activeSelections): string {
+            $queryParams = request()->query();
+            $newSelections = $activeSelections;
+            $newSelections[$groupKey] = $optionValue;
+            $queryParams['variant'] = $newSelections;
+            return request()->url() . '?' . http_build_query($queryParams);
+        };
     @endphp
 
-    <div class="container product-container" data-base-price="{{ $product->price }}" data-stock="{{ $product->stock }}" data-default-variant="{{ $defaultVariant }}" data-placeholder="{{ $placeholderImage }}">
+    <div class="container product-container"
+         data-base-price="{{ $product->price }}"
+         data-stock="{{ $product->stock }}"
+         data-placeholder="{{ $placeholderImage }}">
         <div class="row g-4">
             <div class="col-xl-4 col-lg-5">
                 <nav class="breadcrumb mb-3">
@@ -57,14 +74,29 @@
                         </div>
                         <div class="product-price mb-3">Rp {{ $formattedPrice }}</div>
 
-                        @if(!empty($variantOptions))
-                            <div class="mb-4">
-                                <div class="info-label mb-2">Pilih varian: <strong class="text-dark" id="variantLabel">{{ $defaultVariant }}</strong></div>
-                                <div class="d-flex flex-wrap gap-2">
-                                    @foreach($variantOptions as $variant)
-                                        <button class="variant-option {{ $loop->first ? 'active' : '' }}" data-variant="{{ $variant }}">{{ $variant }}</button>
-                                    @endforeach
-                                </div>
+                        @if(!empty($variantGroups))
+                            <div class="variant-group-container mb-4">
+                                <div class="info-label mb-2">Pilihan varian:</div>
+                                @foreach($variantGroups as $groupKey => $options)
+                                    @php
+                                        $groupLabel = $formatGroupLabel($groupKey);
+                                        $selectedValue = $activeSelections[$groupKey] ?? null;
+                                    @endphp
+                                    <div class="variant-group-block">
+                                        <div class="variant-group-heading">
+                                            <span class="variant-group-title">{{ $groupLabel }}</span>
+                                        </div>
+                                        <div class="variant-group variant-group-options" data-group="{{ $groupKey }}">
+                                            @foreach($options as $option)
+                                                <a href="{{ $generateVariantUrl($groupKey, $option) }}"
+                                                   class="variant-option {{ $option === $selectedValue ? 'active' : '' }}"
+                                                   data-group="{{ $groupKey }}"
+                                                   data-value="{{ $option }}">{{ $option }}</a>
+                                            @endforeach
+                                        </div>
+                                    </div>
+                                @endforeach
+                                <div class="variant-summary text-muted small">Kombinasi saat ini: <span class="variant-summary-text">{{ $variantSummary }}</span></div>
                             </div>
                         @endif
                     </div>
@@ -86,14 +118,14 @@
                                 @if($material)
                                     <li>Material: {{ $material }}</li>
                                 @endif
-                                @foreach($extraAttributes as $key => $value)
+                                @foreach($specifications as $key => $value)
                                     @php
                                         $label = ucwords(str_replace('_', ' ', $key));
                                         $displayValue = is_array($value) ? implode(', ', $value) : (is_bool($value) ? ($value ? 'Ya' : 'Tidak') : $value);
                                     @endphp
                                     <li>{{ $label }}: {{ $displayValue }}</li>
                                 @endforeach
-                                @if(!$material && empty($extraAttributes))
+                                @if(!$material && empty($specifications))
                                     <li>Spesifikasi tambahan belum tersedia.</li>
                                 @endif
                             </ul>
@@ -115,7 +147,7 @@
                         <img src="{{ $primaryImage }}" alt="{{ $product->name }}" class="rounded-3" style="width: 70px; height: 70px; object-fit: cover;" id="selectedImagePreview" onerror="this.onerror=null;this.src='{{ $placeholderImage }}';">
                         <div class="ms-3">
                             <div class="info-label">Pilihan varian</div>
-                            <div class="fw-semibold" id="selectedVariant">{{ $defaultVariant }}</div>
+                            <div class="variant-summary-text fw-semibold mt-1">{{ $variantSummary }}</div>
                         </div>
                     </div>
 
@@ -127,6 +159,9 @@
                             <button class="qty-btn" data-action="plus">+</button>
                             <span class="ms-3 text-success fw-semibold stock-label">Stok: {{ number_format($product->stock, 0, ',', '.') }}</span>
                         </div>
+                        <p class="variant-quantity-hint text-muted small mt-2">
+                            {{ !empty($variantGroups) ? 'Jumlah untuk: ' . $variantSummary : 'Masukkan jumlah produk yang ingin kamu beli.' }}
+                        </p>
                     </div>
 
                     <div class="d-flex justify-content-between align-items-center mb-3">
@@ -135,8 +170,24 @@
                     </div>
 
                     <div class="d-grid gap-2 mb-3">
-                        <button class="btn btn-cart">+ Keranjang</button>
-                        <button class="btn btn-outline-success btn-buy">Beli Langsung</button>
+
+                        {{-- Tambah ke Keranjang --}}
+                        <form action="{{ route('cart.add', $product->id) }}" method="POST">
+                            @csrf
+                            <input type="hidden" name="quantity" id="cartQuantity" value="1">
+                            <button type="submit" class="btn btn-cart w-100">
+                                <i class="bi bi-cart-plus"></i> + Keranjang
+                            </button>
+                        </form>
+
+                        {{-- Beli Sekarang --}}
+                        <form action="{{ route('checkout.buyNow', $product->id) }}" method="POST">
+                            @csrf
+                            <input type="hidden" name="quantity" id="buyNowQuantity" value="1">
+                            <button type="submit" class="btn btn-buy w-100">
+                                <i class="bi bi-bag-check"></i> Beli Sekarang
+                            </button>
+                        </form>
                     </div>
 
                     <div class="inline-actions">
@@ -151,5 +202,43 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="{{ asset('js/product.js') }}"></script>
+
+    @if(session('success'))
+    <script>
+    Swal.fire({
+        toast: true,
+        position: 'top-end',
+        icon: 'success',
+        title: '{{ session('success') }}',
+        showConfirmButton: false,
+        timer: 2000,
+        timerProgressBar: true
+    });
+    </script>
+    @endif
+
+    <script>
+    document.addEventListener("DOMContentLoaded", () => {
+    const qtyInput = document.getElementById("quantity");
+    const cartQty = document.getElementById("cartQuantity");
+    const buyQty = document.getElementById("buyNowQuantity");
+
+    function syncQty() {
+        cartQty.value = qtyInput.value;
+        buyQty.value = qtyInput.value;
+    }
+
+    document.querySelectorAll(".qty-btn").forEach(btn => {
+        btn.addEventListener("click", () => {
+            let val = parseInt(qtyInput.value) || 1;
+            if (btn.dataset.action === "plus") val++;
+            if (btn.dataset.action === "minus" && val > 1) val--;
+            qtyInput.value = val;
+            syncQty();
+        });
+    });
+    syncQty();
+    });
+</script>
 </body>
 </html>

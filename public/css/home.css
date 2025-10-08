@@ -287,6 +287,7 @@ body {
 .products-carousel-container {
     position: relative;
     overflow: hidden;
+    padding: 0 56px;
 }
 
 .products-scroll-area {
@@ -398,6 +399,24 @@ body {
     position: relative;
 }
 
+.category-meta {
+    margin-top: 12px;
+    display: flex;
+    justify-content: center;
+}
+
+.category-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 14px;
+    border-radius: 999px;
+    background: rgba(129, 154, 145, 0.15);
+    color: var(--primary-color);
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
 .category-link {
     text-decoration: none;
     color: inherit;
@@ -465,11 +484,10 @@ body {
 /* Navigation Button */
 .carousel-nav-btn {
     position: absolute;
-    right: -20px;
     top: 50%;
     transform: translateY(-50%);
-    width: 50px;
-    height: 50px;
+    width: 56px;
+    height: 56px;
     border: none;
     background-color: var(--primary-color);
     color: var(--white);
@@ -480,16 +498,33 @@ body {
     cursor: pointer;
     transition: var(--transition);
     z-index: 10;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
 }
 
-.carousel-nav-btn:hover {
+.carousel-nav-btn:hover:not(:disabled) {
     background-color: var(--secondary-color);
     transform: translateY(-50%) scale(1.1);
 }
 
 .carousel-nav-btn i {
     font-size: 20px;
+}
+
+.carousel-nav-btn.prev-btn {
+    left: 8px;
+}
+
+.carousel-nav-btn.next-btn {
+    right: 8px;
+}
+
+.carousel-nav-btn:disabled,
+.carousel-nav-btn[disabled] {
+    background-color: rgba(129, 154, 145, 0.4);
+    color: rgba(255, 255, 255, 0.8);
+    box-shadow: none;
+    cursor: not-allowed;
+    transform: translateY(-50%);
 }
 
 /* Responsive Design */
@@ -500,6 +535,15 @@ body {
     
     .nav-text {
         display: none;
+    }
+
+    .products-carousel-container {
+        padding: 0 36px;
+    }
+
+    .carousel-nav-btn {
+        width: 48px;
+        height: 48px;
     }
     
     .nav-icons-container {

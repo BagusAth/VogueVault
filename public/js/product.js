@@ -1,94 +1,80 @@
-const productContainer = document.querySelector('.product-container');
-const variantButtons = document.querySelectorAll('.variant-option');
-const variantLabel = document.getElementById('variantLabel');
-const selectedVariant = document.getElementById('selectedVariant');
-const thumbnails = document.querySelectorAll('.thumbnail');
-const mainImage = document.getElementById('productMainImage');
-const previewImage = document.getElementById('selectedImagePreview');
-const qtyInput = document.getElementById('quantity');
-const subtotal = document.getElementById('subtotal');
+document.addEventListener('DOMContentLoaded', () => {
+    const productContainer = document.querySelector('.product-container');
+    if (!productContainer) return;
 
-const basePrice = productContainer ? parseFloat(productContainer.dataset.basePrice || '0') : 0;
-const placeholderImage = productContainer ? productContainer.dataset.placeholder : '/images/placeholder_img.jpg';
+    const basePrice = parseFloat(productContainer.dataset.basePrice || '0');
+    const stock = parseInt(productContainer.dataset.stock || '0', 10);
+    const placeholderImage = productContainer.dataset.placeholder || '/images/placeholder_img.jpg';
 
-if (mainImage) {
-    mainImage.addEventListener('error', () => {
-        mainImage.src = placeholderImage;
+    const mainImage = document.getElementById('productMainImage');
+    const previewImage = document.getElementById('selectedImagePreview');
+    const qtyInput = document.getElementById('quantity');
+    const subtotalEl = document.getElementById('subtotal');
+
+    // Image thumbnail functionality
+    document.querySelectorAll('.thumbnail-strip .thumbnail').forEach(thumb => {
+        thumb.addEventListener('click', function() {
+            document.querySelectorAll('.thumbnail-strip .thumbnail.active').forEach(t => t.classList.remove('active'));
+            this.classList.add('active');
+            const newSrc = this.querySelector('img').src;
+            if (mainImage) mainImage.src = newSrc;
+            if (previewImage) previewImage.src = newSrc;
+        });
     });
-}
 
-if (previewImage) {
-    previewImage.addEventListener('error', () => {
-        previewImage.src = placeholderImage;
+    // Tab switching functionality
+    document.querySelectorAll('.tab-buttons .btn').forEach(button => {
+        button.addEventListener('click', function() {
+            const tabId = this.dataset.tab;
+            document.querySelectorAll('.tab-buttons .btn').forEach(btn => btn.classList.remove('active'));
+            this.classList.add('active');
+
+            document.querySelectorAll('.tab-pane-content').forEach(pane => {
+                pane.classList.add('d-none');
+            });
+
+            const activePane = document.getElementById(`tab-${tabId}`);
+            if (activePane) {
+                activePane.classList.remove('d-none');
+            }
+        });
     });
-}
 
-variantButtons.forEach((btn) => {
-    btn.addEventListener('click', () => {
-        variantButtons.forEach((item) => item.classList.remove('active'));
-        btn.classList.add('active');
-        if (variantLabel) {
-            variantLabel.textContent = btn.dataset.variant;
-        }
-        if (selectedVariant) {
-            selectedVariant.textContent = btn.dataset.variant;
-        }
+    // Quantity control functionality
+    const updateSubtotal = () => {
+        if (!qtyInput || !subtotalEl) return;
+        const quantity = parseInt(qtyInput.value, 10);
+        const newSubtotal = basePrice * quantity;
+        subtotalEl.textContent = `Rp ${newSubtotal.toLocaleString('id-ID')}`;
+    };
+
+    document.querySelectorAll('.qty-btn').forEach(button => {
+        button.addEventListener('click', function() {
+            if (!qtyInput) return;
+            let quantity = parseInt(qtyInput.value, 10);
+            const action = this.dataset.action;
+
+            if (action === 'plus') {
+                if (quantity < stock) {
+                    quantity++;
+                }
+            } else if (action === 'minus') {
+                if (quantity > 1) {
+                    quantity--;
+                }
+            }
+            qtyInput.value = quantity;
+            updateSubtotal();
+        });
     });
-});
 
-thumbnails.forEach((thumb) => {
-    thumb.addEventListener('click', () => {
-        thumbnails.forEach((item) => item.classList.remove('active'));
-        thumb.classList.add('active');
-        const img = thumb.querySelector('img');
-        if (img && mainImage) {
-            mainImage.src = img.src;
-        }
-        if (img && previewImage) {
-            previewImage.src = img.src;
-        }
+    // Fallback for images that fail to load
+    document.querySelectorAll('img').forEach(img => {
+        img.addEventListener('error', function() {
+            this.src = placeholderImage;
+        });
     });
-});
 
-document.querySelectorAll('.qty-btn').forEach((btn) => {
-    btn.addEventListener('click', () => {
-        if (!qtyInput) return;
-
-        let value = parseInt(qtyInput.value, 10);
-        if (btn.dataset.action === 'plus') {
-            value += 1;
-        } else if (btn.dataset.action === 'minus' && value > 1) {
-            value -= 1;
-        }
-        qtyInput.value = value;
-        updateSubtotal(value);
-    });
-});
-
-function updateSubtotal(quantity) {
-    if (!subtotal) return;
-
-    const total = basePrice * quantity;
-    const fractionDigits = Number.isInteger(basePrice) ? 0 : 2;
-    const formatted = new Intl.NumberFormat('id-ID', {
-        minimumFractionDigits: fractionDigits,
-        maximumFractionDigits: fractionDigits,
-    }).format(total);
-    subtotal.textContent = `Rp ${formatted}`;
-}
-
-updateSubtotal(parseInt(qtyInput?.value || '1', 10));
-
-const tabButtons = document.querySelectorAll('[data-tab]');
-tabButtons.forEach((button) => {
-    button.addEventListener('click', () => {
-        tabButtons.forEach((btn) => btn.classList.remove('active'));
-        button.classList.add('active');
-
-        document.querySelectorAll('.tab-pane-content').forEach((pane) => pane.classList.add('d-none'));
-        const target = document.getElementById(`tab-${button.dataset.tab}`);
-        if (target) {
-            target.classList.remove('d-none');
-        }
-    });
+    // Initial call to set subtotal
+    updateSubtotal();
 });

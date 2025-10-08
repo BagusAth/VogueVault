@@ -17,14 +17,16 @@ class Product extends Model
         'stock',
         'category_id',
         'images',
-        'attributes',
+        'specifications',
+        'variants',
         'is_active',
     ];
 
     protected $casts = [
         'price' => 'decimal:2',
         'images' => 'array',
-        'attributes' => 'array',
+        'specifications' => 'array',
+        'variants' => 'array',
         'is_active' => 'boolean',
     ];
 
@@ -75,4 +77,10 @@ class Product extends Model
     {
         return $this->reviews()->where('is_approved', true)->count();
     }
+
+    public function getImageUrlAttribute()
+    {
+        return 'https://via.placeholder.com/80';
+    }
+
 }

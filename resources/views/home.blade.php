@@ -50,6 +50,12 @@
                                     </div>
                                 </form>
                                 
+                                @if(session('search_error'))
+                                    <div class="search-message alert alert-warning mt-3" role="alert">
+                                        {{ session('search_error') }}
+                                    </div>
+                                @endif
+
                                 <!-- Search Suggestions -->
                                 <div class="search-suggestions mt-3">
                                     <button type="button" class="btn suggestion-btn" data-query="Women's Clothes">
@@ -82,6 +88,9 @@
                 
                 <!-- Products Carousel -->
                 <div class="products-carousel-container position-relative">
+                    <button class="carousel-nav-btn prev-btn" id="productsPrev" aria-label="Lihat produk sebelumnya">
+                        <i class="bi bi-chevron-left"></i>
+                    </button>
                     <div class="products-scroll-area">
                         <div class="products-grid">
                             @forelse($newProducts as $product)
@@ -129,7 +138,7 @@
                     </div>
                     
                     <!-- Navigation Arrow -->
-                    <button class="carousel-nav-btn next-btn" id="productsNext">
+                    <button class="carousel-nav-btn next-btn" id="productsNext" aria-label="Lihat produk berikutnya">
                         <i class="bi bi-chevron-right"></i>
                     </button>
                 </div>
@@ -137,7 +146,7 @@
         </section>
 
         <!-- Categories Section -->
-        <section class="categories-section py-5">
+    <section class="categories-section py-5" id="categories">
             <div class="container">
                 <!-- Section Header -->
                 <div class="section-header mb-4">
@@ -147,22 +156,25 @@
                 <!-- Categories Grid -->
                 <div class="categories-grid">
                     @forelse($categories as $category)
+                        @php
+                            $categoryImage = $category->display_image_url ?? $productPlaceholder;
+                        @endphp
                         <div class="category-item">
-                            <a href="/category/{{ $category->id }}" class="category-link">
+                            <a href="{{ route('categories.show', $category) }}" class="category-link">
                                 <div class="category-card">
                                     <div class="category-image-container">
-                                        @if($category->image)
-                                            <img src="{{ asset('storage/' . $category->image) }}" 
-                                                 alt="{{ $category->name }}" 
-                                                 class="category-image">
-                                        @else
-                                            <div class="category-placeholder">
-                                                <i class="bi bi-tag"></i>
-                                            </div>
-                                        @endif
+                                        <img src="{{ $categoryImage }}" 
+                                             alt="{{ $category->name }}" 
+                                             class="category-image"
+                                             onerror="this.onerror=null;this.src='{{ $productPlaceholder }}';">
                                         <div class="category-overlay">
                                             <h5 class="category-name">{{ $category->name }}</h5>
                                         </div>
+                                    </div>
+                                    <div class="category-meta">
+                                        <span class="category-pill">
+                                            {{ number_format($category->products_count ?? 0, 0, ',', '.') }} produk
+                                        </span>
                                     </div>
                                 </div>
                             </a>
