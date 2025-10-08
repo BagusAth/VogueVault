@@ -14,20 +14,20 @@
             </a>
             <a href="{{ route('admin.products.index') }}" class="nav-item {{ ($active ?? '') === 'products' ? 'active' : '' }}">
                 <i class="bi bi-bag"></i>
-                Product
+                Products
             </a>
-            <span class="nav-item">
+            <a href="#" class="nav-item disabled" aria-disabled="true">
                 <i class="bi bi-layout-text-window"></i>
-                Order
-            </span>
-            <span class="nav-item">
+                Orders
+            </a>
+            <a href="#" class="nav-item disabled" aria-disabled="true">
                 <i class="bi bi-bell"></i>
-                Notification
-            </span>
-            <span class="nav-item">
+                Notifications
+            </a>
+            <a href="#" class="nav-item disabled" aria-disabled="true">
                 <i class="bi bi-question-circle"></i>
                 Help
-            </span>
+            </a>
         </nav>
 
         <div class="nav-footer">
