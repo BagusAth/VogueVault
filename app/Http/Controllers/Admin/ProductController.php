@@ -98,4 +98,50 @@ class ProductController extends Controller
             ->route('admin.products.index')
             ->with('success', 'Product berhasil ditambahkan.');
     }
+
+    public function edit(Product $product)
+    {
+        $categories = Category::all();
+        return view('admin.products.edit', compact('product', 'categories'));
+    }
+
+    public function update(Request $request, Product $product)
+    {
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'price' => 'required|numeric|min:0',
+            'stock' => 'required|integer|min:0',
+            'category_id' => 'required|exists:categories,id',
+            'images.*' => 'nullable|image|max:4096',
+        ]);
+
+        // Simpan atribut custom
+        $keys = $request->input('attribute_keys', []);
+        $values = $request->input('attribute_values', []);
+        $attributes = [];
+
+        foreach ($keys as $index => $key) {
+            if (!empty($key) && isset($values[$index])) {
+                $attributes[$key] = $values[$index];
+            }
+        }
+
+        $validated['attributes'] = $attributes;
+
+        // Update data produk
+        $product->update($validated);
+
+        // Optional: simpan gambar kalau ada yang baru
+        if ($request->hasFile('images')) {
+            $paths = [];
+            foreach ($request->file('images') as $image) {
+                $paths[] = $image->store('products', 'public');
+            }
+            $product->images = array_merge($product->images ?? [], $paths);
+            $product->save();
+        }
+
+        return redirect()->route('admin.products.edit', $product->id)
+                        ->with('success', 'Produk berhasil diperbarui!');
+    }
 }

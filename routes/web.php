@@ -50,6 +50,12 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::get('/admin/products', [AdminProductController::class, 'index'])->name('admin.products.index');
     Route::get('/admin/products/create', [AdminProductController::class, 'create'])->name('admin.products.create');
     Route::post('/admin/products', [AdminProductController::class, 'store'])->name('admin.products.store');
+
+    // Admin - Edit Product
+    Route::get('/admin/products/{product}/edit', [AdminProductController::class, 'edit'])
+        ->name('admin.products.edit');
+    Route::put('/admin/products/{product}', [AdminProductController::class, 'update'])
+        ->name('admin.products.update');
 });
 
 // --- Customer ---
