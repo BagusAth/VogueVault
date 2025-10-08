@@ -78,10 +78,10 @@
 
         if (localStatus === 'Paid') {
             statusElement.innerText = "Status: Paid";
-            alert("Status pembayaran pesanan #" + orderNumber + ": ✅ Sudah Dibayar");
+            alert("Status pembayaran pesanan #" + orderNumber + ": Sudah Dibayar");
         } else {
             statusElement.innerText = "Status: Unpaid";
-            alert("Status pembayaran pesanan #" + orderNumber + ": ❌ Belum Dibayar");
+            alert("Status pembayaran pesanan #" + orderNumber + ": Belum Dibayar");
         }
         });
 
