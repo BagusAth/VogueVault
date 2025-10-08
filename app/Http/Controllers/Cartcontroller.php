@@ -31,7 +31,7 @@ class CartController extends Controller
         $cart = $user->getCurrentCart();
         $cart->addProduct($product, $quantity);
 
-        return redirect()->route('cart.index')->with('success', 'Produk ditambahkan ke keranjang.');
+        return redirect()->back()->with('success', 'Produk berhasil ditambahkan ke keranjang!');
     }
 
     public function update(Request $request, CartItem $item)
