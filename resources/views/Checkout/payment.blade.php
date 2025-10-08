@@ -6,6 +6,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
     <link rel="stylesheet" href="{{ asset('css/product.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <title>Pembayaran</title>
 </head>
 <body class="bg-light">
@@ -35,7 +36,7 @@
 
                 {{-- Tombol --}}
                 <div class="d-flex justify-content-between flex-wrap">
-                    <button class="btn btn-outline-secondary w-100 mb-2" onclick="showInstructions()">Cara Bayar</button>
+                    <button id="caraBayar" class="btn btn-outline-secondary w-100 mb-2" onclick="showInstructions()">Cara Bayar</button>
                     <button id="payNow" class="btn btn-outline-success w-100 mb-2">Bayar Sekarang</button>
                     <button id="checkStatus" class="btn btn-outline-primary w-100 mb-2">Cek Status</button>
                 </div>
@@ -54,44 +55,65 @@
 
     <script>
         // Tombol "Cara Bayar"
-        function showInstructions() {
-            alert("1. Pilih metode pembayaran.\n2. Tekan tombol 'Bayar Sekarang'.\n3. Tunggu konfirmasi pembayaran berhasil.");
-        }
+        document.getElementById('caraBayar').addEventListener('click', function() {
+            Swal.fire({
+                icon: 'info',
+                title: 'Panduan Pembayaran',
+                html: `
+                    <div style="text-align:left">
+                        <p><b>1.</b> Pilih metode pembayaran yang kamu inginkan (VA, QRIS, dll).</p>
+                        <p><b>2.</b> Tekan tombol <b>"Bayar Sekarang"</b> untuk menyelesaikan pembayaran.</p>
+                        <p><b>3.</b> Setelah pembayaran berhasil, status pesananmu akan berubah menjadi <b>"Paid"</b>.</p>
+                    </div>
+                `,
+                confirmButtonText: 'Mengerti',
+                confirmButtonColor: '#3085d6'
+            });
+        });
 
+        const userName = "{{ Auth::user()->name ?? 'User' }}";
         const orderNumber = "{{ $order->order_number }}";
 
         // Tombol "Bayar Sekarang"
         document.getElementById('payNow').addEventListener('click', function() {
-        const userName = "{{ Auth::user()->name ?? 'User' }}";
-        alert("Hai " + userName + ", pembayaran kamu untuk pesanan #" + orderNumber + " telah berhasil!! 🎉");
+        Swal.fire({
+            icon: 'success',
+            title: 'Pembayaran Berhasil!',
+            html: `<b>Hai ${userName}</b>, pembayaran kamu untuk pesanan <b>#${orderNumber}</b> telah berhasil`,
+            showConfirmButton: true,
+            confirmButtonText: 'OK',
+            confirmButtonColor: '#28a745'
+        }).then(() => {
+            // Simpan status ke localStorage
+            localStorage.setItem('paymentStatus_' + orderNumber, 'Paid');
 
-        // simpan status berdasarkan orderNumber
-        localStorage.setItem('paymentStatus_' + orderNumber, 'Paid');
-
-        document.getElementById('statusResult').innerText = "Status: Paid";
+            // Update status teks di halaman
+            document.getElementById('statusResult').innerText = "Status: Paid";
+            }); 
         });
 
         // Tombol "Cek Status"
         document.getElementById('checkStatus').addEventListener('click', function() {
         const localStatus = localStorage.getItem('paymentStatus_' + orderNumber);
-        const statusElement = document.getElementById('statusResult');
 
         if (localStatus === 'Paid') {
-            statusElement.innerText = "Status: Paid";
-            alert("Status pembayaran pesanan #" + orderNumber + ": Sudah Dibayar");
+            Swal.fire({
+                icon: 'success',
+                title: 'Status Pembayaran',
+                text: 'Pembayaran kamu sudah selesai!',
+                confirmButtonColor: '#3085d6'
+            });
+            document.getElementById('statusResult').innerText = "Status: Paid";
         } else {
-            statusElement.innerText = "Status: Unpaid";
-            alert("Status pembayaran pesanan #" + orderNumber + ": Belum Dibayar");
-        }
+            Swal.fire({
+                icon: 'error',
+                title: 'Status Pembayaran',
+                text: 'Pembayaran kamu belum dilakukan!',
+                confirmButtonColor: '#d33'
+            });
+            document.getElementById('statusResult').innerText = "Status: Unpaid";
+            }
         });
-
-        // Saat halaman dibuka ulang, ambil status dari localStorage
-        window.onload = function() {
-        const savedStatus = localStorage.getItem('paymentStatus_' + orderNumber);
-        if (savedStatus) {
-            document.getElementById('statusResult').innerText = "Status: " + savedStatus;
-        }
-        };
     </script>
 </body>
 </html>
