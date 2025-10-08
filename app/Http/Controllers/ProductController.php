@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Product;
-use Illuminate\Support\Arr;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
@@ -12,9 +12,9 @@ class ProductController extends Controller
     /**
      * Display the specified product.
      */
-    public function show(Product $product)
+    public function show(Request $request, Product $product)
     {
-    $placeholder = asset('images/placeholder_img.jpg');
+        $placeholder = asset('images/placeholder_img.jpg');
 
         $images = collect($product->images ?? [])
             ->map(function ($path) {
@@ -41,28 +41,68 @@ class ProductController extends Controller
             $images[] = $placeholder;
         }
 
-        $attributes = $product->attributes ?? [];
+        $variantGroups = collect($product->variants ?? [])
+            ->map(function ($options) {
+                if (!is_array($options)) {
+                    $options = [$options];
+                }
 
-        $variantOptions = collect($attributes['colors'] ?? $attributes['sizes'] ?? [])
+                return collect($options)
+                    ->filter(fn ($option) => $option !== null && $option !== '')
+                    ->values()
+                    ->all();
+            })
             ->filter()
-            ->values()
             ->all();
 
-        if (empty($variantOptions)) {
-            $variantOptions = ['Default'];
+        // Determine active selections: URL query string > defaults
+        $defaultSelections = collect($variantGroups)
+            ->mapWithKeys(fn ($options, $key) => [$key => $options[0] ?? null])
+            ->filter()
+            ->all();
+
+        $selectionsFromUrl = $request->query('variant', []);
+        $activeSelections = array_merge($defaultSelections, $selectionsFromUrl);
+
+        // Ensure only valid variants are kept in active selections
+        foreach ($activeSelections as $key => $value) {
+            if (!isset($variantGroups[$key]) || !in_array($value, $variantGroups[$key])) {
+                // If invalid, revert to default for that key, or unset if no default
+                $activeSelections[$key] = $defaultSelections[$key] ?? null;
+                if ($activeSelections[$key] === null) {
+                    unset($activeSelections[$key]);
+                }
+            }
         }
 
-        $material = $attributes['material'] ?? null;
+        $variantSummary = collect($activeSelections)
+            ->map(function ($value, $key) {
+                $label = ucwords(str_replace(['_', '-'], ' ', $key));
+                return $label . ': ' . $value;
+            })
+            ->values()
+            ->implode(' · ');
 
-        $extraAttributes = Arr::except($attributes, ['colors', 'sizes', 'material']);
+        if (empty($variantSummary) && !empty($variantGroups)) {
+            $variantSummary = 'Pilih varian';
+        } elseif (empty($variantGroups)) {
+            $variantSummary = 'Default';
+        }
+
+        $specifications = collect($product->specifications ?? [])
+            ->filter(fn ($value) => $value !== null && $value !== '');
+
+        $material = $specifications->get('material');
+        $specifications = $specifications->except('material');
 
         return view('product', [
             'product' => $product,
             'images' => $images,
-            'variantOptions' => $variantOptions,
+            'variantGroups' => $variantGroups,
             'material' => $material,
-            'extraAttributes' => $extraAttributes,
-            'defaultVariant' => $variantOptions[0] ?? 'Default',
+            'specifications' => $specifications->all(),
+            'activeSelections' => $activeSelections, // Use this instead of defaultSelections
+            'variantSummary' => $variantSummary,
             'placeholderImage' => $placeholder,
         ]);
     }

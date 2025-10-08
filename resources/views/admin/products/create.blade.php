@@ -118,31 +118,61 @@
                         </div>
 
                         <div class="form-group form-group--full">
-                            <label>Additional Attributes</label>
-                            <p class="help-text">Tambahkan pasangan atribut seperti Size: Large, Color: Navy. Biarkan kosong jika tidak diperlukan.</p>
-                            <div id="attribute-fields" class="attribute-list">
+                            <label>Specifications</label>
+                            <p class="help-text">Tambahkan informasi spesifikasi seperti Material: Katun, UV Protection: UV400. Cocok untuk detail produk yang tidak dipilih pengguna.</p>
+                            <div id="specification-fields" class="attribute-list">
                                 @php
-                                    $oldKeys = old('attribute_keys', ['']);
-                                    $oldValues = old('attribute_values', ['']);
+                                    $specKeys = old('specification_keys', ['']);
+                                    $specValues = old('specification_values', ['']);
                                 @endphp
-                                @foreach($oldKeys as $index => $key)
+                                @foreach($specKeys as $index => $key)
                                     <div class="attribute-row">
-                                        <input type="text" name="attribute_keys[]" value="{{ $key }}" placeholder="Attribute (cth: Size)">
-                                        <input type="text" name="attribute_values[]" value="{{ $oldValues[$index] ?? '' }}" placeholder="Value (cth: Large)">
-                                        <button type="button" class="attribute-remove" aria-label="Remove attribute">
+                                        <input type="text" name="specification_keys[]" value="{{ $key }}" placeholder="Spesifikasi (cth: Material)">
+                                        <input type="text" name="specification_values[]" value="{{ $specValues[$index] ?? '' }}" placeholder="Nilai (cth: Katun)">
+                                        <button type="button" class="attribute-remove" aria-label="Remove specification">
                                             <i class="bi bi-x"></i>
                                         </button>
                                     </div>
                                 @endforeach
                             </div>
-                            <button type="button" class="btn-tertiary" id="add-attribute">
+                            <button type="button" class="btn-tertiary" id="add-specification">
                                 <i class="bi bi-plus-circle"></i>
-                                Add Attribute
+                                Add Specification
                             </button>
-                            @error('attribute_keys.*')
+                            @error('specification_keys.*')
                                 <span class="form-error">{{ $message }}</span>
                             @enderror
-                            @error('attribute_values.*')
+                            @error('specification_values.*')
+                                <span class="form-error">{{ $message }}</span>
+                            @enderror
+                        </div>
+
+                        <div class="form-group form-group--full">
+                            <label>Variant Options</label>
+                            <p class="help-text">Tentukan varian yang dapat dipilih pelanggan, misalnya Size dengan opsi "S, M, L" atau Color dengan opsi "Merah, Hitam". Pisahkan setiap opsi dengan koma atau baris baru.</p>
+                            <div id="variant-fields" class="attribute-list">
+                                @php
+                                    $variantKeys = old('variant_keys', ['']);
+                                    $variantValues = old('variant_values', ['']);
+                                @endphp
+                                @foreach($variantKeys as $index => $key)
+                                    <div class="attribute-row">
+                                        <input type="text" name="variant_keys[]" value="{{ $key }}" placeholder="Varian (cth: Size)">
+                                        <input type="text" name="variant_values[]" value="{{ $variantValues[$index] ?? '' }}" placeholder="Daftar opsi (cth: S, M, L)">
+                                        <button type="button" class="attribute-remove" aria-label="Remove variant">
+                                            <i class="bi bi-x"></i>
+                                        </button>
+                                    </div>
+                                @endforeach
+                            </div>
+                            <button type="button" class="btn-tertiary" id="add-variant">
+                                <i class="bi bi-plus-circle"></i>
+                                Add Variant
+                            </button>
+                            @error('variant_keys.*')
+                                <span class="form-error">{{ $message }}</span>
+                            @enderror
+                            @error('variant_values.*')
                                 <span class="form-error">{{ $message }}</span>
                             @enderror
                         </div>
