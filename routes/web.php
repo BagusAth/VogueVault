@@ -6,6 +6,9 @@ use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\Admin\ProductController as AdminProductController;
+use App\Http\Controllers\CartController;
+use App\Http\Controllers\CheckoutController;
+use App\Http\Controllers\OrderController;
 
 /*
 |--------------------------------------------------------------------------
@@ -52,8 +55,36 @@ Route::middleware(['auth', 'customer'])->group(function () {
         return view('cust.dashboard');
     })->name('customer.dashboard');
 
-    // Cart, Checkout, Notification → hanya untuk user login
-    Route::get('/cart', [HomeController::class, 'cart'])->name('cart');
-    Route::get('/checkout', [HomeController::class, 'checkout'])->name('checkout');
+    // Cart
+    Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
+    Route::post('/cart/add/{product}', [CartController::class, 'add'])->name('cart.add');
+    Route::post('/cart/update/{item}', [CartController::class, 'update'])->name('cart.update');
+    Route::delete('/cart/remove/{item}', [CartController::class, 'remove'])->name('cart.remove');
+    Route::delete('/cart/clear', [CartController::class, 'clear'])->name('cart.clear');
+
+    // Checkout
+    Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout.index');
+    Route::post('/checkout/address', [CheckoutController::class, 'saveAddress'])->name('checkout.address');
+    Route::post('/checkout/store', [CheckoutController::class, 'store'])->name('checkout.store');
+    Route::get('/checkout/payment/{order}', [CheckoutController::class, 'payment'])->name('checkout.payment');
+
+    // Notifications
     Route::get('/notifications', [HomeController::class, 'notifications'])->name('notifications');
+
+    //Help
+    Route::get('/help', function () {
+    return view('help');
+    })->name('help');
+
+    //Payment
+    Route::get('/payment/{order}', [CheckoutController::class, 'payment'])
+        ->name('checkout.payment');
+
+    // Orders
+    Route::get('/orders/{order}/status', [OrderController::class, 'status'])
+        ->name('orders.status');
+
+    // Buy Now
+    Route::post('/checkout/buy-now/{product}', [CheckoutController::class, 'buyNow'])
+    ->name('checkout.buyNow');
 });

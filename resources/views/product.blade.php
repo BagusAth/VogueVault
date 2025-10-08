@@ -135,9 +135,25 @@
                     </div>
 
                     <div class="d-grid gap-2 mb-3">
-                        <button class="btn btn-cart">+ Keranjang</button>
-                        <button class="btn btn-outline-success btn-buy">Beli Langsung</button>
-                    </div>
+
+                        {{-- Tambah ke Keranjang --}}
+                        <form action="{{ route('cart.add', $product->id) }}" method="POST">
+                            @csrf
+                            <input type="hidden" name="quantity" id="cartQuantity" value="1">
+                            <button type="submit" class="btn btn-cart w-100">
+                                <i class="bi bi-cart-plus"></i> + Keranjang
+                            </button>
+                        </form>
+
+                        {{-- Beli Sekarang --}}
+                        <form action="{{ route('checkout.buyNow', $product->id) }}" method="POST">
+                            @csrf
+                            <input type="hidden" name="quantity" id="buyNowQuantity" value="1">
+                            <button type="submit" class="btn btn-buy w-100">
+                                <i class="bi bi-bag-check"></i> Beli Sekarang
+                            </button>
+                        </form>
+                </div>
 
                     <div class="inline-actions">
                         <a href="#"><i class="bi bi-chat-dots"></i> Chat</a>
@@ -151,5 +167,29 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="{{ asset('js/product.js') }}"></script>
+
+    <script>
+    document.addEventListener("DOMContentLoaded", () => {
+    const qtyInput = document.getElementById("quantity");
+    const cartQty = document.getElementById("cartQuantity");
+    const buyQty = document.getElementById("buyNowQuantity");
+
+    function syncQty() {
+        cartQty.value = qtyInput.value;
+        buyQty.value = qtyInput.value;
+    }
+
+    document.querySelectorAll(".qty-btn").forEach(btn => {
+        btn.addEventListener("click", () => {
+            let val = parseInt(qtyInput.value) || 1;
+            if (btn.dataset.action === "plus") val++;
+            if (btn.dataset.action === "minus" && val > 1) val--;
+            qtyInput.value = val;
+            syncQty();
+        });
+    });
+    syncQty();
+    });
+</script>
 </body>
 </html>
