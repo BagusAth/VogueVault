@@ -7,6 +7,7 @@ use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\Admin\ProductController as AdminProductController;
+use App\Http\Controllers\Admin\OrderController as AdminOrderController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\OrderController;
@@ -47,6 +48,11 @@ Route::middleware(['auth', 'admin'])->group(function () {
         return view('admin.dashboard');
     })->name('admin.dashboard');
 
+    // Orders
+    Route::get('/admin/orders', [AdminOrderController::class, 'index'])->name('admin.orders.index');
+    Route::patch('/admin/orders/{order}/status', [AdminOrderController::class, 'updateStatus'])
+        ->name('admin.orders.updateStatus');
+
     Route::get('/admin/products', [AdminProductController::class, 'index'])->name('admin.products.index');
     Route::get('/admin/products/create', [AdminProductController::class, 'create'])->name('admin.products.create');
     Route::post('/admin/products', [AdminProductController::class, 'store'])->name('admin.products.store');
@@ -57,6 +63,7 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::put('/admin/products/{product}', [AdminProductController::class, 'update'])
         ->name('admin.products.update');
 });
+
 
 // --- Customer ---
 Route::middleware(['auth', 'customer'])->group(function () {
@@ -78,23 +85,15 @@ Route::middleware(['auth', 'customer'])->group(function () {
     Route::post('/checkout/store', [CheckoutController::class, 'store'])->name('checkout.store');
     Route::get('/checkout/payment/{order}', [CheckoutController::class, 'payment'])->name('checkout.payment');
 
-    // Notifications
-    Route::get('/notifications', [HomeController::class, 'notifications'])->name('notifications');
+    // Orders
+    Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
+    Route::get('/orders/{order}/status', [OrderController::class, 'status'])->name('orders.status');
 
-    //Help
-    Route::get('/help', function () {
-    return view('help');
-    })->name('help');
+});
 
     //Payment
     Route::get('/payment/{order}', [CheckoutController::class, 'payment'])
         ->name('checkout.payment');
-
-    // Orders
-    Route::get('/orders/{order}/status', [OrderController::class, 'status'])
-        ->name('orders.status');
-
     // Buy Now
     Route::post('/checkout/buy-now/{product}', [CheckoutController::class, 'buyNow'])
     ->name('checkout.buyNow');
-});

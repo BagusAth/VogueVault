@@ -1,0 +1,250 @@
+/* Orders Page Styles */
+
+:root {
+	--order-bg: #f6f7f2;
+	--order-card-bg: #ffffff;
+	--order-accent: #819a91;
+	--order-accent-dark: #5e7b72;
+	--order-text: #2f3a36;
+	--order-muted: #7c8a84;
+	--order-radius: 24px;
+}
+
+body {
+	background-color: var(--order-bg);
+	color: var(--order-text);
+}
+
+.orders-main {
+	min-height: 100vh;
+}
+
+.orders-hero {
+	background: linear-gradient(135deg, rgba(129, 154, 145, 0.16), rgba(214, 222, 213, 0.4));
+}
+
+.orders-title {
+	font-size: 2.5rem;
+	font-weight: 700;
+	color: var(--order-text);
+}
+
+.orders-subtitle {
+	max-width: 520px;
+	margin: 0 auto;
+	color: var(--order-muted);
+}
+
+.orders-content .container {
+	max-width: 960px;
+}
+
+.orders-empty {
+	background-color: var(--order-card-bg);
+	border-radius: var(--order-radius);
+	padding: 48px 32px;
+	box-shadow: 0 20px 60px rgba(70, 87, 81, 0.12);
+}
+
+.orders-empty__icon {
+	font-size: 48px;
+	color: var(--order-accent);
+}
+
+.orders-empty__title {
+	font-weight: 700;
+	margin-bottom: 8px;
+}
+
+.orders-empty__subtitle {
+	color: var(--order-muted);
+	margin-bottom: 20px;
+}
+
+.orders-list {
+	display: flex;
+	flex-direction: column;
+	gap: 24px;
+}
+
+.order-card {
+	background-color: var(--order-card-bg);
+	border-radius: var(--order-radius);
+	padding: 28px;
+	box-shadow: 0 18px 55px rgba(70, 87, 81, 0.12);
+	transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.order-card:hover {
+	transform: translateY(-4px);
+	box-shadow: 0 24px 70px rgba(70, 87, 81, 0.15);
+}
+
+.order-card__header {
+	display: flex;
+	justify-content: space-between;
+	align-items: flex-start;
+	gap: 16px;
+	flex-wrap: wrap;
+}
+
+.order-card__identity {
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+}
+
+.order-card__number {
+	font-weight: 700;
+	font-size: 1.1rem;
+}
+
+.order-card__date {
+	color: var(--order-muted);
+	font-size: 0.9rem;
+}
+
+.order-card__status-group {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	flex-wrap: wrap;
+}
+
+.order-status-badge {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	padding: 6px 14px;
+	border-radius: 999px;
+	font-weight: 600;
+	font-size: 0.88rem;
+	text-transform: capitalize;
+	background-color: rgba(129, 154, 145, 0.16);
+	color: var(--order-accent-dark);
+}
+
+.order-payment,
+.order-updated {
+	font-size: 0.85rem;
+	color: var(--order-muted);
+}
+
+.order-card__summary {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	background-color: rgba(129, 154, 145, 0.1);
+	padding: 14px 18px;
+	border-radius: 18px;
+	font-size: 0.95rem;
+}
+
+.order-card__summary strong {
+	font-size: 1.1rem;
+	color: var(--order-accent-dark);
+}
+
+.order-items {
+	display: flex;
+	flex-direction: column;
+	gap: 16px;
+}
+
+.order-item__thumb {
+	width: 72px;
+	height: 72px;
+	border-radius: 18px;
+	overflow: hidden;
+	background-color: rgba(129, 154, 145, 0.15);
+	flex-shrink: 0;
+}
+
+.order-item__thumb img {
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+}
+
+.order-item__details {
+	display: flex;
+	flex-direction: column;
+	gap: 6px;
+}
+
+.order-item__top {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	gap: 12px;
+}
+
+.order-item__name {
+	font-size: 1rem;
+	font-weight: 600;
+	margin: 0;
+}
+
+.order-item__price {
+	font-weight: 700;
+	color: var(--order-accent-dark);
+}
+
+.order-item__meta {
+	font-size: 0.85rem;
+	color: var(--order-muted);
+	display: flex;
+	gap: 12px;
+}
+
+/* Status colors */
+.status-pending,
+.status-awaiting-payment {
+	background-color: rgba(255, 193, 7, 0.18);
+	color: #9c6f00;
+}
+
+.status-processing,
+.status-confirmed {
+	background-color: rgba(13, 110, 253, 0.15);
+	color: #0a58ca;
+}
+
+.status-completed,
+.status-finished,
+.status-delivered {
+	background-color: rgba(25, 135, 84, 0.18);
+	color: #1e7b47;
+}
+
+.status-cancelled,
+.status-refunded {
+	background-color: rgba(220, 53, 69, 0.18);
+	color: #a61d2b;
+}
+
+@media (max-width: 768px) {
+	.order-card {
+		padding: 22px;
+	}
+
+	.orders-title {
+		font-size: 2rem;
+	}
+
+	.order-card__status-group {
+		flex-direction: column;
+		align-items: flex-start;
+	}
+
+	.order-card__summary {
+		flex-direction: column;
+		gap: 8px;
+		align-items: flex-start;
+	}
+
+	.order-item__top {
+		flex-direction: column;
+		align-items: flex-start;
+	}
+}

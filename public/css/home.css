@@ -25,92 +25,6 @@ body {
     line-height: 1.6;
 }
 
-/* Header Styles */
-.vogue-header {
-    background-color: var(--white);
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-    position: sticky;
-    top: 0;
-    z-index: 1000;
-}
-
-.logo-container {
-    display: flex;
-    align-items: center;
-    text-decoration: none;
-    color: var(--primary-color);
-}
-
-.logo-icon {
-    width: 40px;
-    height: 40px;
-    background-color: var(--primary-color);
-    border-radius: 8px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-right: 12px;
-}
-
-.logo-icon i {
-    color: var(--white);
-    font-size: 20px;
-}
-
-.logo-text {
-    font-size: 24px;
-    font-weight: 700;
-    color: var(--primary-color);
-}
-
-.nav-icons-container {
-    display: flex;
-    justify-content: flex-end;
-    align-items: center;
-    gap: 20px;
-}
-
-.nav-icon {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    text-decoration: none;
-    color: var(--dark);
-    transition: var(--transition);
-    padding: 8px;
-    border-radius: 8px;
-}
-
-.nav-icon:hover {
-    background-color: var(--light-gray);
-    color: var(--primary-color);
-}
-
-.nav-icon i {
-    font-size: 24px;
-    margin-bottom: 4px;
-}
-
-.nav-text {
-    font-size: 12px;
-    font-weight: 500;
-}
-
-.profile-icon {
-    background-color: var(--primary-color);
-    color: var(--white) !important;
-    border-radius: 50%;
-    width: 44px;
-    height: 44px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.profile-icon i {
-    font-size: 24px;
-    margin: 0;
-}
 
 /* Hero Section */
 .hero-section {
@@ -511,11 +425,11 @@ body {
 }
 
 .carousel-nav-btn.prev-btn {
-    left: 8px;
+    left: -32px;
 }
 
 .carousel-nav-btn.next-btn {
-    right: 8px;
+    right: -32px;
 }
 
 .carousel-nav-btn:disabled,
@@ -533,10 +447,6 @@ body {
         font-size: 2rem;
     }
     
-    .nav-text {
-        display: none;
-    }
-
     .products-carousel-container {
         padding: 0 36px;
     }
@@ -544,10 +454,6 @@ body {
     .carousel-nav-btn {
         width: 48px;
         height: 48px;
-    }
-    
-    .nav-icons-container {
-        gap: 15px;
     }
     
     .search-suggestions {
@@ -578,10 +484,6 @@ body {
         font-size: 1.8rem;
     }
     
-    .logo-text {
-        font-size: 20px;
-    }
-    
     .categories-grid {
         grid-template-columns: 1fr;
     }
@@ -591,8 +493,15 @@ body {
     }
     
     .carousel-nav-btn {
-        right: -10px;
         width: 40px;
         height: 40px;
+    }
+
+    .carousel-nav-btn.prev-btn {
+        left: -12px;
+    }
+
+    .carousel-nav-btn.next-btn {
+        right: -12px;
     }
 }
