@@ -85,17 +85,7 @@ Route::middleware(['auth', 'customer'])->group(function () {
     Route::post('/checkout/store', [CheckoutController::class, 'store'])->name('checkout.store');
     Route::get('/checkout/payment/{order}', [CheckoutController::class, 'payment'])->name('checkout.payment');
 
-    // Notifications
-    Route::get('/notifications', [HomeController::class, 'notifications'])->name('notifications');
 });
-
-
-
-
-    //Help
-    Route::get('/help', function () {
-    return view('help');
-    })->name('help');
 
     //Payment
     Route::get('/payment/{order}', [CheckoutController::class, 'payment'])
