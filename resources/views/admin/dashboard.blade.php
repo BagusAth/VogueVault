@@ -11,7 +11,7 @@
     $userCount = \App\Models\User::count();
     $categoryCount = \App\Models\Category::count();
     $productCount = \App\Models\Product::count();
-    $orderCount = 0;
+    $orderCount = \App\Models\Order::count();
 @endphp
 </head>
 <body>
@@ -76,10 +76,10 @@
                         <i class="bi bi-diagram-3"></i>
                         Manage Categories (Soon)
                     </span>
-                    <span class="quick-action disabled">
+                    <a href="{{ route('admin.orders.index') }}" class="quick-action">
                         <i class="bi bi-truck"></i>
-                        Manage Orders (Soon)
-                    </span>
+                        Manage Orders
+                    </a>
                 </div>
             </section>
         </main>

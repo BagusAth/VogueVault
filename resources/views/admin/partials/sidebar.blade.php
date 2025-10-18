@@ -17,7 +17,7 @@
                 <i class="bi bi-bag"></i>
                 Products
             </a>
-            <a href="#" class="nav-item disabled" aria-disabled="true">
+            <a href="{{ route('admin.orders.index') }}" class="nav-item {{ ($active ?? '') === 'orders' ? 'active' : '' }}">
                 <i class="bi bi-layout-text-window"></i>
                 Orders
             </a>
