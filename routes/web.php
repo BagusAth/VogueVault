@@ -85,16 +85,15 @@ Route::middleware(['auth', 'customer'])->group(function () {
     Route::post('/checkout/store', [CheckoutController::class, 'store'])->name('checkout.store');
     Route::get('/checkout/payment/{order}', [CheckoutController::class, 'payment'])->name('checkout.payment');
 
+    // Orders
+    Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
+    Route::get('/orders/{order}/status', [OrderController::class, 'status'])->name('orders.status');
+
 });
 
     //Payment
     Route::get('/payment/{order}', [CheckoutController::class, 'payment'])
         ->name('checkout.payment');
-
-    // Orders
-    Route::get('/orders/{order}/status', [OrderController::class, 'status'])
-        ->name('orders.status');
-
     // Buy Now
     Route::post('/checkout/buy-now/{product}', [CheckoutController::class, 'buyNow'])
     ->name('checkout.buyNow');

@@ -13,6 +13,16 @@
             <!-- Right Navigation -->
             <div class="col">
                 <div class="nav-icons-container">
+                    @auth
+                        @if(!Auth::user()->isAdmin())
+                            <!-- Orders -->
+                            <a href="{{ route('orders.index') }}" class="nav-icon" title="Orders">
+                                <i class="bi bi-receipt"></i>
+                                <span class="nav-text">Orders</span>
+                            </a>
+                        @endif
+                    @endauth
+
                     <!-- Cart -->
                     <a href="{{ route('cart.index') }}" class="nav-icon" title="Cart">
                         <i class="bi bi-cart3"></i>
@@ -32,6 +42,14 @@
                                 <li class="dropdown-item text-center">
                                     <strong>{{ Auth::user()->name }}</strong>
                                 </li>
+                                @if(!Auth::user()->isAdmin())
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li>
+                                        <a class="dropdown-item" href="{{ route('orders.index') }}">
+                                            <i class="bi bi-receipt me-1"></i> My Orders
+                                        </a>
+                                    </li>
+                                @endif
                                 <li><hr class="dropdown-divider"></li>
                                 <li>
                                     <form action="{{ route('logout') }}" method="POST">
