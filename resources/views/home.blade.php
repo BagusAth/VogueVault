@@ -60,11 +60,11 @@
 
                                 <!-- Search Suggestions -->
                                 <div class="search-suggestions mt-3">
-                                    <button type="button" class="btn suggestion-btn" data-query="Women's Clothes">
-                                        Women's Clothes
+                                    <button type="button" class="btn suggestion-btn" data-query="Women's Clothing">
+                                        Women's Clothing
                                     </button>
-                                    <button type="button" class="btn suggestion-btn" data-query="Men's Clothes">
-                                        Men's Clothes
+                                    <button type="button" class="btn suggestion-btn" data-query="Men's Clothing">
+                                        Men's Clothing
                                     </button>
                                     <button type="button" class="btn suggestion-btn" data-query="Accessories">
                                         Accessories
@@ -204,7 +204,7 @@
                                         <i class="bi bi-tag"></i>
                                     </div>
                                     <div class="category-overlay">
-                                        <h5 class="category-name">Women's Clothes</h5>
+                                        <h5 class="category-name">Women's Clothing</h5>
                                     </div>
                                 </div>
                             </div>
@@ -216,7 +216,7 @@
                                         <i class="bi bi-tag"></i>
                                     </div>
                                     <div class="category-overlay">
-                                        <h5 class="category-name">Men's Clothes</h5>
+                                        <h5 class="category-name">Men's Clothing</h5>
                                     </div>
                                 </div>
                             </div>
