@@ -4,11 +4,12 @@ namespace App\Http\Controllers;
 
 use App\Models\Order;
 use App\Models\OrderItem;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Auth;
 use App\Models\Product;
-
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class CheckoutController extends Controller
 {
@@ -18,69 +19,134 @@ class CheckoutController extends Controller
         $user = Auth::user();
         $cart = $user->getCurrentCart();
 
-        if (session()->has('buy_now')) {
-        $buyNow = session('buy_now');
-        $address = session('checkout_address', [
-            'receiver_name' => $user->receiver_name,
-            'phone'         => $user->phone,
-            'address_line'  => $user->address,
-            'city'          => $user->city,
-            'postal_code'   => $user->postal_code,
-        ]);
-        
-        return view('Checkout.index', [
-            'buyNow' => $buyNow,
-            'cart'   => null,
-            'address' => $address
-        ]);
-    }
+        $addresses = $user->addresses()
+            ->orderByDesc('is_default')
+            ->orderByDesc('created_at')
+            ->get();
 
-        if (!$cart || $cart->items->isEmpty()) {
-            return redirect()->route('cart.index')->with('error', 'Keranjang kosong!');
+        $selectedAddressId = session('checkout_address_id');
+        $activeAddress = $selectedAddressId
+            ? $addresses->firstWhere('id', (int) $selectedAddressId)
+            : null;
+
+        if (!$activeAddress && $addresses->isNotEmpty()) {
+            $activeAddress = $addresses->firstWhere('is_default', true) ?? $addresses->first();
+            if ($activeAddress) {
+                session([
+                    'checkout_address_id' => $activeAddress->id,
+                    'checkout_address' => $activeAddress->toShippingArray(),
+                ]);
+            }
         }
 
-        $address = session('checkout_address', [
-            'receiver_name' => $user->receiver_name,
-            'phone'         => $user->phone,
-            'address_line'  => $user->address,
-            'city'          => $user->city,
-            'postal_code'   => $user->postal_code,
-    ]);
-        return view('Checkout.index', compact('cart', 'address'));
+        if (!$activeAddress) {
+            session()->forget(['checkout_address_id', 'checkout_address']);
+        }
 
+        $buyNow = null;
+        if (session()->has('buy_now')) {
+            $buyNow = session('buy_now');
+
+            if (isset($buyNow['selected_attributes']) && is_string($buyNow['selected_attributes'])) {
+                $decoded = json_decode($buyNow['selected_attributes'], true);
+                $buyNow['selected_attributes'] = is_array($decoded) ? $decoded : [];
+            }
+
+            $summary = collect($buyNow['selected_attributes'] ?? [])
+                ->filter(fn ($value) => $value !== null && $value !== '')
+                ->map(function ($value, $key) {
+                    $label = ucwords(str_replace(['_', '-'], ' ', (string) $key));
+                    return $label . ': ' . $value;
+                })
+                ->values()
+                ->implode(' · ');
+
+            if (!empty($summary)) {
+                $buyNow['variant_summary'] = $summary;
+            }
+        }
+
+        $hasItems = $buyNow !== null || ($cart && $cart->items->isNotEmpty());
+        if (!$hasItems) {
+            return redirect()->route('cart.overview')->with('error', 'Keranjang kosong!');
+        }
+
+        return view('checkout.review', [
+            'cart' => $cart,
+            'buyNow' => $buyNow,
+            'addresses' => $addresses,
+            'activeAddress' => $activeAddress,
+        ]);
     }
 
     public function saveAddress(Request $request)
     {
         $request->validate([
+            'address_id' => 'nullable|integer',
+            'label' => 'nullable|string|max:50',
             'receiver_name' => 'required|string|max:100',
-            'phone' => 'required|string|max:20',
+            'phone' => 'required|string|max:30',
             'address_line' => 'required|string|max:255',
             'city' => 'required|string|max:100',
-            'postal_code' => 'required|string|max:10',
+            'postal_code' => 'nullable|string|max:20',
+            'set_as_default' => 'nullable|accepted',
         ]);
-
-        session([
-        'checkout_address' => [
-            'receiver_name' => $request->receiver_name,
-            'phone'         => $request->phone,
-            'address_line'  => $request->address_line,
-            'city'          => $request->city,
-            'postal_code'   => $request->postal_code,
-        ]
-    ]);
 
         /** @var \App\Models\User $user */
         $user = Auth::user();
-        $user->update([
-        'receiver_name' => $request->receiver_name,
-        'phone' => $request->phone,
-        'address' => $request->address_line,
-        'city' => $request->city,
-        'postal_code' => $request->postal_code,
+
+        $payload = $request->only(['label', 'receiver_name', 'phone', 'address_line', 'city', 'postal_code']);
+        $addressId = $request->input('address_id');
+        $makeDefault = $request->boolean('set_as_default');
+
+        if ($addressId) {
+            $address = $user->addresses()->findOrFail($addressId);
+            $address->update($payload);
+        } else {
+            $address = $user->addresses()->create($payload + ['is_default' => false]);
+        }
+
+        if ($makeDefault) {
+            $user->addresses()->where('id', '!=', $address->id)->update(['is_default' => false]);
+            $address->forceFill(['is_default' => true])->save();
+        } elseif (!$user->addresses()->where('is_default', true)->exists()) {
+            $user->addresses()->where('id', '!=', $address->id)->update(['is_default' => false]);
+            $address->forceFill(['is_default' => true])->save();
+        }
+
+        session([
+            'checkout_address_id' => $address->id,
+            'checkout_address' => $address->toShippingArray(),
         ]);
 
-        return redirect()->route('checkout.index')->with('success', 'Alamat berhasil disimpan!');
+        return redirect()->route('checkout.review')->with('success', 'Alamat berhasil disimpan!');
+    }
+
+    public function selectAddress(Request $request)
+    {
+        $request->validate([
+            'address_id' => 'required|exists:user_addresses,id',
+            'action' => 'nullable|in:select,make_default',
+        ]);
+
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
+        $address = $user->addresses()->findOrFail($request->address_id);
+
+        if ($request->input('action') === 'make_default') {
+            $user->addresses()->where('id', '!=', $address->id)->update(['is_default' => false]);
+            $address->forceFill(['is_default' => true])->save();
+            $message = 'Alamat default diperbarui.';
+        } else {
+            $message = 'Alamat pengiriman dipilih.';
+        }
+
+        session([
+            'checkout_address_id' => $address->id,
+            'checkout_address' => $address->toShippingArray(),
+        ]);
+
+        return redirect()->route('checkout.review')->with('success', $message);
     }
 
     public function store(Request $request)
@@ -89,14 +155,20 @@ class CheckoutController extends Controller
             'payment_method' => 'required|in:gopay,shopeepay,qris,va',
         ]);
 
-        $address = session('checkout_address');
-        if (!$address || empty($address['address_line'])) {
-            return redirect()->route('checkout.index')
-                ->with('error', 'Isi alamat pengiriman terlebih dahulu!');
-        }
-
         /** @var \App\Models\User $user */
         $user = Auth::user();
+        $addressId = session('checkout_address_id');
+        $address = $addressId ? $user->addresses()->find($addressId) : null;
+
+        if (!$address) {
+            return redirect()->route('checkout.review')
+                ->with('error', 'Pilih atau tambahkan alamat pengiriman terlebih dahulu!');
+        }
+
+        $shippingAddress = $address->toShippingArray();
+        if ($address->label) {
+            $shippingAddress['label'] = $address->label;
+        }
 
         if (session()->has('buy_now')) {
             $buyNow = session('buy_now');
@@ -112,7 +184,7 @@ class CheckoutController extends Controller
                 'status'           => 'pending',
                 'payment_method'   => $request->payment_method,
                 'payment_status'   => 'unpaid',
-                'shipping_address' => $user->address,
+                'shipping_address' => $shippingAddress,
                 'expires_at'       => now()->addHour(),
             ]);
 
@@ -125,12 +197,11 @@ class CheckoutController extends Controller
                 'subtotal'      => $buyNow['subtotal'],
                 'product_price' => $buyNow['price'],
                 'total_price'   => $buyNow['subtotal'],
+                'selected_attributes' => $buyNow['selected_attributes'] ?? null,
             ]);
 
-            // kurangi stok
             Product::find($buyNow['product_id'])->decrement('stock', $buyNow['quantity']);
 
-            // hapus session biar ga bentrok
             session()->forget('buy_now');
 
             return redirect()->route('checkout.payment', ['order' => $order->id]);
@@ -138,10 +209,10 @@ class CheckoutController extends Controller
 
         $cart = $user->getCurrentCart();
         if (!$cart || $cart->items->isEmpty()) {
-            return redirect()->route('cart.index')->with('error', 'Keranjang kosong!');
+            return redirect()->route('cart.overview')->with('error', 'Keranjang kosong!');
         }
 
-        $order = DB::transaction(function () use ($user, $cart, $request) {
+        $order = DB::transaction(function () use ($user, $cart, $request, $shippingAddress) {
             $orderNumber = 'VV-' . now()->format('ymdHis') . '-U' . $user->id;
 
             $order = Order::create([
@@ -153,7 +224,7 @@ class CheckoutController extends Controller
                 'status'           => 'pending',
                 'payment_method'   => $request->payment_method,
                 'payment_status'   => 'unpaid',
-                'shipping_address' => $user->address,
+                'shipping_address' => $shippingAddress,
                 'expires_at'       => now()->addHour(),
             ]);
 
@@ -167,6 +238,7 @@ class CheckoutController extends Controller
                     'subtotal'      => $item->subtotal,
                     'product_price' => $item->unit_price,
                     'total_price'   => $item->subtotal,
+                    'selected_attributes' => $item->product_attributes,
                 ]);
 
                 $item->product->decrement('stock', $item->quantity);
@@ -181,36 +253,146 @@ class CheckoutController extends Controller
         return redirect()->route('checkout.payment', ['order' => $order->id]);
     }
 
-
-        public function payment(Order $order)
+    public function payment(Order $order)
     {
         if ($order->user_id !== Auth::id()) {
             abort(403);
         }
 
-        return view('checkout.payment', compact('order'));
+        $remainingSeconds = null;
+        $isExpired = false;
+
+        if ($order->expires_at) {
+            $difference = now()->diffInSeconds($order->expires_at, false);
+            $remainingSeconds = $difference > 0 ? $difference : 0;
+            $isExpired = $difference <= 0 && $order->payment_status !== 'paid';
+        }
+
+        return view('checkout.payment', [
+            'order' => $order,
+            'remainingSeconds' => $remainingSeconds,
+            'isExpired' => $isExpired,
+        ]);
+    }
+
+    public function completePayment(Request $request, Order $order)
+    {
+        if ($order->user_id !== Auth::id()) {
+            abort(403);
+        }
+
+        if ($order->payment_status === 'paid') {
+            return response()->json([
+                'success' => true,
+                'message' => 'Pesanan sudah dibayar.',
+                'status' => $order->status,
+                'payment_status' => $order->payment_status,
+            ]);
+        }
+
+        if ($order->expires_at && now()->greaterThan($order->expires_at)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Batas waktu pembayaran telah berakhir. Hubungi dukungan untuk bantuan.',
+            ], 422);
+        }
+
+        $order->forceFill([
+            'payment_status' => 'paid',
+            'status' => 'processing',
+        ])->save();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Pembayaran berhasil dikonfirmasi.',
+            'status' => $order->status,
+            'payment_status' => $order->payment_status,
+        ]);
     }
 
     public function buyNow(Request $request, Product $product)
     {
-        $user = Auth::user();
+        $request->validate([
+            'quantity' => 'nullable|integer|min:1',
+            'variants_payload' => 'nullable|string',
+        ]);
 
-       $quantity = $request->input('quantity', 1);
+        $quantity = max((int) $request->input('quantity', 1), 1);
+
+        $selectedVariants = [];
+        $payload = $request->input('variants_payload');
+        if ($payload) {
+            $decoded = json_decode($payload, true);
+            if (is_array($decoded)) {
+                foreach ($decoded as $key => $value) {
+                    if (is_scalar($key) && (is_scalar($value) || $value === null)) {
+                        $normalizedKey = trim((string) $key);
+                        $normalizedValue = $value === null ? null : trim((string) $value);
+                        if ($normalizedKey !== '' && $normalizedValue !== null && $normalizedValue !== '') {
+                            $selectedVariants[$normalizedKey] = $normalizedValue;
+                        }
+                    }
+                }
+            }
+        }
+
+        $variantGroups = collect($product->variants ?? []);
+        if ($variantGroups->isNotEmpty()) {
+            $missingSelection = $variantGroups->first(function ($options, $groupKey) use ($selectedVariants) {
+                $optionsList = collect($options)->map(fn ($option) => (string) $option)->all();
+                $chosen = $selectedVariants[$groupKey] ?? null;
+
+                return !in_array($chosen, $optionsList, true);
+            });
+
+            if ($missingSelection !== null) {
+                return redirect()->back()
+                    ->withInput()
+                    ->with('error', 'Silakan pilih varian lengkap sebelum melanjutkan.');
+            }
+        }
+
+        $variantSummary = collect($selectedVariants)
+            ->map(function ($value, $key) {
+                $label = ucwords(str_replace(['_', '-'], ' ', $key));
+                return $label . ': ' . $value;
+            })
+            ->values()
+            ->implode(' · ');
+
+        $rawImage = collect($product->images ?? [])->first();
+        if ($rawImage) {
+            if (Str::startsWith($rawImage, ['http://', 'https://'])) {
+                $imageUrl = $rawImage;
+            } else {
+                $cleanPath = ltrim($rawImage, '/');
+                if (Storage::disk('public')->exists($cleanPath)) {
+                    $imageUrl = asset('storage/' . $cleanPath);
+                } elseif (file_exists(public_path($cleanPath))) {
+                    $imageUrl = asset($cleanPath);
+                } else {
+                    $imageUrl = null;
+                }
+            }
+        } else {
+            $imageUrl = null;
+        }
+
+        $imageUrl = $imageUrl ?? asset('images/placeholder_img.jpg');
 
         session([
             'buy_now' => [
-                'product_id'   => $product->id,
-                'product_name' => $product->name,
-                'price'        => $product->price,
-                'color'        => $request->input('color', null),
-                'quantity'     => $quantity,
-                'subtotal'     => $product->price * $quantity,
-                'image'        => is_array($product->images) 
-                                    ? $product->images[0] 
-                                    : json_decode($product->images, true)[0] ?? 'https://via.placeholder.com/80',
+                'product_id'           => $product->id,
+                'product_name'         => $product->name,
+                'price'                => $product->price,
+                'quantity'             => $quantity,
+                'subtotal'             => $product->price * $quantity,
+                'selected_attributes'  => $selectedVariants,
+                'variant_summary'      => $variantSummary,
+                'image'                => $imageUrl,
             ]
         ]);
 
-        return redirect()->route('checkout.index');
+        return redirect()->route('checkout.review');
     }
-}    
+}

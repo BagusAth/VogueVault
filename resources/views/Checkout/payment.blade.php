@@ -1,54 +1,138 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <title>Pembayaran Pesanan • VogueVault</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
     <link rel="stylesheet" href="{{ asset('css/navbar.css') }}">
-    <link rel="stylesheet" href="{{ asset('css/product.css') }}">
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <title>Pembayaran</title>
+    <link rel="stylesheet" href="{{ asset('css/payment.css') }}">
 </head>
-<body class="bg-light">
+@php
+    $isPaid = $order->payment_status === 'paid';
+    $formattedTotal = 'Rp' . number_format($order->grand_total, 0, ',', '.');
+    $paymentMethod = strtoupper($order->payment_method ?? 'ONLINE');
+@endphp
+<body class="payment-body">
     @include('partials.navbar')
 
-    <div class="container my-5">
-        <div class="row justify-content-center">
-            <div class="col-lg-8 bg-white p-4 rounded shadow-sm">
-                <h4 class="fw-bold mb-4">Pembayaran</h4>
+    <main class="payment-wrapper py-5">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-xl-8">
+                    <section class="payment-card">
+                        <header class="payment-header">
+                            <div>
+                                <p class="eyebrow mb-1">Konfirmasi Pembayaran</p>
+                                <h1 class="payment-title">Pesanan {{ $order->order_number }}</h1>
+                            </div>
+                            <span class="status-pill {{ $isPaid ? 'is-paid' : 'is-unpaid' }}" data-status-pill>
+                                <i class="bi {{ $isPaid ? 'bi-check-circle' : 'bi-clock-history' }} me-2"></i>
+                                <span data-status-text>{{ $isPaid ? 'Sudah Dibayar' : 'Belum Dibayar' }}</span>
+                            </span>
+                        </header>
 
-                {{-- Batas Waktu Bayar --}}
-                <div class="mb-3">
-                    <p class="text-muted mb-1"><i class="bi bi-clock"></i> Bayar sebelum:</p>
-                    <p class="fw-bold">{{ $order->expires_at->format('d M Y, H:i') }} WIB</p>
+                        <div class="payment-meta">
+                            <div class="meta-block">
+                                <span class="meta-label">Total Tagihan</span>
+                                <span class="meta-value text-success" data-total-label>{{ $formattedTotal }}</span>
+                            </div>
+                            <div class="meta-block">
+                                <span class="meta-label">Metode</span>
+                                <span class="meta-value">{{ $paymentMethod }}</span>
+                            </div>
+                            <div class="meta-block meta-block--deadline">
+                                <span class="meta-label">Bayar Sebelum</span>
+                                <span class="meta-value" data-deadline="{{ optional($order->expires_at)->format('d M Y, H:i') }}" data-countdown="{{ $remainingSeconds ?? '' }}">
+                                    @if($order->expires_at)
+                                        {{ $order->expires_at->format('d M Y, H:i') }} WIB
+                                    @else
+                                        Tidak ada batas waktu
+                                    @endif
+                                </span>
+                                @if($order->expires_at)
+                                    <span class="countdown" data-countdown-label>
+                                        @if($isPaid)
+                                            Pembayaran telah dikonfirmasi
+                                        @elseif($isExpired)
+                                            Waktu pembayaran berakhir
+                                        @else
+                                            Sisa waktu: <span data-countdown-text>—</span>
+                                        @endif
+                                    </span>
+                                @endif
+                            </div>
+                        </div>
+
+                        <article class="payment-summary">
+                            <h2>Rincian Pesanan</h2>
+                            <dl class="summary-list">
+                                <div class="summary-item">
+                                    <dt>Nomor Pesanan</dt>
+                                    <dd>{{ $order->order_number }}</dd>
+                                </div>
+                                <div class="summary-item">
+                                    <dt>Status Pesanan</dt>
+                                    <dd data-order-status>{{ ucfirst($order->status) }}</dd>
+                                </div>
+                                <div class="summary-item">
+                                    <dt>Status Pembayaran</dt>
+                                    <dd data-order-payment>{{ $isPaid ? 'Paid' : 'Unpaid' }}</dd>
+                                </div>
+                                @if($order->expires_at)
+                                    <div class="summary-item">
+                                        <dt>Batas Pembayaran</dt>
+                                        <dd>{{ $order->expires_at->translatedFormat('d F Y, H:i') }} WIB</dd>
+                                    </div>
+                                @endif
+                            </dl>
+                        </article>
+
+                        <div class="payment-actions">
+                            <button type="button" class="btn btn-outline-secondary" data-action="instructions" data-bs-toggle="modal" data-bs-target="#instructionsModal">
+                                <i class="bi bi-journal-text me-2"></i>Cara Bayar
+                            </button>
+                            <button type="button" class="btn btn-success" data-action="pay" {{ ($isPaid || $isExpired) ? 'disabled' : '' }}>
+                                <span class="spinner-border spinner-border-sm me-2 d-none" role="status" aria-hidden="true"></span>
+                                <i class="bi bi-credit-card me-2"></i>Bayar Sekarang
+                            </button>
+                            <button type="button" class="btn btn-outline-primary" data-action="refresh">
+                                <i class="bi bi-arrow-repeat me-2"></i>Cek Status
+                            </button>
+                        </div>
+
+                        <div class="payment-feedback" data-feedback aria-live="polite"></div>
+
+                        <footer class="payment-footer">
+                            <p><i class="bi bi-shield-check me-2"></i>Pembayaran kamu diproses dengan sistem terenkripsi. Detail kartu atau dompet digital tidak kami simpan.</p>
+                            <p><i class="bi bi-info-circle me-2"></i>Pesanan otomatis diteruskan ke tim fulfilment setelah pembayaran dikonfirmasi.</p>
+                        </footer>
+                    </section>
                 </div>
+            </div>
+        </div>
+    </main>
 
-                {{-- Order ID --}}
-                <div class="border rounded p-3 mb-3">
-                    <p class="text-muted mb-1">Nomor Pesanan</p>
-                    <p class="fs-5 fw-bold">{{ $order->order_number }}</p>
+    <div class="modal fade" id="instructionsModal" tabindex="-1" aria-labelledby="instructionsModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="instructionsModalLabel">Panduan Pembayaran</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-
-                {{-- Total --}}
-                <p class="fs-5 fw-semibold mb-3">
-                    Total Tagihan: <span class="fw-bold text-success">Rp{{ number_format($order->grand_total,0,',','.') }}</span>
-                </p>
-
-                {{-- Tombol --}}
-                <div class="d-flex justify-content-between flex-wrap">
-                    <button id="caraBayar" class="btn btn-outline-secondary w-100 mb-2" onclick="showInstructions()">Cara Bayar</button>
-                    <button id="payNow" class="btn btn-outline-success w-100 mb-2">Bayar Sekarang</button>
-                    <button id="checkStatus" class="btn btn-outline-primary w-100 mb-2">Cek Status</button>
+                <div class="modal-body">
+                    <ol class="instruction-list">
+                        <li>Pilih metode pembayaran favoritmu saat checkout.</li>
+                        <li>Ikuti instruksi pada aplikasi atau layanan bank untuk menyelesaikan transaksi.</li>
+                        <li>Klik <strong>Bayar Sekarang</strong> di halaman ini untuk mengonfirmasi pembayaran.</li>
+                        <li>Status akan berubah menjadi <strong>Sudah Dibayar</strong> secara otomatis.</li>
+                    </ol>
+                    <p class="text-muted small mb-0">Jika mengalami kendala, hubungi layanan pelanggan kami untuk bantuan manual.</p>
                 </div>
-
-                {{-- Hasil Status --}}
-                <div id="statusResult" class="mt-3 text-muted small"></div>
-
-                {{-- Info tambahan --}}
-                <div class="mt-4 small text-muted">
-                    <p>• Pembayaran Virtual Account hanya bisa dilakukan dari bank yang kamu pilih.</p>
-                    <p>• Pesanan akan diteruskan ke penjual setelah pembayaran diverifikasi.</p>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Mengerti</button>
                 </div>
             </div>
         </div>
@@ -56,66 +140,151 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        // Tombol "Cara Bayar"
-        document.getElementById('caraBayar').addEventListener('click', function() {
-            Swal.fire({
-                icon: 'info',
-                title: 'Panduan Pembayaran',
-                html: `
-                    <div style="text-align:left">
-                        <p><b>1.</b> Pilih metode pembayaran yang kamu inginkan (VA, QRIS, dll).</p>
-                        <p><b>2.</b> Tekan tombol <b>"Bayar Sekarang"</b> untuk menyelesaikan pembayaran.</p>
-                        <p><b>3.</b> Setelah pembayaran berhasil, status pesananmu akan berubah menjadi <b>"Paid"</b>.</p>
-                    </div>
-                `,
-                confirmButtonText: 'Mengerti',
-                confirmButtonColor: '#3085d6'
-            });
-        });
+        (function() {
+            const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+            const endpoints = {
+                complete: "{{ route('checkout.payment.complete', $order) }}",
+                status: "{{ route('orders.status', $order) }}",
+            };
 
-        const userName = "{{ Auth::user()->name ?? 'User' }}";
-        const orderNumber = "{{ $order->order_number }}";
+            const statusPill = document.querySelector('[data-status-pill]');
+            const statusText = document.querySelector('[data-status-text]');
+            const orderStatus = document.querySelector('[data-order-status]');
+            const paymentStatus = document.querySelector('[data-order-payment]');
+            const feedback = document.querySelector('[data-feedback]');
+            const payButton = document.querySelector('[data-action="pay"]');
+            const refreshButton = document.querySelector('[data-action="refresh"]');
+            const spinner = payButton ? payButton.querySelector('.spinner-border') : null;
+            const countdownLabel = document.querySelector('[data-countdown-label]');
+            const countdownText = document.querySelector('[data-countdown-text]');
+            const countdownSource = document.querySelector('[data-countdown]');
 
-        // Tombol "Bayar Sekarang"
-        document.getElementById('payNow').addEventListener('click', function() {
-        Swal.fire({
-            icon: 'success',
-            title: 'Pembayaran Berhasil!',
-            html: `<b>Hai ${userName}</b>, pembayaran kamu untuk pesanan <b>#${orderNumber}</b> telah berhasil`,
-            showConfirmButton: true,
-            confirmButtonText: 'OK',
-            confirmButtonColor: '#28a745'
-        }).then(() => {
-            // Simpan status ke localStorage
-            localStorage.setItem('paymentStatus_' + orderNumber, 'Paid');
+            const showFeedback = (message, variant = 'info') => {
+                if (!feedback) return;
+                feedback.textContent = message;
+                feedback.className = `payment-feedback is-${variant}`;
+            };
 
-            // Update status teks di halaman
-            document.getElementById('statusResult').innerText = "Status: Paid";
-            }); 
-        });
+            const setPaidState = (message = 'Pembayaran berhasil dikonfirmasi.', statusValue = 'processing') => {
+                statusPill?.classList.remove('is-unpaid');
+                statusPill?.classList.add('is-paid');
+                if (statusText) statusText.textContent = 'Sudah Dibayar';
+                if (orderStatus && statusValue) {
+                    const formatted = statusValue.charAt(0).toUpperCase() + statusValue.slice(1);
+                    orderStatus.textContent = formatted;
+                }
+                if (paymentStatus) paymentStatus.textContent = 'Paid';
+                if (payButton) payButton.disabled = true;
+                if (spinner) spinner.classList.add('d-none');
+                if (countdownLabel) {
+                    countdownLabel.textContent = 'Pembayaran telah dikonfirmasi';
+                }
+                showFeedback(message, 'success');
+            };
 
-        // Tombol "Cek Status"
-        document.getElementById('checkStatus').addEventListener('click', function() {
-        const localStatus = localStorage.getItem('paymentStatus_' + orderNumber);
+            const handleError = (message) => {
+                showFeedback(message, 'danger');
+                if (spinner) spinner.classList.add('d-none');
+                if (payButton) payButton.disabled = false;
+            };
 
-        if (localStatus === 'Paid') {
-            Swal.fire({
-                icon: 'success',
-                title: 'Status Pembayaran',
-                text: 'Pembayaran kamu sudah selesai!',
-                confirmButtonColor: '#3085d6'
-            });
-            document.getElementById('statusResult').innerText = "Status: Paid";
-        } else {
-            Swal.fire({
-                icon: 'error',
-                title: 'Status Pembayaran',
-                text: 'Pembayaran kamu belum dilakukan!',
-                confirmButtonColor: '#d33'
-            });
-            document.getElementById('statusResult').innerText = "Status: Unpaid";
+            if (payButton && !payButton.disabled) {
+                payButton.addEventListener('click', async () => {
+                    payButton.disabled = true;
+                    if (spinner) spinner.classList.remove('d-none');
+                    showFeedback('Memproses pembayaran...', 'info');
+
+                    try {
+                        const response = await fetch(endpoints.complete, {
+                            method: 'POST',
+                            headers: {
+                                'X-CSRF-TOKEN': csrfToken,
+                                'Accept': 'application/json',
+                                'Content-Type': 'application/json',
+                                'X-Requested-With': 'XMLHttpRequest',
+                            },
+                            body: JSON.stringify({})
+                        });
+
+                        const payload = await response.json();
+
+                        if (!response.ok || !payload.success) {
+                            throw new Error(payload.message || 'Gagal mengonfirmasi pembayaran.');
+                        }
+
+                        setPaidState(payload.message, payload.status);
+                    } catch (error) {
+                        handleError(error.message || 'Terjadi kesalahan tak terduga.');
+                    }
+                });
             }
-        });
+
+            if (refreshButton) {
+                refreshButton.addEventListener('click', async () => {
+                    showFeedback('Memeriksa status terbaru...', 'info');
+                    try {
+                        const response = await fetch(endpoints.status, {
+                            headers: {
+                                'Accept': 'application/json',
+                                'X-Requested-With': 'XMLHttpRequest',
+                            }
+                        });
+                        const payload = await response.json();
+                        if (orderStatus && payload.status) {
+                            orderStatus.textContent = payload.status.charAt(0).toUpperCase() + payload.status.slice(1);
+                        }
+                        if (paymentStatus && payload.payment_status) {
+                            const label = payload.payment_status.charAt(0).toUpperCase() + payload.payment_status.slice(1);
+                            paymentStatus.textContent = label;
+                        }
+                        if (payload.payment_status === 'paid') {
+                            setPaidState('Pembayaran telah dikonfirmasi.', payload.status);
+                        } else {
+                            showFeedback('Pembayaran belum diterima, silakan selesaikan sebelum batas waktu berakhir.', 'warning');
+                        }
+                    } catch (error) {
+                        handleError('Tidak dapat mengambil status terbaru.');
+                    }
+                });
+            }
+
+            if (countdownText && countdownSource) {
+                let remaining = parseInt(countdownSource.getAttribute('data-countdown'), 10);
+                if (!Number.isNaN(remaining) && remaining > 0) {
+                    const formatTime = (seconds) => {
+                        const hours = Math.floor(seconds / 3600);
+                        const minutes = Math.floor((seconds % 3600) / 60);
+                        const secs = seconds % 60;
+                        return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+                    };
+
+                    countdownText.textContent = formatTime(remaining);
+
+                    const interval = setInterval(() => {
+                        remaining -= 1;
+                        if (remaining <= 0) {
+                            clearInterval(interval);
+                            countdownText.textContent = '00:00:00';
+                            if (countdownLabel && !payButton?.disabled) {
+                                countdownLabel.textContent = 'Waktu pembayaran berakhir';
+                                if (payButton) payButton.disabled = true;
+                            }
+                            return;
+                        }
+                        countdownText.textContent = formatTime(remaining);
+                    }, 1000);
+                }
+            }
+
+            if (@json($isExpired) && payButton) {
+                payButton.disabled = true;
+                showFeedback('Batas waktu pembayaran telah berakhir. Silakan buat pesanan baru.', 'danger');
+            }
+
+            if (@json($isPaid)) {
+                showFeedback('Pembayaran telah dikonfirmasi. Terima kasih!', 'success');
+            }
+        })();
     </script>
 </body>
 </html>

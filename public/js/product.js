@@ -65,6 +65,29 @@ document.addEventListener('DOMContentLoaded', () => {
     const variantOptionElements = Array.from(document.querySelectorAll('.variant-option'));
     const summaryTargets = Array.from(document.querySelectorAll('.variant-summary-text'));
     const variantBlocks = Array.from(document.querySelectorAll('.variant-group-block'));
+    const cartVariantField = document.getElementById('cartVariantsPayload');
+    const buyVariantField = document.getElementById('buyNowVariantsPayload');
+
+    const getActiveVariantSelections = () => {
+        const selections = {};
+
+        variantBlocks.forEach(block => {
+            const groupContainer = block.querySelector('.variant-group');
+            const activeOption = block.querySelector('.variant-option.active');
+            if (!groupContainer || !activeOption) {
+                return;
+            }
+
+            const groupKey = groupContainer.dataset.group;
+            const optionValue = activeOption.dataset.value;
+
+            if (groupKey && optionValue) {
+                selections[groupKey] = optionValue;
+            }
+        });
+
+        return selections;
+    };
 
     const buildSummaryText = () => {
         const parts = [];
@@ -91,24 +114,27 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     };
 
+    const updateVariantPayloadFields = () => {
+        const selections = getActiveVariantSelections();
+        const serialized = JSON.stringify(selections);
+
+        if (cartVariantField) {
+            cartVariantField.value = serialized;
+        }
+
+        if (buyVariantField) {
+            buyVariantField.value = serialized;
+        }
+
+        return selections;
+    };
+
     const updateVariantQueryParams = () => {
         const url = new URL(window.location.href);
-        const activeSelections = {};
+        const activeSelections = updateVariantPayloadFields();
 
-        variantBlocks.forEach(block => {
-            const groupContainer = block.querySelector('.variant-group');
-            const activeOption = block.querySelector('.variant-option.active');
-            if (!groupContainer || !activeOption) {
-                return;
-            }
-
-            const groupKey = groupContainer.dataset.group;
-            const optionValue = activeOption.dataset.value;
-
-            if (groupKey && optionValue) {
-                activeSelections[groupKey] = optionValue;
-                url.searchParams.set(`variant[${groupKey}]`, optionValue);
-            }
+        Object.entries(activeSelections).forEach(([groupKey, optionValue]) => {
+            url.searchParams.set(`variant[${groupKey}]`, optionValue);
         });
 
         // Remove stale variant selections from URL

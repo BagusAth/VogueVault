@@ -14,6 +14,50 @@
 	@include('partials.navbar')
 
 	<main class="orders-main">
+		@php
+			$placeholderImage = asset('images/placeholder_img.jpg');
+
+			$resolveProductImage = static function ($product) use ($placeholderImage) {
+				if (!$product) {
+					return $placeholderImage;
+				}
+
+				$images = $product->images ?? [];
+				if (is_string($images)) {
+					$decoded = json_decode($images, true);
+					if (json_last_error() === JSON_ERROR_NONE && is_array($decoded)) {
+						$images = $decoded;
+					} else {
+						$images = [$images];
+					}
+				}
+
+				$images = collect($images)
+					->flatten()
+					->filter(fn ($value) => is_string($value) && $value !== '')
+					->values();
+
+				$rawImage = $images->first();
+				if (!$rawImage) {
+					return $placeholderImage;
+				}
+
+				if (\Illuminate\Support\Str::startsWith($rawImage, ['http://', 'https://'])) {
+					return $rawImage;
+				}
+
+				$cleanPath = ltrim($rawImage, '/');
+				if (\Illuminate\Support\Facades\Storage::disk('public')->exists($cleanPath)) {
+					return asset('storage/' . $cleanPath);
+				}
+
+				if (file_exists(public_path($cleanPath))) {
+					return asset($cleanPath);
+				}
+
+				return $placeholderImage;
+			};
+		@endphp
 		<section class="orders-hero text-center py-5">
 			<div class="container">
 				<h1 class="orders-title">Order History</h1>
@@ -40,8 +84,10 @@
 								$orderNumber = $order->order_number ?? 'ORD-' . str_pad((string) $order->id, 6, '0', STR_PAD_LEFT);
 								$placedAt = optional($order->created_at)->format('d M Y, H:i');
 								$totalValue = $order->grand_total ?? $order->total_amount ?? $order->subtotal ?? 0;
+								$isUnpaid = strtolower($order->payment_status ?? '') !== 'paid';
+								$paymentUrl = $isUnpaid ? route('checkout.payment', $order) : null;
 							@endphp
-							<article class="order-card" data-order-id="{{ $order->id }}" data-status-url="{{ route('orders.status', $order) }}">
+							<article class="order-card {{ $isUnpaid ? 'order-card--actionable' : '' }}" data-order-id="{{ $order->id }}" data-status-url="{{ route('orders.status', $order) }}" @if($paymentUrl) data-payment-url="{{ $paymentUrl }}" @endif>
 								<header class="order-card__header">
 									<div class="order-card__identity">
 										<span class="order-card__number">Order {{ $orderNumber }}</span>
@@ -51,6 +97,9 @@
 										<span class="order-status-badge status-{{ $statusSlug }}" data-order-status>{{ ucfirst($order->status ?? 'Unknown') }}</span>
 										<span class="order-payment" data-payment-status>Payment: {{ ucfirst($order->payment_status ?? 'Unknown') }}</span>
 										<span class="order-updated" data-order-updated>Updated {{ optional($order->updated_at)->diffForHumans() }}</span>
+										@if($isUnpaid)
+											<a href="{{ $paymentUrl }}" class="order-card__cta btn btn-sm btn-outline-success">Bayar Sekarang</a>
+										@endif
 									</div>
 								</header>
 
@@ -64,27 +113,33 @@
 										@foreach($order->items as $item)
 											@php
 												$product = $item->product;
-												$image = null;
-												if ($product && is_array($product->images)) {
-													$image = collect($product->images)->first();
-												}
-												if ($image && !Illuminate\Support\Str::startsWith($image, ['http://', 'https://'])) {
-													$image = asset('storage/' . ltrim($image, '/'));
-												}
-												$image = $image ?? asset('images/placeholder_img.jpg');
+												$image = $resolveProductImage($product);
 											@endphp
 											<li class="order-item d-flex align-items-start gap-3">
 												<div class="order-item__thumb">
-													<img src="{{ $image }}" alt="{{ $item->product_name }}" onerror="this.onerror=null;this.src='{{ asset('images/placeholder_img.jpg') }}';">
+													<img src="{{ $image }}" alt="{{ $item->product_name }}" onerror="this.onerror=null;this.src='{{ $placeholderImage }}';">
 												</div>
 												<div class="order-item__details flex-grow-1">
 													<div class="order-item__top">
 														<h3 class="order-item__name">{{ $item->product_name }}</h3>
 														<span class="order-item__price">Rp {{ number_format((float) ($item->total_price ?? $item->subtotal ?? $item->unit_price * $item->quantity), 0, ',', '.') }}</span>
 													</div>
+													@php
+														$variants = collect($item->selected_attributes ?? $item->product_attributes ?? [])
+															->filter(fn ($value) => $value !== null && $value !== '')
+															->map(function ($value, $key) {
+																$label = ucwords(str_replace(['_', '-'], ' ', (string) $key));
+																return $label . ': ' . $value;
+															})
+															->values()
+															->all();
+													@endphp
 													<div class="order-item__meta">
 														<span class="order-item__quantity">Qty: {{ $item->quantity }}</span>
 														<span class="order-item__unit">@ Rp {{ number_format((float) ($item->unit_price ?? 0), 0, ',', '.') }}</span>
+														@if(!empty($variants))
+															<span class="order-item__variants">{{ implode(' · ', $variants) }}</span>
+														@endif
 													</div>
 												</div>
 											</li>

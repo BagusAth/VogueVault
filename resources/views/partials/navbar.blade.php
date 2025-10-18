@@ -24,7 +24,7 @@
                     @endauth
 
                     <!-- Cart -->
-                    <a href="{{ route('cart.index') }}" class="nav-icon" title="Cart">
+                    <a href="{{ route('cart.overview') }}" class="nav-icon" title="Cart">
                         <i class="bi bi-cart3"></i>
                         <span class="nav-text">Cart</span>
                     </a>

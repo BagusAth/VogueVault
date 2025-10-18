@@ -164,6 +164,7 @@
                         <form action="{{ route('cart.add', $product->id) }}" method="POST" class="d-grid">
                             @csrf
                             <input type="hidden" name="quantity" id="cartQuantity" value="1">
+                            <input type="hidden" name="variants_payload" id="cartVariantsPayload" value='@json($activeSelections)'>
                             <button type="submit" class="btn-cart">
                                 <i class="bi bi-cart-plus"></i> Keranjang
                             </button>
@@ -173,6 +174,7 @@
                         <form action="{{ route('checkout.buyNow', $product->id) }}" method="POST" class="d-grid">
                             @csrf
                             <input type="hidden" name="quantity" id="buyNowQuantity" value="1">
+                            <input type="hidden" name="variants_payload" id="buyNowVariantsPayload" value='@json($activeSelections)'>
                             <button type="submit" class="btn-buy">
                                 <i class="bi bi-bag-check"></i> Beli Sekarang
                             </button>
