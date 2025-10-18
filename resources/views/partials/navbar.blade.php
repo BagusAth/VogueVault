@@ -1,13 +1,11 @@
 <!-- Header -->
 <header class="vogue-header"> 
     <div class="container-fluid px-4">
-        <div class="row align-items-center py-3">
+    <div class="row align-items-center py-1">
             <!-- Logo -->
             <div class="col-auto">
                 <a href="{{ route('home') }}" class="logo-container">
-                    <div class="logo-icon">
-                        <i class="bi bi-building"></i>
-                    </div>
+                    <img src="{{ asset('images/logo1.png') }}" alt="VogueVault logo" class="logo-image">
                     <span class="logo-text">VogueVault</span>
                 </a>
             </div>

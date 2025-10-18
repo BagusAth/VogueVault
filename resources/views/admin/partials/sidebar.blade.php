@@ -1,9 +1,10 @@
 <div class="sidebar-container">
     <aside class="sidebar">
         <div class="brand">
-            <div class="brand-icon">
+            <!-- <div class="brand-icon">
                 <i class="bi bi-shop"></i>
-            </div>
+            </div> -->
+            <img src="{{ asset('images/logo1.png') }}" alt="VogueVault logo" class="logo-image" style="height: 28px; width: auto;">
             VogueVault
         </div>
 
@@ -16,7 +17,7 @@
                 <i class="bi bi-bag"></i>
                 Products
             </a>
-            <a href="#" class="nav-item disabled" aria-disabled="true">
+            <a href="{{ route('admin.orders.index') }}" class="nav-item {{ ($active ?? '') === 'orders' ? 'active' : '' }}">
                 <i class="bi bi-layout-text-window"></i>
                 Orders
             </a>

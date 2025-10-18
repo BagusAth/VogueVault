@@ -1,182 +1,126 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Order - VogueVault</title>
-  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-
-  <style>
-    body {
-      background-color: #EAE9D3;
-      font-family: 'Inter', sans-serif;
-      min-height: 100vh;
-    }
-
-    .sidebar {
-      background-color: #ffffff;
-      border-radius: 20px;
-      padding: 24px;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      box-shadow: 0 0 10px rgba(0,0,0,0.05);
-    }
-
-    .menu-item {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      color: #333;
-      padding: 8px;
-      border-radius: 8px;
-      transition: 0.2s;
-    }
-
-    .menu-item:hover {
-      background-color: #f3f3f3;
-    }
-
-    .menu-item.active {
-      font-weight: 600;
-      background-color: #f5f5f5;
-    }
-
-    main {
-      display: flex;
-      flex-direction: column;
-      height: 100vh;
-      overflow: hidden;
-    }
-
-    .table-container {
-      flex-grow: 1;
-      background: white;
-      border-radius: 16px;
-      border: 1px solid #d1d5db;
-      padding: 20px;
-      box-shadow: 0 1px 4px rgba(0,0,0,0.05);
-      overflow-y: auto;
-    }
-
-    select {
-      border: 1px solid #d1d5db;
-      border-radius: 6px;
-      padding: 4px 8px;
-      font-size: 0.875rem;
-      outline: none;
-      background-color: #f9fafb;
-    }
-
-    select:focus {
-      border-color: #9ca3af;
-      background-color: white;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin · Orders - VogueVault</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="{{ asset('css/admin/product.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/admin/order.css') }}">
 </head>
 <body>
+    <div class="layout">
+        @include('admin.partials.sidebar', ['active' => 'orders'])
 
-  <div class="flex min-h-screen">
+        <main class="content">
+            <header class="content-header">
+                <div>
+                    <h1 class="content-title">Orders</h1>
+                    <p class="content-subtitle">Monitor transaksi pelanggan dan kelola status pengiriman.</p>
+                </div>
+            </header>
 
-    <!-- Sidebar -->
-    <aside class="w-64 sidebar m-4">
-      <div>
-        <div class="flex items-center mb-10 space-x-2">
-          <img src="https://cdn-icons-png.flaticon.com/512/891/891462.png" class="w-6 h-6" alt="">
-          <h1 class="text-lg font-bold">VogueVault</h1>
-        </div>
+            @if(session('success'))
+                <div class="order-alert success">{{ session('success') }}</div>
+            @endif
 
-        <nav class="space-y-3">
-          <a href="#" class="menu-item">
-            <span>📊</span> <span>Dashboard</span>
-          </a>
-          <a href="#" class="menu-item">
-            <span>📦</span> <span>Product</span>
-          </a>
-          <a href="#" class="menu-item active">
-            <span>🧾</span> <span>Order</span>
-          </a>
-          <a href="#" class="menu-item">
-            <span>🔔</span> <span>Notification</span>
-          </a>
-          <a href="#" class="menu-item">
-            <span>❓</span> <span>Help</span>
-          </a>
-        </nav>
-      </div>
+            <section class="order-panel">
+                @if($orders->isEmpty())
+                    <div class="order-empty">
+                        <i class="bi bi-inboxes"></i>
+                        <p>Belum ada order yang masuk.</p>
+                    </div>
+                @else
+                    <div class="order-table-wrapper">
+                        <table class="order-table">
+                            <thead>
+                                <tr>
+                                    <th>Order</th>
+                                    <th>Customer</th>
+                                    <th>Date</th>
+                                    <th>Status</th>
+                                    <th class="text-right">Amount</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach($orders as $order)
+                                    @php
+                                        $amount = $order->total_amount ?? $order->subtotal ?? 0;
+                                    @endphp
+                                    <tr>
+                                        <td>
+                                            <div class="order-ident">
+                                                <span class="order-number">{{ $order->order_number }}</span>
+                                                <span class="order-meta">{{ optional($order->created_at)->format('d M Y • H:i') }}</span>
+                                                @if($order->payment_method)
+                                                    <span class="order-meta muted">{{ strtoupper($order->payment_method) }}</span>
+                                                @endif
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="order-customer">
+                                                <span>{{ $order->user->name ?? 'Unknown customer' }}</span>
+                                                <span class="order-meta">{{ $order->user->email ?? '—' }}</span>
+                                            </div>
+                                        </td>
+                                        <td>{{ optional($order->created_at)->format('d M Y') }}</td>
+                                        <td>
+                                            <form action="{{ route('admin.orders.updateStatus', $order) }}" method="POST" class="status-form">
+                                                @csrf
+                                                @method('PATCH')
+                                                <select name="status" class="status-select status-{{ $order->status }}" onchange="this.form.submit()">
+                                                    @foreach($statusOptions as $value => $label)
+                                                        <option value="{{ $value }}" @selected($order->status === $value)>
+                                                            {{ $label }}
+                                                        </option>
+                                                    @endforeach
+                                                </select>
+                                                <noscript>
+                                                    <button type="submit" class="status-submit">Perbarui</button>
+                                                </noscript>
+                                            </form>
+                                        </td>
+                                        <td class="text-right order-amount">Rp {{ number_format($amount, 0, ',', '.') }}</td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
 
-      <div class="text-sm text-gray-500 flex items-center gap-2">
-        <span>👤</span> <span>Username</span>
-      </div>
-    </aside>
+                    <div class="order-pagination">
+                        {{ $orders->links() }}
+                    </div>
+                @endif
+            </section>
+        </main>
+    </div>
 
-    <!-- Main Content -->
-    <main class="flex-1 p-10">
-      <div class="flex justify-between items-center mb-6">
-        <h2 class="text-lg font-semibold">Recent Purchases</h2>
-      </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const selects = document.querySelectorAll('.status-select');
 
-      <!-- Table -->
-      <div class="table-container">
-        <table class="text-sm text-left w-full border-collapse">
-          <thead class="border-b sticky top-0 bg-white">
-            <tr class="font-semibold text-gray-700">
-              <th class="p-3 w-8"><input type="checkbox"></th>
-              <th class="p-3">Product</th>
-              <th class="p-3">Order ID</th>
-              <th class="p-3">Date</th>
-              <th class="p-3">Customer Name</th>
-              <th class="p-3">Status</th>
-              <th class="p-3">Amount</th>
-            </tr>
-          </thead>
-          <tbody class="text-gray-600">
-            @for ($i = 0; $i < 50; $i++)
-              @php
-                $orderId = sprintf("#%06d", $i + 1); // format jadi #000001, #000002, dst
-              @endphp
-              <tr class="border-b hover:bg-gray-50">
-                <td class="p-3"><input type="checkbox"></td>
-                <td class="p-3">Product {{ $i+1 }}</td>
-                <td class="p-3 font-mono text-gray-700">{{ $orderId }}</td>
-                <td class="p-3">2025-10-08</td>
-                <td class="p-3">Customer {{ $i+1 }}</td>
-                <td class="p-3">
-                  <select class="status-select" onchange="updateStatusColor(this)">
-                    <option value="completed" selected>Completed</option>
-                    <option value="pending">Pending</option>
-                    <option value="processing">Processing</option>
-                    <option value="canceled">Canceled</option>
-                  </select>
-                </td>
-                <td class="p-3">$ {{ $i * 10 }}</td>
-              </tr>
-            @endfor
-          </tbody>
-        </table>
-      </div>
-    </main>
-  </div>
+            const statusClassMap = {
+                pending: 'status-pending',
+                processing: 'status-processing',
+                shipped: 'status-shipped',
+                delivered: 'status-delivered',
+                cancelled: 'status-cancelled',
+                refunded: 'status-refunded'
+            };
 
-  <!-- Script ubah warna status -->
-  <script>
-    function updateStatusColor(select) {
-      const colorMap = {
-        completed: 'bg-green-100 text-green-700 border-green-400',
-        pending: 'bg-yellow-100 text-yellow-700 border-yellow-400',
-        processing: 'bg-blue-100 text-blue-700 border-blue-400',
-        canceled: 'bg-red-100 text-red-700 border-red-400'
-      };
+            selects.forEach(select => {
+                const applyState = () => {
+                    Object.values(statusClassMap).forEach(cls => select.classList.remove(cls));
+                    const state = statusClassMap[select.value];
+                    if (state) {
+                        select.classList.add(state);
+                    }
+                };
 
-      select.className = 'status-select border rounded px-2 py-1 text-sm';
-      const selectedValue = select.value;
-      select.classList.add(...colorMap[selectedValue].split(' '));
-    }
-
-    document.addEventListener('DOMContentLoaded', () => {
-      document.querySelectorAll('.status-select').forEach(select => updateStatusColor(select));
-    });
-  </script>
-
+                select.addEventListener('change', applyState);
+                applyState();
+            });
+        });
+    </script>
 </body>
 </html>

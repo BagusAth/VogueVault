@@ -23,22 +23,25 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // Tab switching functionality
-    document.querySelectorAll('.tab-buttons .btn').forEach(button => {
-        button.addEventListener('click', function() {
-            const tabId = this.dataset.tab;
-            document.querySelectorAll('.tab-buttons .btn').forEach(btn => btn.classList.remove('active'));
-            this.classList.add('active');
+    const tabButtons = Array.from(document.querySelectorAll('.tab-buttons [data-tab]'));
+    if (tabButtons.length) {
+        tabButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                const tabId = this.dataset.tab;
+                tabButtons.forEach(btn => btn.classList.remove('active'));
+                this.classList.add('active');
 
-            document.querySelectorAll('.tab-pane-content').forEach(pane => {
-                pane.classList.add('d-none');
+                document.querySelectorAll('.tab-pane-content').forEach(pane => {
+                    pane.classList.add('d-none');
+                });
+
+                const activePane = document.getElementById(`tab-${tabId}`);
+                if (activePane) {
+                    activePane.classList.remove('d-none');
+                }
             });
-
-            const activePane = document.getElementById(`tab-${tabId}`);
-            if (activePane) {
-                activePane.classList.remove('d-none');
-            }
         });
-    });
+    }
 
     // Quantity control functionality
     const updateSubtotal = () => {

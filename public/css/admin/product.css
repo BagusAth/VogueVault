@@ -58,6 +58,12 @@ a {
     color: var(--accent-2);
 }
 
+.brand .logo-image {
+    height: 28px;
+    width: auto;
+    display: block;
+}
+
 .brand-icon {
     width: 44px;
     height: 44px;
