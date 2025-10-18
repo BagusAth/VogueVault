@@ -48,9 +48,11 @@
                                     <span class="product-name">{{ $product->name }}</span>
                                     <span class="product-price">Rp {{ number_format($product->price, 0, ',', '.') }}</span>
                                 </div>
-                                <button type="button" style="border:none;background:transparent;color:var(--muted);font-size:18px;cursor:pointer;">
-                                    <i class="bi bi-three-dots"></i>
-                                </button>
+                                <a href="{{ route('admin.products.edit', $product->id) }}" 
+                                    style="color: var(--muted); font-size:18px;" 
+                                    title="Edit Product">
+                                        <i class="bi bi-pencil-square"></i>
+                                </a>
                             </header>
 
                             <p class="product-description">{{ $description }}</p>
