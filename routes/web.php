@@ -47,6 +47,11 @@ Route::middleware(['auth', 'admin'])->group(function () {
         return view('admin.dashboard');
     })->name('admin.dashboard');
 
+    // Order page
+    Route::get('/admin/order', function () {
+        return view('admin.order');
+    })->name('admin.order');
+
     Route::get('/admin/products', [AdminProductController::class, 'index'])->name('admin.products.index');
     Route::get('/admin/products/create', [AdminProductController::class, 'create'])->name('admin.products.create');
     Route::post('/admin/products', [AdminProductController::class, 'store'])->name('admin.products.store');
@@ -57,6 +62,7 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::put('/admin/products/{product}', [AdminProductController::class, 'update'])
         ->name('admin.products.update');
 });
+
 
 // --- Customer ---
 Route::middleware(['auth', 'customer'])->group(function () {
@@ -80,6 +86,10 @@ Route::middleware(['auth', 'customer'])->group(function () {
 
     // Notifications
     Route::get('/notifications', [HomeController::class, 'notifications'])->name('notifications');
+});
+
+
+
 
     //Help
     Route::get('/help', function () {
