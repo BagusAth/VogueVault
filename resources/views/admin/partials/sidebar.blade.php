@@ -1,12 +1,12 @@
 <div class="sidebar-container">
     <aside class="sidebar">
-        <div class="brand">
+        <a href="{{ route('admin.dashboard') }}" class="brand" title="Go to dashboard">
             <!-- <div class="brand-icon">
                 <i class="bi bi-shop"></i>
             </div> -->
             <img src="{{ asset('images/logo1.png') }}" alt="VogueVault logo" class="logo-image" style="height: 28px; width: auto;">
-            VogueVault
-        </div>
+            <span>VogueVault</span>
+        </a>
 
         <nav class="nav-links">
             <a href="{{ route('admin.dashboard') }}" class="nav-item {{ ($active ?? '') === 'dashboard' ? 'active' : '' }}">

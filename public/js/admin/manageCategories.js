@@ -8,9 +8,154 @@ document.addEventListener('DOMContentLoaded', () => {
 	const modalCategoryLabel = deleteModal?.querySelector('[data-modal-category]');
 	const confirmDeleteBtn = deleteModal?.querySelector('[data-action="confirm-delete"]');
 	const cancelDeleteBtn = deleteModal?.querySelector('[data-action="cancel-delete"]');
+	const dropzones = document.querySelectorAll('[data-dropzone]');
 	let pendingDeleteForm = null;
 	let modalClosingTimeout;
 	let lastDeleteTrigger = null;
+
+	// Handle drag & drop image uploads for create / edit forms
+	dropzones.forEach((zone) => {
+		const input = zone.querySelector('[data-dropzone-input]');
+		const trigger = zone.querySelector('[data-dropzone-trigger]');
+		const preview = zone.querySelector('[data-dropzone-preview]');
+		const previewImg = zone.querySelector('[data-dropzone-preview-img]');
+		const fileNameLabel = zone.querySelector('[data-dropzone-filename]');
+		const removeBtn = zone.querySelector('[data-dropzone-remove]');
+		let objectUrl;
+
+		if (!input) {
+			return;
+		}
+
+		const clearPreview = () => {
+			if (objectUrl) {
+				URL.revokeObjectURL(objectUrl);
+				objectUrl = undefined;
+			}
+			zone.classList.remove('has-file');
+			if (preview) {
+				preview.hidden = true;
+			}
+			if (previewImg) {
+				previewImg.removeAttribute('src');
+			}
+			if (fileNameLabel) {
+				fileNameLabel.textContent = 'No file selected';
+			}
+			input.value = '';
+		};
+
+		const assignFile = (file, originalList) => {
+			if (!file || !file.type?.startsWith('image/')) {
+				clearPreview();
+				return;
+			}
+
+			let assigned = false;
+			if (typeof DataTransfer !== 'undefined') {
+				try {
+					const dataTransfer = new DataTransfer();
+					dataTransfer.items.add(file);
+					input.files = dataTransfer.files;
+					assigned = true;
+				} catch (error) {
+					assigned = false;
+				}
+			}
+			if (!assigned && originalList) {
+				try {
+					input.files = originalList;
+					assigned = true;
+				} catch (error) {
+					assigned = false;
+				}
+			}
+			if (!assigned) {
+				clearPreview();
+				return;
+			}
+
+			zone.classList.add('has-file');
+			if (preview) {
+				preview.hidden = false;
+			}
+			if (fileNameLabel) {
+				fileNameLabel.textContent = file.name;
+			}
+			if (previewImg) {
+				if (objectUrl) {
+					URL.revokeObjectURL(objectUrl);
+				}
+				objectUrl = URL.createObjectURL(file);
+				previewImg.src = objectUrl;
+			}
+		};
+
+		const handleFiles = (files, originalList) => {
+			if (files && files.length > 0) {
+				assignFile(files[0], originalList ?? files);
+			}
+		};
+
+		trigger?.addEventListener('click', () => {
+			input.click();
+		});
+
+		input.addEventListener('change', () => {
+			handleFiles(input.files);
+		});
+
+		removeBtn?.addEventListener('click', (event) => {
+			event.preventDefault();
+			clearPreview();
+		});
+
+		const endDrag = () => zone.classList.remove('is-dragging');
+
+		['dragenter', 'dragover'].forEach((type) => {
+			zone.addEventListener(type, (event) => {
+				event.preventDefault();
+				zone.classList.add('is-dragging');
+			});
+		});
+
+		['dragleave', 'dragend'].forEach((type) => {
+			zone.addEventListener(type, (event) => {
+				if (event.currentTarget !== zone) {
+					return;
+				}
+				if (event.type === 'dragleave') {
+					const nextTarget = event.relatedTarget;
+					if (nextTarget && zone.contains(nextTarget)) {
+						return;
+					}
+				}
+				endDrag();
+			});
+		});
+
+		zone.addEventListener('drop', (event) => {
+			event.preventDefault();
+			endDrag();
+			const droppedFiles = event.dataTransfer?.files;
+			handleFiles(droppedFiles, droppedFiles);
+		});
+
+		zone.addEventListener('paste', (event) => {
+			const files = event.clipboardData?.files;
+			if (files && files.length > 0) {
+				event.preventDefault();
+				handleFiles(files, files);
+			}
+		});
+
+		const parentForm = zone.closest('form');
+		if (parentForm) {
+			parentForm.addEventListener('reset', () => {
+				requestAnimationFrame(clearPreview);
+			});
+		}
+	});
 
 	const dismissAlert = (alert) => {
 		if (!alert || alert.classList.contains('is-exiting')) {

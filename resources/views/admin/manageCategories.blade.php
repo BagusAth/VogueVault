@@ -76,7 +76,8 @@
 						<label class="form-field">
 							<span>Status</span>
 							<div class="switch-input">
-								<input type="checkbox" id="new_category_is_active" name="is_active" {{ old('is_active', true) ? 'checked' : '' }}>
+								<input type="hidden" name="is_active" value="0">
+								<input type="checkbox" id="new_category_is_active" name="is_active" value="1" {{ old('is_active', true) ? 'checked' : '' }}>
 								<label for="new_category_is_active">Active</label>
 							</div>
 						</label>
@@ -87,7 +88,22 @@
 					</label>
 					<label class="form-field">
 						<span>Image</span>
-						<input type="file" name="image" accept="image/*">
+						<div class="file-drop" data-dropzone>
+							<input type="file" name="image" accept="image/*" data-dropzone-input>
+							<button type="button" class="file-drop-body" data-dropzone-trigger>
+								<span class="file-drop-icon"><i class="bi bi-cloud-arrow-up"></i></span>
+								<span class="file-drop-text">Drag &amp; drop or <span class="file-drop-link">browse</span> to upload</span>
+								<span class="file-drop-hint">PNG, JPG, atau WEBP hingga 2&nbsp;MB</span>
+							</button>
+							<div class="file-drop-preview" data-dropzone-preview hidden>
+								<img src="" alt="Selected preview" data-dropzone-preview-img>
+								<div class="file-drop-meta">
+									<span class="file-drop-name" data-dropzone-filename>No file selected</span>
+									<button type="button" class="file-drop-remove" data-dropzone-remove>Remove</button>
+								</div>
+							</div>
+						</div>
+						<span class="field-hint">Anda juga dapat menempelkan gambar langsung ke area unggah.</span>
 					</label>
 
 					<div class="form-actions">

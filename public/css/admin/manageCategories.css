@@ -172,6 +172,127 @@ a {
     cursor: pointer;
 }
 
+.file-drop {
+	position: relative;
+	border: 2px dashed rgba(58, 102, 73, 0.24);
+	border-radius: 18px;
+	background-color: rgba(58, 102, 73, 0.06);
+	padding: 18px;
+	display: grid;
+	gap: 12px;
+	transition: border-color 0.2s ease, background-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.file-drop input[type="file"] {
+	position: absolute;
+	width: 1px;
+	height: 1px;
+	padding: 0;
+	margin: -1px;
+	overflow: hidden;
+	clip: rect(0, 0, 0, 0);
+	border: 0;
+}
+
+.file-drop-body {
+	background: none;
+	border: none;
+	display: grid;
+	gap: 8px;
+	place-items: center;
+	padding: 12px;
+	border-radius: 12px;
+	cursor: pointer;
+	font: inherit;
+	color: var(--accent);
+	width: 100%;
+	text-align: center;
+}
+
+.file-drop-body:focus-visible {
+	outline: 2px solid rgba(58, 102, 73, 0.55);
+	outline-offset: 4px;
+}
+
+.file-drop-icon {
+	width: 52px;
+	height: 52px;
+	border-radius: 16px;
+	background-color: rgba(58, 102, 73, 0.12);
+	color: var(--accent-2);
+	display: grid;
+	place-items: center;
+	font-size: 26px;
+}
+
+.file-drop-text {
+	font-weight: 600;
+	text-align: center;
+}
+
+.file-drop-link {
+	color: var(--accent-2);
+}
+
+.file-drop-hint {
+	font-size: 12px;
+	color: var(--muted);
+	text-align: center;
+}
+
+.file-drop-preview {
+	display: grid;
+	grid-template-columns: 96px 1fr;
+	gap: 14px;
+	align-items: center;
+}
+
+.file-drop-preview img {
+	width: 96px;
+	height: 96px;
+	object-fit: cover;
+	border-radius: 16px;
+	box-shadow: 0 8px 22px rgba(31, 31, 31, 0.08);
+}
+
+.file-drop-meta {
+	display: grid;
+	gap: 6px;
+	align-items: center;
+}
+
+.file-drop-name {
+	font-weight: 600;
+	color: var(--accent);
+}
+
+.file-drop-remove {
+	width: fit-content;
+	border: none;
+	background: rgba(185, 73, 73, 0.12);
+	color: var(--danger);
+	border-radius: 999px;
+	padding: 6px 14px;
+	font-weight: 600;
+	cursor: pointer;
+	transition: background 0.2s ease;
+}
+
+.file-drop-remove:hover {
+	background: rgba(185, 73, 73, 0.2);
+}
+
+.file-drop.is-dragging {
+	border-color: var(--accent-2);
+	background-color: rgba(58, 102, 73, 0.12);
+	box-shadow: 0 16px 32px rgba(58, 102, 73, 0.12);
+}
+
+.file-drop.has-file {
+	border-style: solid;
+	background-color: rgba(58, 102, 73, 0.08);
+}
+
 .current-image {
     display: grid;
     gap: 10px;

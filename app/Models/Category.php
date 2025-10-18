@@ -76,7 +76,7 @@ class Category extends Model
         $cleanPath = ltrim($path, '/');
 
         if (Storage::disk('public')->exists($cleanPath)) {
-            return asset('storage/' . $cleanPath);
+            return route('media.show', ['path' => $cleanPath]);
         }
 
         if (file_exists(public_path($cleanPath))) {

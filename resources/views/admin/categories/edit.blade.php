@@ -73,7 +73,8 @@
                         <label class="form-field">
                             <span>Status</span>
                             <div class="switch-input">
-                                <input type="checkbox" id="edit_category_is_active" name="is_active" {{ old('is_active', $category->is_active) ? 'checked' : '' }}>
+                                <input type="hidden" name="is_active" value="0">
+                                <input type="checkbox" id="edit_category_is_active" name="is_active" value="1" {{ old('is_active', $category->is_active) ? 'checked' : '' }}>
                                 <label for="edit_category_is_active">Active</label>
                             </div>
                         </label>
@@ -87,8 +88,22 @@
                     <div class="form-grid">
                         <label class="form-field">
                             <span>Update Image</span>
-                            <input type="file" name="image" accept="image/*">
-                            <span class="field-hint">Upload a new image to replace the existing one. Leave empty to keep current.</span>
+                            <div class="file-drop" data-dropzone>
+                                <input type="file" name="image" accept="image/*" data-dropzone-input>
+                                <button type="button" class="file-drop-body" data-dropzone-trigger>
+                                    <span class="file-drop-icon"><i class="bi bi-cloud-arrow-up"></i></span>
+                                    <span class="file-drop-text">Drag &amp; drop atau <span class="file-drop-link">pilih berkas</span></span>
+                                    <span class="file-drop-hint">PNG, JPG, atau WEBP hingga 2&nbsp;MB</span>
+                                </button>
+                                <div class="file-drop-preview" data-dropzone-preview hidden>
+                                    <img src="" alt="Selected preview" data-dropzone-preview-img>
+                                    <div class="file-drop-meta">
+                                        <span class="file-drop-name" data-dropzone-filename>No file selected</span>
+                                        <button type="button" class="file-drop-remove" data-dropzone-remove>Remove</button>
+                                    </div>
+                                </div>
+                            </div>
+                            <span class="field-hint">Unggah gambar baru untuk mengganti yang lama. Biarkan kosong untuk mempertahankan.</span>
                         </label>
                         <div class="form-field">
                             <span>Current Image</span>
@@ -109,5 +124,6 @@
             </section>
         </main>
     </div>
+    <script src="{{ asset('js/admin/manageCategories.js') }}" defer></script>
 </body>
 </html>
