@@ -46,11 +46,12 @@
                                 @foreach($orders as $order)
                                     @php
                                         $amount = $order->total_amount ?? $order->subtotal ?? 0;
+                                        $orderNumber = $order->order_number ?: sprintf('#%06d', $order->id);
                                     @endphp
                                     <tr>
                                         <td>
                                             <div class="order-ident">
-                                                <span class="order-number">{{ $order->order_number }}</span>
+                                                <span class="order-number">{{ $orderNumber }}</span>
                                                 <span class="order-meta">{{ optional($order->created_at)->format('d M Y • H:i') }}</span>
                                                 @if($order->payment_method)
                                                     <span class="order-meta muted">{{ strtoupper($order->payment_method) }}</span>

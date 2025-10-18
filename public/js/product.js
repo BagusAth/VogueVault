@@ -10,6 +10,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const previewImage = document.getElementById('selectedImagePreview');
     const qtyInput = document.getElementById('quantity');
     const subtotalEl = document.getElementById('subtotal');
+    const cartQty = document.getElementById('cartQuantity');
+    const buyQty = document.getElementById('buyNowQuantity');
 
     // Image thumbnail functionality
     document.querySelectorAll('.thumbnail-strip .thumbnail').forEach(thumb => {
@@ -23,32 +25,57 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // Tab switching functionality
-    const tabButtons = Array.from(document.querySelectorAll('.tab-buttons [data-tab]'));
-    if (tabButtons.length) {
-        tabButtons.forEach(button => {
-            button.addEventListener('click', function() {
-                const tabId = this.dataset.tab;
-                tabButtons.forEach(btn => btn.classList.remove('active'));
-                this.classList.add('active');
+    const tabButtons = Array.from(document.querySelectorAll('.tab-buttons .tab-toggle'));
+    const tabPanes = Array.from(document.querySelectorAll('.tab-pane-content'));
 
-                document.querySelectorAll('.tab-pane-content').forEach(pane => {
-                    pane.classList.add('d-none');
-                });
+    if (tabButtons.length && tabPanes.length) {
+        const setActiveTab = (tabId) => {
+            tabButtons.forEach(btn => {
+                btn.classList.toggle('active', btn.getAttribute('data-tab') === tabId);
+            });
 
-                const activePane = document.getElementById(`tab-${tabId}`);
-                if (activePane) {
-                    activePane.classList.remove('d-none');
+            tabPanes.forEach(pane => {
+                const isActive = pane.id === `tab-${tabId}`;
+                pane.classList.toggle('d-none', !isActive);
+                if (isActive) {
+                    pane.removeAttribute('hidden');
+                } else {
+                    pane.setAttribute('hidden', 'hidden');
                 }
             });
+        };
+
+        tabButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                const targetTab = button.getAttribute('data-tab');
+                if (!targetTab) {
+                    return;
+                }
+                setActiveTab(targetTab);
+            });
         });
+
+        const initiallyActive = tabButtons.find(btn => btn.classList.contains('active')) || tabButtons[0];
+        if (initiallyActive) {
+            setActiveTab(initiallyActive.getAttribute('data-tab'));
+        }
     }
 
     // Quantity control functionality
+    const syncQuantityFields = () => {
+        if (!qtyInput) return;
+        const value = qtyInput.value;
+        if (cartQty) cartQty.value = value;
+        if (buyQty) buyQty.value = value;
+    };
+
     const updateSubtotal = () => {
-        if (!qtyInput || !subtotalEl) return;
-        const quantity = parseInt(qtyInput.value, 10);
-        const newSubtotal = basePrice * quantity;
-        subtotalEl.textContent = `Rp ${newSubtotal.toLocaleString('id-ID')}`;
+        if (qtyInput && subtotalEl) {
+            const quantity = parseInt(qtyInput.value, 10) || 1;
+            const newSubtotal = basePrice * quantity;
+            subtotalEl.textContent = `Rp ${newSubtotal.toLocaleString('id-ID')}`;
+        }
+        syncQuantityFields();
     };
 
     document.querySelectorAll('.qty-btn').forEach(button => {
