@@ -21,14 +21,6 @@
                 <i class="bi bi-layout-text-window"></i>
                 Orders
             </a>
-            <a href="#" class="nav-item disabled" aria-disabled="true">
-                <i class="bi bi-bell"></i>
-                Notifications
-            </a>
-            <a href="#" class="nav-item disabled" aria-disabled="true">
-                <i class="bi bi-question-circle"></i>
-                Help
-            </a>
         </nav>
 
         <div class="nav-footer">

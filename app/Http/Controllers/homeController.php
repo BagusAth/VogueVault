@@ -113,13 +113,4 @@ class HomeController extends Controller
         });
     }
 
-    public function notifications()
-    {
-    // nanti bisa diganti ambil dari database
-    $notifications = [
-        ['message' => 'Tidak ada notifikasi baru'],
-    ];
-
-    return view('notifications.index', compact('notifications'));
-    }
 }
