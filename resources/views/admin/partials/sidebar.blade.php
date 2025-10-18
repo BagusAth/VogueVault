@@ -1,9 +1,10 @@
 <div class="sidebar-container">
     <aside class="sidebar">
         <div class="brand">
-            <div class="brand-icon">
+            <!-- <div class="brand-icon">
                 <i class="bi bi-shop"></i>
-            </div>
+            </div> -->
+            <img src="{{ asset('images/logo1.png') }}" alt="VogueVault logo" class="logo-image">
             VogueVault
         </div>
 
