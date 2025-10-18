@@ -82,10 +82,12 @@
     <main class="main-content">
         <!-- New Arrivals Section -->
         <section class="products-section py-5">
-            <div class="container">
+            <div class="container-fluid px-5">
                 <!-- Section Header -->
-                <div class="section-header mb-4">
-                    <h2 class="section-title">New Arrival</h2>
+                <div class="container px-0">
+                    <div class="section-header mb-4">
+                        <h2 class="section-title">New Arrival</h2>
+                    </div>
                 </div>
                 
                 <!-- Products Carousel -->
