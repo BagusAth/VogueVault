@@ -15,13 +15,7 @@
 
     @php
         $productPlaceholder = asset('images/placeholder_img.jpg');
-        $heroBackground = $category->display_image_url ?? null;
-
-        if ($heroBackground && !\Illuminate\Support\Str::startsWith($heroBackground, ['http://', 'https://'])) {
-            $heroBackground = asset('storage/' . ltrim($heroBackground, '/'));
-        }
-
-        $heroBackground = $heroBackground ?? asset('images/background.png');
+        $heroBackground = $category->display_image_url ?? asset('images/background.png');
     @endphp
 
     <main class="main-content">
@@ -56,9 +50,22 @@
                         @foreach($products as $product)
                             @php
                                 $primaryImage = collect($product->images ?? [])->first();
-                                if ($primaryImage && !\Illuminate\Support\Str::startsWith($primaryImage, ['http://', 'https://'])) {
-                                    $primaryImage = asset('storage/' . ltrim($primaryImage, '/'));
+
+                                if ($primaryImage) {
+                                    if (\Illuminate\Support\Str::startsWith($primaryImage, ['http://', 'https://'])) {
+                                        // use as-is
+                                    } else {
+                                        $cleanPath = ltrim($primaryImage, '/');
+                                        if (\Illuminate\Support\Facades\Storage::disk('public')->exists($cleanPath)) {
+                                            $primaryImage = asset('storage/' . $cleanPath);
+                                        } elseif (file_exists(public_path($cleanPath))) {
+                                            $primaryImage = asset($cleanPath);
+                                        } else {
+                                            $primaryImage = null;
+                                        }
+                                    }
                                 }
+
                                 $primaryImage = $primaryImage ?? $productPlaceholder;
                             @endphp
                             <div class="col-12 col-sm-6 col-lg-4 col-xl-3">

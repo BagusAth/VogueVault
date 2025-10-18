@@ -83,9 +83,22 @@
                         @foreach($products as $product)
                             @php
                                 $primaryImage = collect($product->images ?? [])->first();
-                                if ($primaryImage && !\Illuminate\Support\Str::startsWith($primaryImage, ['http://', 'https://'])) {
-                                    $primaryImage = asset('storage/' . ltrim($primaryImage, '/'));
+
+                                if ($primaryImage) {
+                                    if (\Illuminate\Support\Str::startsWith($primaryImage, ['http://', 'https://'])) {
+                                        // already absolute URL
+                                    } else {
+                                        $cleanPath = ltrim($primaryImage, '/');
+                                        if (\Illuminate\Support\Facades\Storage::disk('public')->exists($cleanPath)) {
+                                            $primaryImage = asset('storage/' . $cleanPath);
+                                        } elseif (file_exists(public_path($cleanPath))) {
+                                            $primaryImage = asset($cleanPath);
+                                        } else {
+                                            $primaryImage = null;
+                                        }
+                                    }
                                 }
+
                                 $primaryImage = $primaryImage ?? $productPlaceholder;
                             @endphp
                             <div class="col-12 col-sm-6 col-lg-4 col-xl-3">
