@@ -7,6 +7,7 @@ use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\Admin\ProductController as AdminProductController;
+use App\Http\Controllers\Admin\CategoryController as AdminCategoryController;
 use App\Http\Controllers\Admin\OrderController as AdminOrderController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\CheckoutController;
@@ -62,6 +63,13 @@ Route::middleware(['auth', 'admin'])->group(function () {
         ->name('admin.products.edit');
     Route::put('/admin/products/{product}', [AdminProductController::class, 'update'])
         ->name('admin.products.update');
+
+    // Categories
+    Route::get('/admin/categories', [AdminCategoryController::class, 'index'])->name('admin.categories.index');
+    Route::post('/admin/categories', [AdminCategoryController::class, 'store'])->name('admin.categories.store');
+    Route::get('/admin/categories/{category}/edit', [AdminCategoryController::class, 'edit'])->name('admin.categories.edit');
+    Route::put('/admin/categories/{category}', [AdminCategoryController::class, 'update'])->name('admin.categories.update');
+    Route::delete('/admin/categories/{category}', [AdminCategoryController::class, 'destroy'])->name('admin.categories.destroy');
 });
 
 

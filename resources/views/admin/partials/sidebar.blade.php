@@ -17,6 +17,10 @@
                 <i class="bi bi-bag"></i>
                 Products
             </a>
+            <a href="{{ route('admin.categories.index') }}" class="nav-item {{ ($active ?? '') === 'categories' ? 'active' : '' }}">
+                <i class="bi bi-grid-3x3-gap"></i>
+                Categories
+            </a>
             <a href="{{ route('admin.orders.index') }}" class="nav-item {{ ($active ?? '') === 'orders' ? 'active' : '' }}">
                 <i class="bi bi-layout-text-window"></i>
                 Orders
