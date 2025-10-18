@@ -107,4 +107,4 @@ Route::middleware(['auth', 'customer'])->group(function () {
     // Buy Now
     Route::post('/checkout/buy-now/{product}', [CheckoutController::class, 'buyNow'])
     ->name('checkout.buyNow');
-});
+
