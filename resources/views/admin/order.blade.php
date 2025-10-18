@@ -121,7 +121,7 @@
         <table class="text-sm text-left w-full border-collapse">
           <thead class="border-b sticky top-0 bg-white">
             <tr class="font-semibold text-gray-700">
-              <th class="p-3 w-8">No</th>
+              <th class="p-3 w-8"><input type="checkbox"></th>
               <th class="p-3">Product</th>
               <th class="p-3">Order ID</th>
               <th class="p-3">Date</th>
@@ -133,10 +133,10 @@
           <tbody class="text-gray-600">
             @for ($i = 0; $i < 50; $i++)
               @php
-                $orderId = sprintf("#%06d", $i + 1);
+                $orderId = sprintf("#%06d", $i + 1); // format jadi #000001, #000002, dst
               @endphp
               <tr class="border-b hover:bg-gray-50">
-                <td class="p-3">{{ $i + 1 }}</td>
+                <td class="p-3"><input type="checkbox"></td>
                 <td class="p-3">Product {{ $i+1 }}</td>
                 <td class="p-3 font-mono text-gray-700">{{ $orderId }}</td>
                 <td class="p-3">2025-10-08</td>
