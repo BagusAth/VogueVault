@@ -1,6 +1,8 @@
 document.addEventListener('DOMContentLoaded', () => {
-    const attributeContainer = document.getElementById('attribute-fields');
-    const addAttributeBtn = document.getElementById('add-attribute');
+    const specificationContainer = document.getElementById('specification-fields');
+    const addSpecificationBtn = document.getElementById('add-specification');
+    const variantContainer = document.getElementById('variant-fields');
+    const addVariantBtn = document.getElementById('add-variant');
 
     const fileInput = document.getElementById('images');
     const dropArea = document.getElementById('image-drop-area');
@@ -146,31 +148,36 @@ document.addEventListener('DOMContentLoaded', () => {
     renderPreviews();
     updateLimitNotice();
 
-    const createAttributeRow = (key = '', value = '') => {
+    const createSpecificationRow = (key = '', value = '') => {
         const row = document.createElement('div');
         row.className = 'attribute-row';
 
         const keyInput = document.createElement('input');
         keyInput.type = 'text';
-        keyInput.name = 'attribute_keys[]';
-        keyInput.placeholder = 'Attribute (cth: Size)';
+        keyInput.name = 'specification_keys[]';
+        keyInput.placeholder = 'Spesifikasi (cth: Material)';
         keyInput.value = key;
 
         const valueInput = document.createElement('input');
         valueInput.type = 'text';
-        valueInput.name = 'attribute_values[]';
-        valueInput.placeholder = 'Value (cth: Large)';
+        valueInput.name = 'specification_values[]';
+        valueInput.placeholder = 'Nilai (cth: Katun)';
         valueInput.value = value;
 
         const removeBtn = document.createElement('button');
         removeBtn.type = 'button';
         removeBtn.className = 'attribute-remove';
-        removeBtn.setAttribute('aria-label', 'Remove attribute');
+        removeBtn.setAttribute('aria-label', 'Remove specification');
         removeBtn.innerHTML = '<i class="bi bi-x"></i>';
 
         removeBtn.addEventListener('click', () => {
-            if (attributeContainer.children.length > 1) {
-                attributeContainer.removeChild(row);
+            const container = row.parentElement;
+            if (!container) {
+                return;
+            }
+
+            if (container.children.length > 1) {
+                container.removeChild(row);
             } else {
                 keyInput.value = '';
                 valueInput.value = '';
@@ -183,11 +190,61 @@ document.addEventListener('DOMContentLoaded', () => {
         return row;
     };
 
-    if (attributeContainer && attributeContainer.children.length === 0) {
-        attributeContainer.appendChild(createAttributeRow());
+    const createVariantRow = (key = '', value = '') => {
+        const row = document.createElement('div');
+        row.className = 'attribute-row';
+
+        const keyInput = document.createElement('input');
+        keyInput.type = 'text';
+        keyInput.name = 'variant_keys[]';
+        keyInput.placeholder = 'Varian (cth: Size)';
+        keyInput.value = key;
+
+        const valueInput = document.createElement('input');
+        valueInput.type = 'text';
+        valueInput.name = 'variant_values[]';
+        valueInput.placeholder = 'Daftar opsi (cth: S, M, L)';
+        valueInput.value = value;
+
+        const removeBtn = document.createElement('button');
+        removeBtn.type = 'button';
+        removeBtn.className = 'attribute-remove';
+        removeBtn.setAttribute('aria-label', 'Remove variant');
+        removeBtn.innerHTML = '<i class="bi bi-x"></i>';
+
+        removeBtn.addEventListener('click', () => {
+            const container = row.parentElement;
+            if (!container) {
+                return;
+            }
+
+            if (container.children.length > 1) {
+                container.removeChild(row);
+            } else {
+                keyInput.value = '';
+                valueInput.value = '';
+            }
+        });
+
+        row.appendChild(keyInput);
+        row.appendChild(valueInput);
+        row.appendChild(removeBtn);
+        return row;
+    };
+
+    if (specificationContainer && specificationContainer.children.length === 0) {
+        specificationContainer.appendChild(createSpecificationRow());
     }
 
-    addAttributeBtn?.addEventListener('click', () => {
-        attributeContainer.appendChild(createAttributeRow());
+    if (variantContainer && variantContainer.children.length === 0) {
+        variantContainer.appendChild(createVariantRow());
+    }
+
+    addSpecificationBtn?.addEventListener('click', () => {
+        specificationContainer.appendChild(createSpecificationRow());
+    });
+
+    addVariantBtn?.addEventListener('click', () => {
+        variantContainer.appendChild(createVariantRow());
     });
 });

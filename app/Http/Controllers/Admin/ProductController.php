@@ -51,10 +51,14 @@ class ProductController extends Controller
             'category_id' => ['required', 'exists:categories,id'],
             'images' => ['nullable', 'array', 'max:5'],
             'images.*' => ['nullable', 'image', 'max:4096'],
-            'attribute_keys' => ['nullable', 'array'],
-            'attribute_keys.*' => ['nullable', 'string', 'max:100'],
-            'attribute_values' => ['nullable', 'array'],
-            'attribute_values.*' => ['nullable', 'string', 'max:255'],
+            'specification_keys' => ['nullable', 'array'],
+            'specification_keys.*' => ['nullable', 'string', 'max:100'],
+            'specification_values' => ['nullable', 'array'],
+            'specification_values.*' => ['nullable', 'string', 'max:255'],
+            'variant_keys' => ['nullable', 'array'],
+            'variant_keys.*' => ['nullable', 'string', 'max:100'],
+            'variant_values' => ['nullable', 'array'],
+            'variant_values.*' => ['nullable', 'string'],
         ]);
 
         $imagePaths = [];
@@ -69,16 +73,50 @@ class ProductController extends Controller
             }
         }
 
-        $attributes = [];
-        $keys = $request->input('attribute_keys', []);
-        $values = $request->input('attribute_values', []);
+        $specifications = [];
+        $specKeys = $request->input('specification_keys', []);
+        $specValues = $request->input('specification_values', []);
 
-        foreach ($keys as $index => $key) {
-            $key = trim($key);
-            $value = $values[$index] ?? null;
+        foreach ($specKeys as $index => $key) {
+            $key = trim((string) $key);
+            $value = $specValues[$index] ?? null;
 
             if ($key !== '' && $value !== null && $value !== '') {
-                $attributes[$key] = $value;
+                $specifications[$key] = $value;
+            }
+        }
+
+        $variants = [];
+        $variantKeys = $request->input('variant_keys', []);
+        $variantValues = $request->input('variant_values', []);
+
+        foreach ($variantKeys as $index => $key) {
+            $key = trim((string) $key);
+            $rawValue = $variantValues[$index] ?? null;
+
+            if ($key === '' || $rawValue === null || $rawValue === '') {
+                continue;
+            }
+
+            $options = [];
+
+            if (is_array($rawValue)) {
+                $options = array_values(array_filter(array_map(static function ($option) {
+                    return is_string($option) ? trim($option) : null;
+                }, $rawValue), static function ($option) {
+                    return $option !== null && $option !== '';
+                }));
+            } else {
+                $split = preg_split('/[,\n]+/', (string) $rawValue);
+                $options = array_values(array_filter(array_map(static function ($option) {
+                    return trim($option);
+                }, $split ?: []), static function ($option) {
+                    return $option !== '';
+                }));
+            }
+
+            if (!empty($options)) {
+                $variants[$key] = $options;
             }
         }
 
@@ -90,7 +128,8 @@ class ProductController extends Controller
             'stock' => $validated['stock'],
             'category_id' => $validated['category_id'],
             'images' => !empty($imagePaths) ? $imagePaths : null,
-            'attributes' => !empty($attributes) ? $attributes : null,
+            'specifications' => !empty($specifications) ? $specifications : null,
+            'variants' => !empty($variants) ? $variants : null,
             'is_active' => true,
         ]);
 

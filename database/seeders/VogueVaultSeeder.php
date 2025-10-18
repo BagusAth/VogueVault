@@ -87,10 +87,14 @@ class VogueVaultSeeder extends Seeder
                     'https://images.unsplash.com/photo-1490481651871-ab68de25d43d?auto=format&fit=crop&w=1200&q=80',
                     'https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=1200&q=80',
                 ]),
-                'attributes' => json_encode([
-                    'sizes' => ['XS', 'S', 'M', 'L', 'XL'],
-                    'colors' => ['Blue', 'Red', 'Black'],
-                    'material' => 'Cotton Blend',
+                'specifications' => json_encode([
+                    'Material' => '100% Cotton',
+                    'Fit' => 'Regular',
+                    'Sleeve' => 'Short Sleeve',
+                ]),
+                'variants' => json_encode([
+                    'Size' => ['XS', 'S', 'M', 'L', 'XL'],
+                    'Color' => ['Blue', 'Red', 'Black'],
                 ]),
                 'is_active' => true,
                 'created_at' => now(),
@@ -108,10 +112,14 @@ class VogueVaultSeeder extends Seeder
                     'https://images.unsplash.com/photo-1534452203293-494d7ddbf7e0?auto=format&fit=crop&w=1200&q=80',
                     'https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=1200&q=80',
                 ]),
-                'attributes' => json_encode([
-                    'sizes' => ['XS', 'S', 'M', 'L', 'XL'],
-                    'colors' => ['White', 'Cream'],
-                    'material' => 'Cotton',
+                'specifications' => json_encode([
+                    'Material' => '100% Cotton',
+                    'Fit' => 'Regular',
+                    'Sleeve' => 'Short Sleeve',
+                ]),
+                'variants' => json_encode([
+                    'Size' => ['XS', 'S', 'M', 'L', 'XL'],
+                    'Color' => ['White', 'Cream'],
                 ]),
                 'is_active' => true,
                 'created_at' => now(),
@@ -129,10 +137,14 @@ class VogueVaultSeeder extends Seeder
                     'https://images.unsplash.com/photo-1512436991641-6745cdb1723f?auto=format&fit=crop&w=1200&q=80',
                     'https://images.unsplash.com/photo-1496307042754-b4aa456c4a2d?auto=format&fit=crop&w=1200&q=80',
                 ]),
-                'attributes' => json_encode([
-                    'sizes' => ['24', '26', '28', '30', '32'],
-                    'colors' => ['Dark Blue', 'Light Blue', 'Black'],
-                    'material' => 'Stretch Denim',
+                'specifications' => json_encode([
+                    'Material' => '98% Cotton, 2% Elastane',
+                    'Fit' => 'Slim',
+                    'Rise' => 'Mid-Rise',
+                ]),
+                'variants' => json_encode([
+                    'Waist' => ['24', '26', '28', '30', '32'],
+                    'Length' => ['30', '32', '34'],
                 ]),
                 'is_active' => true,
                 'created_at' => now(),
@@ -150,10 +162,14 @@ class VogueVaultSeeder extends Seeder
                     'https://images.unsplash.com/photo-1490481651871-ab68de25d43d?auto=format&fit=crop&w=1200&q=80',
                     'https://images.unsplash.com/photo-1503342217505-b0a15ec3261c?auto=format&fit=crop&w=1200&q=80',
                 ]),
-                'attributes' => json_encode([
-                    'sizes' => ['XS', 'S', 'M', 'L', 'XL'],
-                    'colors' => ['Pink Floral', 'Blue Floral', 'Yellow Floral'],
-                    'material' => 'Polyester',
+                'specifications' => json_encode([
+                    'Material' => 'Polyester',
+                    'Fit' => 'Regular',
+                    'Length' => 'Midi',
+                ]),
+                'variants' => json_encode([
+                    'Size' => ['XS', 'S', 'M', 'L', 'XL'],
+                    'Color' => ['Pink Floral', 'Blue Floral', 'Yellow Floral'],
                 ]),
                 'is_active' => true,
                 'created_at' => now(),
@@ -171,10 +187,14 @@ class VogueVaultSeeder extends Seeder
                     'https://images.unsplash.com/photo-1530023367847-a683933f4177?auto=format&fit=crop&w=1200&q=80',
                     'https://images.unsplash.com/photo-1487412947147-5cebf100ffc2?auto=format&fit=crop&w=1200&q=80',
                 ]),
-                'attributes' => json_encode([
-                    'sizes' => ['XS', 'S', 'M', 'L', 'XL'],
-                    'colors' => ['Beige', 'Gray', 'Navy', 'Burgundy'],
-                    'material' => 'Wool Blend',
+                'specifications' => json_encode([
+                    'Material' => 'Wool Blend',
+                    'Fit' => 'Regular',
+                    'Sleeve' => 'Long Sleeve',
+                ]),
+                'variants' => json_encode([
+                    'Size' => ['XS', 'S', 'M', 'L', 'XL'],
+                    'Color' => ['Beige', 'Gray', 'Navy', 'Burgundy'],
                 ]),
                 'is_active' => true,
                 'created_at' => now(),
@@ -194,10 +214,14 @@ class VogueVaultSeeder extends Seeder
                     'https://images.unsplash.com/photo-1520962915648-21734a932e4d?auto=format&fit=crop&w=1200&q=80',
                     'https://images.unsplash.com/photo-1520975918319-2be936c6f84c?auto=format&fit=crop&w=1200&q=80',
                 ]),
-                'attributes' => json_encode([
-                    'sizes' => ['S', 'M', 'L', 'XL', 'XXL'],
-                    'colors' => ['Navy', 'White', 'Gray', 'Green'],
-                    'material' => 'Cotton',
+                'specifications' => json_encode([
+                    'Material' => 'Cotton',
+                    'Fit' => 'Regular',
+                    'Sleeve' => 'Short Sleeve',
+                ]),
+                'variants' => json_encode([
+                    'Size' => ['S', 'M', 'L', 'XL', 'XXL'],
+                    'Color' => ['Navy', 'White', 'Gray', 'Green'],
                 ]),
                 'is_active' => true,
                 'created_at' => now(),
@@ -215,10 +239,14 @@ class VogueVaultSeeder extends Seeder
                     'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?auto=format&fit=crop&w=1200&q=80',
                     'https://images.unsplash.com/photo-1520962915648-21734a932e4d?auto=format&fit=crop&w=1200&q=80',
                 ]),
-                'attributes' => json_encode([
-                    'sizes' => ['14.5', '15', '15.5', '16', '16.5', '17'],
-                    'colors' => ['White', 'Light Blue'],
-                    'material' => 'Cotton Blend',
+                'specifications' => json_encode([
+                    'Material' => 'Cotton Blend',
+                    'Fit' => 'Regular',
+                    'Sleeve' => 'Long Sleeve',
+                ]),
+                'variants' => json_encode([
+                    'Size' => ['14.5', '15', '15.5', '16', '16.5', '17'],
+                    'Color' => ['White', 'Light Blue'],
                 ]),
                 'is_active' => true,
                 'created_at' => now(),
@@ -236,10 +264,14 @@ class VogueVaultSeeder extends Seeder
                     'https://images.unsplash.com/photo-1475180098004-ca77a66827be?auto=format&fit=crop&w=1200&q=80',
                     'https://images.unsplash.com/photo-1475274110913-62a7e975d1b0?auto=format&fit=crop&w=1200&q=80',
                 ]),
-                'attributes' => json_encode([
-                    'sizes' => ['30', '32', '34', '36', '38'],
-                    'colors' => ['Khaki', 'Navy', 'Gray', 'Olive'],
-                    'material' => 'Cotton Twill',
+                'specifications' => json_encode([
+                    'Material' => 'Cotton Twill',
+                    'Fit' => 'Slim',
+                    'Rise' => 'Mid-Rise',
+                ]),
+                'variants' => json_encode([
+                    'Waist' => ['30', '32', '34', '36', '38'],
+                    'Length' => ['30', '32', '34'],
                 ]),
                 'is_active' => true,
                 'created_at' => now(),
@@ -257,10 +289,14 @@ class VogueVaultSeeder extends Seeder
                     'https://images.unsplash.com/photo-1492447166138-50c3889fccb1?auto=format&fit=crop&w=1200&q=80',
                     'https://images.unsplash.com/photo-1531251445707-1f000e1e87d0?auto=format&fit=crop&w=1200&q=80',
                 ]),
-                'attributes' => json_encode([
-                    'sizes' => ['S', 'M', 'L', 'XL', 'XXL'],
-                    'colors' => ['Gray', 'Black', 'Navy', 'Maroon'],
-                    'material' => 'Cotton Fleece',
+                'specifications' => json_encode([
+                    'Material' => 'Cotton Fleece',
+                    'Fit' => 'Regular',
+                    'Sleeve' => 'Long Sleeve',
+                ]),
+                'variants' => json_encode([
+                    'Size' => ['S', 'M', 'L', 'XL', 'XXL'],
+                    'Color' => ['Gray', 'Black', 'Navy', 'Maroon'],
                 ]),
                 'is_active' => true,
                 'created_at' => now(),
@@ -278,10 +314,14 @@ class VogueVaultSeeder extends Seeder
                     'https://images.unsplash.com/photo-1535295972055-1c762f4483e5?auto=format&fit=crop&w=1200&q=80',
                     'https://images.unsplash.com/photo-1503341455253-b2e723bb3dbb?auto=format&fit=crop&w=1200&q=80',
                 ]),
-                'attributes' => json_encode([
-                    'sizes' => ['S', 'M', 'L', 'XL', 'XXL'],
-                    'colors' => ['Light Blue', 'Dark Blue', 'Black'],
-                    'material' => 'Denim',
+                'specifications' => json_encode([
+                    'Material' => 'Denim',
+                    'Fit' => 'Regular',
+                    'Sleeve' => 'Long Sleeve',
+                ]),
+                'variants' => json_encode([
+                    'Size' => ['S', 'M', 'L', 'XL', 'XXL'],
+                    'Color' => ['Light Blue', 'Dark Blue', 'Black'],
                 ]),
                 'is_active' => true,
                 'created_at' => now(),
@@ -301,10 +341,12 @@ class VogueVaultSeeder extends Seeder
                     'https://images.unsplash.com/photo-1524592094714-0f0654e20314?auto=format&fit=crop&w=1200&q=80',
                     'https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?auto=format&fit=crop&w=1200&q=80',
                 ]),
-                'attributes' => json_encode([
-                    'colors' => ['Black Leather', 'Brown Leather'],
-                    'material' => 'Leather & Steel',
-                    'water_resistant' => true,
+                'specifications' => json_encode([
+                    'Material' => 'Leather & Steel',
+                    'Water Resistant' => true,
+                ]),
+                'variants' => json_encode([
+                    'Color' => ['Black Leather', 'Brown Leather'],
                 ]),
                 'is_active' => true,
                 'created_at' => now(),
@@ -322,10 +364,12 @@ class VogueVaultSeeder extends Seeder
                     'https://images.unsplash.com/photo-1516574187841-cb9cc2ca948b?auto=format&fit=crop&w=1200&q=80',
                     'https://images.unsplash.com/photo-1503342217505-b0a15ec3261c?auto=format&fit=crop&w=1200&q=80',
                 ]),
-                'attributes' => json_encode([
-                    'colors' => ['Black', 'Tortoiseshell', 'Silver'],
-                    'uv_protection' => 'UV400',
-                    'polarized' => true,
+                'specifications' => json_encode([
+                    'UV Protection' => 'UV400',
+                    'Polarized' => true,
+                ]),
+                'variants' => json_encode([
+                    'Color' => ['Black', 'Tortoiseshell', 'Silver'],
                 ]),
                 'is_active' => true,
                 'created_at' => now(),
@@ -343,9 +387,11 @@ class VogueVaultSeeder extends Seeder
                     'https://images.unsplash.com/photo-1522312346375-d1a52e2b99b3?auto=format&fit=crop&w=1200&q=80',
                     'https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=1200&q=80',
                 ]),
-                'attributes' => json_encode([
-                    'colors' => ['Floral Blue', 'Geometric Red', 'Abstract Gold'],
-                    'material' => '100% Silk',
+                'specifications' => json_encode([
+                    'Material' => '100% Silk',
+                ]),
+                'variants' => json_encode([
+                    'Color' => ['Floral Blue', 'Geometric Red', 'Abstract Gold'],
                 ]),
                 'is_active' => true,
                 'created_at' => now(),
@@ -363,10 +409,12 @@ class VogueVaultSeeder extends Seeder
                     'https://images.unsplash.com/photo-1520962915648-21734a932e4d?auto=format&fit=crop&w=1200&q=80',
                     'https://images.unsplash.com/photo-1522312346375-d1a52e2b99b3?auto=format&fit=crop&w=1200&q=80',
                 ]),
-                'attributes' => json_encode([
-                    'sizes' => ['32', '34', '36', '38', '40'],
-                    'colors' => ['Black', 'Brown', 'Tan'],
-                    'material' => 'Genuine Leather',
+                'specifications' => json_encode([
+                    'Material' => 'Genuine Leather',
+                ]),
+                'variants' => json_encode([
+                    'Size' => ['32', '34', '36', '38', '40'],
+                    'Color' => ['Black', 'Brown', 'Tan'],
                 ]),
                 'is_active' => true,
                 'created_at' => now(),
@@ -384,10 +432,12 @@ class VogueVaultSeeder extends Seeder
                     'https://images.unsplash.com/photo-1490481651871-ab68de25d43d?auto=format&fit=crop&w=1200&q=80',
                     'https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=1200&q=80',
                 ]),
-                'attributes' => json_encode([
-                    'colors' => ['Gold', 'Silver', 'Rose Gold'],
-                    'material' => 'Gold Plated',
-                    'chain_length' => '18 inches',
+                'specifications' => json_encode([
+                    'Material' => 'Gold Plated',
+                    'Chain Length' => '18 inches',
+                ]),
+                'variants' => json_encode([
+                    'Color' => ['Gold', 'Silver', 'Rose Gold'],
                 ]),
                 'is_active' => true,
                 'created_at' => now(),
