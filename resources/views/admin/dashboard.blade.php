@@ -63,25 +63,6 @@
                 </article>
             </section>
 
-            <section class="quick-actions">
-                <div class="quick-actions-header">
-                    <h2 class="quick-actions-title">Quick Actions</h2>
-                </div>
-                <div class="quick-actions-body">
-                    <a href="{{ route('admin.products.index') }}" class="quick-action">
-                        <i class="bi bi-bag-plus"></i>
-                        Manage Products
-                    </a>
-                    <span class="quick-action disabled">
-                        <i class="bi bi-diagram-3"></i>
-                        Manage Categories (Soon)
-                    </span>
-                    <a href="{{ route('admin.orders.index') }}" class="quick-action">
-                        <i class="bi bi-truck"></i>
-                        Manage Orders
-                    </a>
-                </div>
-            </section>
         </main>
     </div>
 </body>

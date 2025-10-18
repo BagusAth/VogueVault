@@ -60,11 +60,11 @@
 
                                 <!-- Search Suggestions -->
                                 <div class="search-suggestions mt-3">
-                                    <button type="button" class="btn suggestion-btn" data-query="Women's Clothes">
-                                        Women's Clothes
+                                    <button type="button" class="btn suggestion-btn" data-query="Women's Clothing">
+                                        Women's Clothing
                                     </button>
-                                    <button type="button" class="btn suggestion-btn" data-query="Men's Clothes">
-                                        Men's Clothes
+                                    <button type="button" class="btn suggestion-btn" data-query="Men's Clothing">
+                                        Men's Clothing
                                     </button>
                                     <button type="button" class="btn suggestion-btn" data-query="Accessories">
                                         Accessories
@@ -82,10 +82,12 @@
     <main class="main-content">
         <!-- New Arrivals Section -->
         <section class="products-section py-5">
-            <div class="container">
+            <div class="container-fluid px-5">
                 <!-- Section Header -->
-                <div class="section-header mb-4">
-                    <h2 class="section-title">New Arrival</h2>
+                <div class="container px-0">
+                    <div class="section-header mb-4">
+                        <h2 class="section-title">New Arrival</h2>
+                    </div>
                 </div>
                 
                 <!-- Products Carousel -->
@@ -202,7 +204,7 @@
                                         <i class="bi bi-tag"></i>
                                     </div>
                                     <div class="category-overlay">
-                                        <h5 class="category-name">Women's Clothes</h5>
+                                        <h5 class="category-name">Women's Clothing</h5>
                                     </div>
                                 </div>
                             </div>
@@ -214,7 +216,7 @@
                                         <i class="bi bi-tag"></i>
                                     </div>
                                     <div class="category-overlay">
-                                        <h5 class="category-name">Men's Clothes</h5>
+                                        <h5 class="category-name">Men's Clothing</h5>
                                     </div>
                                 </div>
                             </div>

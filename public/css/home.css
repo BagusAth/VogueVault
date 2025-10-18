@@ -10,6 +10,7 @@
     --light-gray: #f8f9fa;
     --border-radius: 12px;
     --transition: all 0.3s ease;
+    --carousel-side-pad: 75px;
 }
 
 * {
@@ -201,7 +202,7 @@ body {
 .products-carousel-container {
     position: relative;
     overflow: hidden;
-    padding: 0 56px;
+    padding: 0 var(--carousel-side-pad);
 }
 
 .products-scroll-area {
@@ -425,11 +426,11 @@ body {
 }
 
 .carousel-nav-btn.prev-btn {
-    left: -32px;
+    left: 12px;
 }
 
 .carousel-nav-btn.next-btn {
-    right: -32px;
+    right: 12px;
 }
 
 .carousel-nav-btn:disabled,
@@ -443,14 +444,14 @@ body {
 
 /* Responsive Design */
 @media (max-width: 768px) {
+    :root {
+        --carousel-side-pad: 36px;
+    }
+
     .hero-tagline {
         font-size: 2rem;
     }
     
-    .products-carousel-container {
-        padding: 0 36px;
-    }
-
     .carousel-nav-btn {
         width: 48px;
         height: 48px;
@@ -480,6 +481,10 @@ body {
 }
 
 @media (max-width: 576px) {
+    :root {
+        --carousel-side-pad: 16px;
+    }
+
     .hero-tagline {
         font-size: 1.8rem;
     }
@@ -498,10 +503,10 @@ body {
     }
 
     .carousel-nav-btn.prev-btn {
-        left: -12px;
+        left: 8px;
     }
 
     .carousel-nav-btn.next-btn {
-        right: -12px;
+        right: 8px;
     }
 }

@@ -9,7 +9,6 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
     <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
-    <link rel="stylesheet" href="{{ asset('css/navbar.css') }}">
     <link rel="stylesheet" href="{{ asset('css/login.css') }}">
     <style>
         body {
@@ -125,8 +124,6 @@
             ?? session('auth_tab')
             ?? ((($errors->any() && !$errors->has('email')) || old('name') || old('password')) ? 'register' : 'login');
     @endphp
-
-    @include('partials.navbar')
 
     <main class="auth-main">
         <!-- Bagian logo dan judul -->

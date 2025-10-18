@@ -28,8 +28,9 @@
                             Menampilkan {{ number_format($resultCount, 0, ',', '.') }} produk dalam kategori ini.
                         </p>
                         <div class="d-flex flex-wrap gap-3 category-toolbar">
-                            <a href="{{ route('home') }}#categories" class="btn btn-outline-light btn-sm">
-                                <i class="bi bi-grid"></i> Lihat kategori lain
+                            <a href="{{ route('home') }}#categories" class="btn suggestion-btn">
+                                <i class="bi bi-grid"></i>
+                                <span>Lihat kategori lain</span>
                             </a>
                         </div>
                     </div>
