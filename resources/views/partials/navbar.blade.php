@@ -19,18 +19,6 @@
                         <span class="nav-text">Cart</span>
                     </a>
 
-                    <!-- Notifications -->
-                    <a href="{{ route('notifications') }}" class="nav-icon" title="Notifications">
-                        <i class="bi bi-bell"></i>
-                        <span class="nav-text">Notification</span>
-                    </a>
-
-                    <!-- Help -->
-                    <a href="{{ route('help') }}" class="nav-icon" title="Help">
-                        <i class="bi bi-question-circle"></i>
-                        <span class="nav-text">Help</span>
-                    </a>
-
                     <!-- Profile Dropdown -->
                     <div class="dropdown d-inline-block">
                         <a class="nav-icon profile-icon dropdown-toggle text-decoration-none"
