@@ -37,6 +37,7 @@
                                 <tr>
                                     <th>Order</th>
                                     <th>Customer</th>
+                                    <th>Products</th>
                                     <th>Date</th>
                                     <th>Status</th>
                                     <th class="text-right">Amount</th>
@@ -62,6 +63,25 @@
                                             <div class="order-customer">
                                                 <span>{{ $order->user->name ?? 'Unknown customer' }}</span>
                                                 <span class="order-meta">{{ $order->user->email ?? '—' }}</span>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="order-products">
+                                                @forelse($order->items as $item)
+                                                    <div class="order-product">
+                                                        <div class="order-product-main">
+                                                            <span class="order-product-name">{{ $item->product_name ?? $item->product?->name ?? 'Unknown product' }}</span>
+                                                            <span class="order-product-qty">×{{ $item->quantity }}</span>
+                                                        </div>
+                                                        @if(!empty($item->variant_labels))
+                                                            <div class="order-product-variants">
+                                                                {{ implode(', ', $item->variant_labels) }}
+                                                            </div>
+                                                        @endif
+                                                    </div>
+                                                @empty
+                                                    <span class="order-meta">No items</span>
+                                                @endforelse
                                             </div>
                                         </td>
                                         <td>{{ optional($order->created_at)->format('d M Y') }}</td>
@@ -105,13 +125,16 @@
                 processing: 'status-processing',
                 shipped: 'status-shipped',
                 delivered: 'status-delivered',
-                cancelled: 'status-cancelled',
-                refunded: 'status-refunded'
+                cancelled: 'status-cancelled'
             };
 
             selects.forEach(select => {
                 const applyState = () => {
-                    Object.values(statusClassMap).forEach(cls => select.classList.remove(cls));
+                    select.classList.forEach(cls => {
+                        if (cls.startsWith('status-')) {
+                            select.classList.remove(cls);
+                        }
+                    });
                     const state = statusClassMap[select.value];
                     if (state) {
                         select.classList.add(state);

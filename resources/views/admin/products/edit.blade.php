@@ -108,9 +108,21 @@
                             @if($product->images && count($product->images) > 0)
                                 @foreach($product->images as $index => $image)
                                     @php
-                                        $imagePath = Str::startsWith($image, 'http')
-                                            ? $image
-                                            : asset('storage/' . ltrim($image, '/'));
+                                        if (Str::startsWith($image, ['http://', 'https://'])) {
+                                            $imagePath = $image;
+                                        } else {
+                                            $normalized = ltrim($image, '/');
+
+                                            if (Str::startsWith($normalized, 'images/')) {
+                                                $imagePath = asset($normalized);
+                                            } else {
+                                                if (Str::startsWith($normalized, 'storage/')) {
+                                                    $normalized = Str::after($normalized, 'storage/');
+                                                }
+
+                                                $imagePath = asset('storage/' . $normalized);
+                                            }
+                                        }
                                     @endphp
                                     <div class="image-box">
                                         <img src="{{ $imagePath }}" alt="Product Image" class="preview-image"
@@ -181,11 +193,18 @@
                 {{-- Form Actions (Kanan Bawah) --}}
                 <div class="form-actions"
                      style="display: flex; justify-content: flex-end; gap: 12px; margin-top: 40px; padding-right: 10px;">
+                    <button type="button" class="btn-danger" id="delete-product-button">
+                        <i class="bi bi-trash"></i> Delete Product
+                    </button>
                     <a href="{{ route('admin.products.index') }}" class="btn-secondary">Cancel</a>
                     <button type="submit" class="btn-primary">
                         <i class="bi bi-save"></i> Save Product
                     </button>
                 </div>
+            </form>
+            <form id="delete-product-form" action="{{ route('admin.products.destroy', $product->id) }}" method="POST" style="display: none;">
+                @csrf
+                @method('DELETE')
             </form>
         </section>
     </main>
@@ -246,6 +265,43 @@
             e.target.closest('.attribute-row').remove();
         }
     });
+
+    const deleteButton = document.getElementById('delete-product-button');
+    const deleteForm = document.getElementById('delete-product-form');
+
+    if (deleteButton && deleteForm) {
+        deleteButton.addEventListener('click', () => {
+            Swal.fire({
+                title: 'Delete this product?',
+                text: 'This action permanently removes the product from your storefront.',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Yes, delete it',
+                cancelButtonText: 'No, keep it',
+                reverseButtons: true,
+                customClass: {
+                    popup: 'swal-vogue',
+                    confirmButton: 'swal-confirm',
+                    cancelButton: 'swal-cancel'
+                },
+                backdrop: 'rgba(38, 66, 49, 0.45)'
+            }).then(result => {
+                if (result.isConfirmed) {
+                    Swal.fire({
+                        title: 'Deleting...',
+                        text: 'We are carefully removing the product.',
+                        icon: 'info',
+                        timer: 1200,
+                        showConfirmButton: false,
+                        customClass: {
+                            popup: 'swal-vogue'
+                        }
+                    });
+                    setTimeout(() => deleteForm.submit(), 300);
+                }
+            });
+        });
+    }
 
     @if(session('success'))
         Swal.fire({

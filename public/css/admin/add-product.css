@@ -276,7 +276,8 @@ body {
 
 .btn-primary,
 .btn-secondary,
-.btn-tertiary {
+.btn-tertiary,
+.btn-danger {
     border-radius: 999px;
     padding: 12px 20px;
     font-weight: 600;
@@ -316,6 +317,18 @@ body {
     background: rgba(58, 102, 73, 0.2);
 }
 
+.btn-danger {
+    border: 1px solid rgba(216, 79, 79, 0.4);
+    background: transparent;
+    color: #b83a3a;
+    transition: background 0.2s ease, color 0.2s ease, border 0.2s ease;
+}
+
+.btn-danger:hover {
+    background: rgba(216, 79, 79, 0.12);
+    border-color: rgba(216, 79, 79, 0.6);
+}
+
 .form-error {
     color: #d84343;
     font-size: 13px;
@@ -346,4 +359,24 @@ body {
         flex-direction: column;
         align-items: flex-start;
     }
+}
+
+.swal-vogue {
+    border-radius: 22px !important;
+    padding: 28px 32px !important;
+    background: linear-gradient(145deg, #ffffff 60%, rgba(63, 99, 74, 0.08));
+    color: var(--accent) !important;
+    box-shadow: 0 28px 48px rgba(58, 102, 73, 0.18) !important;
+}
+
+.swal-confirm {
+    border-radius: 999px !important;
+    background: linear-gradient(135deg, #2e5b3f, #3a6649) !important;
+    box-shadow: 0 12px 25px rgba(58, 102, 73, 0.35) !important;
+}
+
+.swal-cancel {
+    border-radius: 999px !important;
+    background: rgba(58, 102, 73, 0.08) !important;
+    color: var(--accent-2) !important;
 }

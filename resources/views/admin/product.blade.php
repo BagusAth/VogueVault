@@ -28,12 +28,7 @@
                 <div class="product-grid">
                     @foreach($products as $product)
                         @php
-                            $imageUrl = collect($product->images ?? [])->first();
-                            if ($imageUrl && !Str::startsWith($imageUrl, ['http://', 'https://'])) {
-                                $imageUrl = asset('storage/' . ltrim($imageUrl, '/'));
-                            }
-                            $imageUrl = $imageUrl ?: $placeholderImage;
-
+                            $imageUrl = $product->image_url ?? $placeholderImage;
                             $description = $product->short_description ?? $product->description;
                             $description = $description ? Str::limit(strip_tags($description), 90) : 'No description yet.';
 

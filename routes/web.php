@@ -67,6 +67,8 @@ Route::middleware(['auth', 'admin'])->group(function () {
         ->name('admin.products.edit');
     Route::put('/admin/products/{product}', [AdminProductController::class, 'update'])
         ->name('admin.products.update');
+    Route::delete('/admin/products/{product}', [AdminProductController::class, 'destroy'])
+        ->name('admin.products.destroy');
 
     // Categories
     Route::get('/admin/categories', [AdminCategoryController::class, 'index'])->name('admin.categories.index');

@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Str;
 
 class Product extends Model
 {
@@ -80,7 +81,36 @@ class Product extends Model
 
     public function getImageUrlAttribute()
     {
-        return 'https://via.placeholder.com/80';
+        $placeholder = asset('images/placeholder_img.jpg');
+
+        $images = $this->images ?? [];
+        $image = null;
+
+        if (is_array($images) && !empty($images)) {
+            $image = $images[0];
+        } elseif (is_string($images) && $images !== '') {
+            $image = $images;
+        }
+
+        if (!$image) {
+            return $placeholder;
+        }
+
+        if (Str::startsWith($image, ['http://', 'https://'])) {
+            return $image;
+        }
+
+        $normalized = ltrim($image, '/');
+
+        if (Str::startsWith($normalized, 'storage/')) {
+            $normalized = Str::after($normalized, 'storage/');
+        }
+
+        if (Str::startsWith($normalized, 'images/')) {
+            return asset($normalized);
+        }
+
+        return asset('storage/' . $normalized);
     }
 
 }
