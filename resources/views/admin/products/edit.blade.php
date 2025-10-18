@@ -114,11 +114,18 @@
                                     @endphp
                                     <div class="image-box">
                                         <img src="{{ $imagePath }}" alt="Product Image" class="preview-image"
-                                             onclick="document.getElementById('fileInput{{ $index }}').click();">
+                                            onclick="document.getElementById('fileInput{{ $index }}').click();">
+
+                                        <!-- Tombol hapus -->
+                                        <button type="button" class="delete-btn" title="Hapus gambar"
+                                                onclick="removeImage(this)">
+                                            &times;
+                                        </button>
+
                                         <input type="file" id="fileInput{{ $index }}"
-                                               name="images_existing[{{ $index }}]"
-                                               accept="image/*" class="hidden-input"
-                                               onchange="previewSingleImage(event, this)">
+                                            name="images_existing[{{ $index }}]"
+                                            accept="image/*" class="hidden-input"
+                                            onchange="previewSingleImage(event, this)">
                                     </div>
                                 @endforeach
                             @else
@@ -197,6 +204,13 @@
         }
     }
 
+    function removeImage(button) {
+    const box = button.closest('.image-box');
+    box.remove();
+    // Kalau mau juga hapus di database nanti, bisa kirim AJAX request dari sini
+    }
+
+
     function previewNewImages(event) {
         const files = event.target.files;
         const previewList = document.getElementById('image-preview-list');
@@ -271,6 +285,31 @@
 
     .image-box:hover img {
         opacity: 0.7;
+    }
+
+    .delete-btn {
+        position: absolute;
+        top: 6px;
+        right: 6px;
+        background-color: rgba(0, 0, 0, 0.5);
+        color: white;
+        border: none;
+        border-radius: 50%;
+        width: 24px;
+        height: 24px;
+        font-size: 18px;
+        line-height: 20px;
+        opacity: 0;
+        cursor: pointer;
+        transition: opacity 0.2s ease;
+    }
+
+    .image-box:hover .delete-btn {
+        opacity: 1;
+    }
+
+    .delete-btn:hover {
+        background-color: rgba(255, 0, 0, 0.7);
     }
 
     .preview-image {

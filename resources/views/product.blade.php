@@ -102,13 +102,13 @@
                             <button type="button" class="tab-toggle active" data-tab="detail">Detail</button>
                             <button type="button" class="tab-toggle" data-tab="spec">Spesifikasi</button>
                         </div>
-                        <div class="tab-pane-content mt-2" id="tab-detail">
+                        <div class="tab-pane-content mt-2" id="tab-detail" data-tab-pane="detail">
                             <p class="mb-2"><strong>Kondisi:</strong> {{ $product->is_active ? 'Baru' : 'Nonaktif' }}</p>
                             <p class="mb-2"><strong>Min. Pemesanan:</strong> 1 Buah</p>
                             <p class="mb-2"><strong>Etalase:</strong> {{ $categoryName ?? 'Semua Etalase' }}</p>
                             <p class="mb-0 text-muted">{!! nl2br(e($product->description ?? 'Belum ada deskripsi untuk produk ini.')) !!}</p>
                         </div>
-                        <div class="tab-pane-content mt-2 d-none" id="tab-spec">
+                        <div class="tab-pane-content mt-2 d-none" id="tab-spec" data-tab-pane="spec" hidden>
                             <ul class="mb-0 text-muted">
                                 @if($material)
                                     <li>Material: {{ $material }}</li>
@@ -131,7 +131,7 @@
 
             <div class="col-xl-3">
                 <div class="info-card position-sticky" style="top: 100px;">
-                    <div class="d-flex align-items-center mb-3">
+                    <div class="d-flex align-items-center mb-4">
                         <img src="{{ $primaryImage }}" alt="{{ $product->name }}" class="rounded-3" style="width: 70px; height: 70px; object-fit: cover;" id="selectedImagePreview" onerror="this.onerror=null;this.src='{{ $placeholderImage }}';">
                         <div class="ms-3">
                             <div class="info-label">Pilihan varian</div>
@@ -139,7 +139,7 @@
                         </div>
                     </div>
 
-                    <div class="mb-3">
+                    <div class="mb-4">
                         <div class="info-label">Atur jumlah</div>
                         <div class="qty-control mt-2">
                             <button class="qty-btn" data-action="minus">-</button>
@@ -147,32 +147,33 @@
                             <button class="qty-btn" data-action="plus">+</button>
                             <span class="ms-3 text-success fw-semibold stock-label">Stok: {{ number_format($product->stock, 0, ',', '.') }}</span>
                         </div>
-                        <p class="variant-quantity-hint text-muted small mt-2">
-                            {{ !empty($variantGroups) ? 'Jumlah untuk: ' . $variantSummary : 'Masukkan jumlah produk yang ingin kamu beli.' }}
-                        </p>
+                        @if(empty($variantGroups))
+                            <p class="variant-quantity-hint text-muted small mt-2">
+                                Masukkan jumlah produk yang ingin kamu beli.
+                            </p>
+                        @endif
                     </div>
 
-                    <div class="d-flex justify-content-between align-items-center mb-3">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
                         <span class="info-label">Subtotal</span>
                         <span class="subtotal" id="subtotal">Rp {{ $formattedPrice }}</span>
                     </div>
 
-                    <div class="d-grid gap-2 mb-3">
-
+                    <div class="d-grid gap-3">
                         {{-- Tambah ke Keranjang --}}
-                        <form action="{{ route('cart.add', $product->id) }}" method="POST">
+                        <form action="{{ route('cart.add', $product->id) }}" method="POST" class="d-grid">
                             @csrf
                             <input type="hidden" name="quantity" id="cartQuantity" value="1">
-                            <button type="submit" class="btn-cart w-100">
+                            <button type="submit" class="btn-cart">
                                 <i class="bi bi-cart-plus"></i> Keranjang
                             </button>
                         </form>
 
                         {{-- Beli Sekarang --}}
-                        <form action="{{ route('checkout.buyNow', $product->id) }}" method="POST">
+                        <form action="{{ route('checkout.buyNow', $product->id) }}" method="POST" class="d-grid">
                             @csrf
                             <input type="hidden" name="quantity" id="buyNowQuantity" value="1">
-                            <button type="submit" class="btn-buy w-100">
+                            <button type="submit" class="btn-buy">
                                 <i class="bi bi-bag-check"></i> Beli Sekarang
                             </button>
                         </form>
@@ -199,28 +200,5 @@
     </script>
     @endif
 
-    <script>
-    document.addEventListener("DOMContentLoaded", () => {
-    const qtyInput = document.getElementById("quantity");
-    const cartQty = document.getElementById("cartQuantity");
-    const buyQty = document.getElementById("buyNowQuantity");
-
-    function syncQty() {
-        cartQty.value = qtyInput.value;
-        buyQty.value = qtyInput.value;
-    }
-
-    document.querySelectorAll(".qty-btn").forEach(btn => {
-        btn.addEventListener("click", () => {
-            let val = parseInt(qtyInput.value) || 1;
-            if (btn.dataset.action === "plus") val++;
-            if (btn.dataset.action === "minus" && val > 1) val--;
-            qtyInput.value = val;
-            syncQty();
-        });
-    });
-    syncQty();
-    });
-</script>
 </body>
 </html>
