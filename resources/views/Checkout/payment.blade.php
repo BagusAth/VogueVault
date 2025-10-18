@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>Pembayaran Pesanan • VogueVault</title>
+    <title>Order Payment • VogueVault</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
     <link rel="stylesheet" href="{{ asset('css/navbar.css') }}">
@@ -25,41 +25,41 @@
                     <section class="payment-card">
                         <header class="payment-header">
                             <div>
-                                <p class="eyebrow mb-1">Konfirmasi Pembayaran</p>
-                                <h1 class="payment-title">Pesanan {{ $order->order_number }}</h1>
+                                <p class="eyebrow mb-1">Payment Confirmation</p>
+                                <h1 class="payment-title">Order {{ $order->order_number }}</h1>
                             </div>
                             <span class="status-pill {{ $isPaid ? 'is-paid' : 'is-unpaid' }}" data-status-pill>
                                 <i class="bi {{ $isPaid ? 'bi-check-circle' : 'bi-clock-history' }} me-2"></i>
-                                <span data-status-text>{{ $isPaid ? 'Sudah Dibayar' : 'Belum Dibayar' }}</span>
+                                <span data-status-text>{{ $isPaid ? 'Paid' : 'Unpaid' }}</span>
                             </span>
                         </header>
 
                         <div class="payment-meta">
                             <div class="meta-block">
-                                <span class="meta-label">Total Tagihan</span>
+                                <span class="meta-label">Amount Due</span>
                                 <span class="meta-value text-success" data-total-label>{{ $formattedTotal }}</span>
                             </div>
                             <div class="meta-block">
-                                <span class="meta-label">Metode</span>
+                                <span class="meta-label">Method</span>
                                 <span class="meta-value">{{ $paymentMethod }}</span>
                             </div>
                             <div class="meta-block meta-block--deadline">
-                                <span class="meta-label">Bayar Sebelum</span>
+                                <span class="meta-label">Pay Before</span>
                                 <span class="meta-value" data-deadline="{{ optional($order->expires_at)->format('d M Y, H:i') }}" data-countdown="{{ $remainingSeconds ?? '' }}">
                                     @if($order->expires_at)
                                         {{ $order->expires_at->format('d M Y, H:i') }} WIB
                                     @else
-                                        Tidak ada batas waktu
+                                        No payment deadline
                                     @endif
                                 </span>
                                 @if($order->expires_at)
                                     <span class="countdown" data-countdown-label>
                                         @if($isPaid)
-                                            Pembayaran telah dikonfirmasi
+                                            Payment confirmed
                                         @elseif($isExpired)
-                                            Waktu pembayaran berakhir
+                                            Payment window expired
                                         @else
-                                            Sisa waktu: <span data-countdown-text>—</span>
+                                            Time remaining: <span data-countdown-text>—</span>
                                         @endif
                                     </span>
                                 @endif
@@ -67,23 +67,23 @@
                         </div>
 
                         <article class="payment-summary">
-                            <h2>Rincian Pesanan</h2>
+                            <h2>Order Details</h2>
                             <dl class="summary-list">
                                 <div class="summary-item">
-                                    <dt>Nomor Pesanan</dt>
+                                    <dt>Order Number</dt>
                                     <dd>{{ $order->order_number }}</dd>
                                 </div>
                                 <div class="summary-item">
-                                    <dt>Status Pesanan</dt>
+                                    <dt>Order Status</dt>
                                     <dd data-order-status>{{ ucfirst($order->status) }}</dd>
                                 </div>
                                 <div class="summary-item">
-                                    <dt>Status Pembayaran</dt>
+                                    <dt>Payment Status</dt>
                                     <dd data-order-payment>{{ $isPaid ? 'Paid' : 'Unpaid' }}</dd>
                                 </div>
                                 @if($order->expires_at)
                                     <div class="summary-item">
-                                        <dt>Batas Pembayaran</dt>
+                                        <dt>Payment Deadline</dt>
                                         <dd>{{ $order->expires_at->translatedFormat('d F Y, H:i') }} WIB</dd>
                                     </div>
                                 @endif
@@ -92,22 +92,22 @@
 
                         <div class="payment-actions">
                             <button type="button" class="btn btn-outline-secondary" data-action="instructions" data-bs-toggle="modal" data-bs-target="#instructionsModal">
-                                <i class="bi bi-journal-text me-2"></i>Cara Bayar
+                                <i class="bi bi-journal-text me-2"></i>How to Pay
                             </button>
                             <button type="button" class="btn btn-success" data-action="pay" {{ ($isPaid || $isExpired) ? 'disabled' : '' }}>
                                 <span class="spinner-border spinner-border-sm me-2 d-none" role="status" aria-hidden="true"></span>
-                                <i class="bi bi-credit-card me-2"></i>Bayar Sekarang
+                                <i class="bi bi-credit-card me-2"></i>Pay Now
                             </button>
                             <button type="button" class="btn btn-outline-primary" data-action="refresh">
-                                <i class="bi bi-arrow-repeat me-2"></i>Cek Status
+                                <i class="bi bi-arrow-repeat me-2"></i>Check Status
                             </button>
                         </div>
 
                         <div class="payment-feedback" data-feedback aria-live="polite"></div>
 
                         <footer class="payment-footer">
-                            <p><i class="bi bi-shield-check me-2"></i>Pembayaran kamu diproses dengan sistem terenkripsi. Detail kartu atau dompet digital tidak kami simpan.</p>
-                            <p><i class="bi bi-info-circle me-2"></i>Pesanan otomatis diteruskan ke tim fulfilment setelah pembayaran dikonfirmasi.</p>
+                            <p><i class="bi bi-shield-check me-2"></i>Your payment is processed securely with encryption. We never store your card or digital wallet details.</p>
+                            <p><i class="bi bi-info-circle me-2"></i>We forward your order to fulfilment as soon as the payment is confirmed.</p>
                         </footer>
                     </section>
                 </div>
@@ -119,20 +119,20 @@
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="instructionsModalLabel">Panduan Pembayaran</h5>
+                    <h5 class="modal-title" id="instructionsModalLabel">Payment Guide</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
                     <ol class="instruction-list">
-                        <li>Pilih metode pembayaran favoritmu saat checkout.</li>
-                        <li>Ikuti instruksi pada aplikasi atau layanan bank untuk menyelesaikan transaksi.</li>
-                        <li>Klik <strong>Bayar Sekarang</strong> di halaman ini untuk mengonfirmasi pembayaran.</li>
-                        <li>Status akan berubah menjadi <strong>Sudah Dibayar</strong> secara otomatis.</li>
+                        <li>Choose your preferred payment method at checkout.</li>
+                        <li>Follow the instructions in your payment app or bank service to complete the transaction.</li>
+                        <li>Click <strong>Pay Now</strong> on this page to confirm your payment.</li>
+                        <li>The status updates to <strong>Paid</strong> automatically.</li>
                     </ol>
-                    <p class="text-muted small mb-0">Jika mengalami kendala, hubungi layanan pelanggan kami untuk bantuan manual.</p>
+                    <p class="text-muted small mb-0">Need help? Reach out to our support team and we'll assist you.</p>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Mengerti</button>
+                    <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Got it</button>
                 </div>
             </div>
         </div>
@@ -165,10 +165,10 @@
                 feedback.className = `payment-feedback is-${variant}`;
             };
 
-            const setPaidState = (message = 'Pembayaran berhasil dikonfirmasi.', statusValue = 'processing') => {
+            const setPaidState = (message = 'Payment confirmed successfully.', statusValue = 'processing') => {
                 statusPill?.classList.remove('is-unpaid');
                 statusPill?.classList.add('is-paid');
-                if (statusText) statusText.textContent = 'Sudah Dibayar';
+                if (statusText) statusText.textContent = 'Paid';
                 if (orderStatus && statusValue) {
                     const formatted = statusValue.charAt(0).toUpperCase() + statusValue.slice(1);
                     orderStatus.textContent = formatted;
@@ -177,7 +177,7 @@
                 if (payButton) payButton.disabled = true;
                 if (spinner) spinner.classList.add('d-none');
                 if (countdownLabel) {
-                    countdownLabel.textContent = 'Pembayaran telah dikonfirmasi';
+                    countdownLabel.textContent = 'Payment confirmed';
                 }
                 showFeedback(message, 'success');
             };
@@ -192,7 +192,7 @@
                 payButton.addEventListener('click', async () => {
                     payButton.disabled = true;
                     if (spinner) spinner.classList.remove('d-none');
-                    showFeedback('Memproses pembayaran...', 'info');
+                    showFeedback('Processing payment...', 'info');
 
                     try {
                         const response = await fetch(endpoints.complete, {
@@ -209,19 +209,19 @@
                         const payload = await response.json();
 
                         if (!response.ok || !payload.success) {
-                            throw new Error(payload.message || 'Gagal mengonfirmasi pembayaran.');
+                            throw new Error(payload.message || 'Unable to confirm payment.');
                         }
 
                         setPaidState(payload.message, payload.status);
                     } catch (error) {
-                        handleError(error.message || 'Terjadi kesalahan tak terduga.');
+                        handleError(error.message || 'An unexpected error occurred.');
                     }
                 });
             }
 
             if (refreshButton) {
                 refreshButton.addEventListener('click', async () => {
-                    showFeedback('Memeriksa status terbaru...', 'info');
+                    showFeedback('Checking the latest status...', 'info');
                     try {
                         const response = await fetch(endpoints.status, {
                             headers: {
@@ -238,12 +238,12 @@
                             paymentStatus.textContent = label;
                         }
                         if (payload.payment_status === 'paid') {
-                            setPaidState('Pembayaran telah dikonfirmasi.', payload.status);
+                            setPaidState('Payment has been confirmed.', payload.status);
                         } else {
-                            showFeedback('Pembayaran belum diterima, silakan selesaikan sebelum batas waktu berakhir.', 'warning');
+                            showFeedback('Payment not received yet. Please complete it before the deadline.', 'warning');
                         }
                     } catch (error) {
-                        handleError('Tidak dapat mengambil status terbaru.');
+                        handleError('Unable to fetch the latest status.');
                     }
                 });
             }
@@ -266,7 +266,7 @@
                             clearInterval(interval);
                             countdownText.textContent = '00:00:00';
                             if (countdownLabel && !payButton?.disabled) {
-                                countdownLabel.textContent = 'Waktu pembayaran berakhir';
+                                    countdownLabel.textContent = 'Payment window expired';
                                 if (payButton) payButton.disabled = true;
                             }
                             return;
@@ -278,11 +278,11 @@
 
             if (@json($isExpired) && payButton) {
                 payButton.disabled = true;
-                showFeedback('Batas waktu pembayaran telah berakhir. Silakan buat pesanan baru.', 'danger');
+                showFeedback('The payment deadline has passed. Please place a new order.', 'danger');
             }
 
             if (@json($isPaid)) {
-                showFeedback('Pembayaran telah dikonfirmasi. Terima kasih!', 'success');
+                showFeedback('Payment has been confirmed. Thank you!', 'success');
             }
         })();
     </script>

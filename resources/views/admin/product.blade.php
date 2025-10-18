@@ -16,7 +16,7 @@
 
         <main class="content">
             <div class="content-header">
-                <h1 class="content-title">All Product</h1>
+                <h1 class="content-title">All Products</h1>
                 <a href="{{ route('admin.products.create') }}" class="btn-add"><i class="bi bi-plus"></i> Add Product</a>
             </div>
 
@@ -35,7 +35,7 @@
                             $imageUrl = $imageUrl ?: $placeholderImage;
 
                             $description = $product->short_description ?? $product->description;
-                            $description = $description ? Str::limit(strip_tags($description), 90) : 'Belum ada deskripsi.';
+                            $description = $description ? Str::limit(strip_tags($description), 90) : 'No description yet.';
 
                             $sales = $product->total_sold ?? 0;
                         @endphp

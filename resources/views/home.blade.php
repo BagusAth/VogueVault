@@ -92,7 +92,7 @@
                 
                 <!-- Products Carousel -->
                 <div class="products-carousel-container position-relative">
-                    <button class="carousel-nav-btn prev-btn" id="productsPrev" aria-label="Lihat produk sebelumnya">
+                    <button class="carousel-nav-btn prev-btn" id="productsPrev" aria-label="View previous products">
                         <i class="bi bi-chevron-left"></i>
                     </button>
                     <div class="products-scroll-area">
@@ -155,7 +155,7 @@
                     </div>
                     
                     <!-- Navigation Arrow -->
-                    <button class="carousel-nav-btn next-btn" id="productsNext" aria-label="Lihat produk berikutnya">
+                    <button class="carousel-nav-btn next-btn" id="productsNext" aria-label="View more products">
                         <i class="bi bi-chevron-right"></i>
                     </button>
                 </div>
@@ -190,7 +190,7 @@
                                     </div>
                                     <div class="category-meta">
                                         <span class="category-pill">
-                                            {{ number_format($category->products_count ?? 0, 0, ',', '.') }} produk
+                                            {{ number_format($category->products_count ?? 0, 0, ',', '.') }} products
                                         </span>
                                     </div>
                                 </div>

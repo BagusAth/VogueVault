@@ -42,7 +42,7 @@
                     <div class="alert-body">
                         <span class="alert-icon"><i class="bi bi-exclamation-triangle-fill"></i></span>
                         <div class="alert-text">
-                            <strong>Perhatian</strong>
+                            <strong>Attention</strong>
                             <ul>
                                 @foreach($errors->all() as $error)
                                     <li>{{ $error }}</li>
@@ -50,7 +50,7 @@
                             </ul>
                         </div>
                     </div>
-                    <button type="button" class="alert-close" data-action="dismiss-alert" aria-label="Tutup peringatan">
+                    <button type="button" class="alert-close" data-action="dismiss-alert" aria-label="Close alert">
                         <i class="bi bi-x-lg"></i>
                     </button>
                 </div>
@@ -92,8 +92,8 @@
                                 <input type="file" name="image" accept="image/*" data-dropzone-input>
                                 <button type="button" class="file-drop-body" data-dropzone-trigger>
                                     <span class="file-drop-icon"><i class="bi bi-cloud-arrow-up"></i></span>
-                                    <span class="file-drop-text">Drag &amp; drop atau <span class="file-drop-link">pilih berkas</span></span>
-                                    <span class="file-drop-hint">PNG, JPG, atau WEBP hingga 2&nbsp;MB</span>
+                                    <span class="file-drop-text">Drag &amp; drop or <span class="file-drop-link">choose a file</span></span>
+                                    <span class="file-drop-hint">PNG, JPG, or WEBP up to 2&nbsp;MB</span>
                                 </button>
                                 <div class="file-drop-preview" data-dropzone-preview hidden>
                                     <img src="" alt="Selected preview" data-dropzone-preview-img>
@@ -103,7 +103,7 @@
                                     </div>
                                 </div>
                             </div>
-                            <span class="field-hint">Unggah gambar baru untuk mengganti yang lama. Biarkan kosong untuk mempertahankan.</span>
+                            <span class="field-hint">Upload a new image to replace the old one. Leave it blank to keep the current image.</span>
                         </label>
                         <div class="form-field">
                             <span>Current Image</span>

@@ -66,13 +66,13 @@
                     <div>
                         <h1 class="product-title">{{ $product->name }}</h1>
                         <div class="meta-row mb-3">
-                            <span class="meta-stock"><i class="bi bi-box-seam"></i> Stok {{ number_format($product->stock, 0, ',', '.') }}</span>
+                            <span class="meta-stock"><i class="bi bi-box-seam"></i> Stock {{ number_format($product->stock, 0, ',', '.') }}</span>
                         </div>
                         <div class="product-price mb-3">Rp {{ $formattedPrice }}</div>
 
                         @if(!empty($variantGroups))
                             <div class="variant-group-container mb-4">
-                                <div class="info-label mb-2">Pilihan varian:</div>
+                                <div class="info-label mb-2">Variant options:</div>
                                 @foreach($variantGroups as $groupKey => $options)
                                     @php
                                         $groupLabel = $formatGroupLabel($groupKey);
@@ -92,21 +92,21 @@
                                         </div>
                                     </div>
                                 @endforeach
-                                <div class="variant-summary text-muted small">Kombinasi saat ini: <span class="variant-summary-text">{{ $variantSummary }}</span></div>
+                                <div class="variant-summary text-muted small">Current combination: <span class="variant-summary-text">{{ $variantSummary }}</span></div>
                             </div>
                         @endif
                     </div>
 
                     <div class="mt-auto">
                         <div class="tab-buttons" role="tablist">
-                            <button type="button" class="tab-toggle active" data-tab="detail">Detail</button>
-                            <button type="button" class="tab-toggle" data-tab="spec">Spesifikasi</button>
+                            <button type="button" class="tab-toggle active" data-tab="detail">Details</button>
+                            <button type="button" class="tab-toggle" data-tab="spec">Specifications</button>
                         </div>
                         <div class="tab-pane-content mt-2" id="tab-detail" data-tab-pane="detail">
-                            <p class="mb-2"><strong>Kondisi:</strong> {{ $product->is_active ? 'Baru' : 'Nonaktif' }}</p>
-                            <p class="mb-2"><strong>Min. Pemesanan:</strong> 1 Buah</p>
-                            <p class="mb-2"><strong>Etalase:</strong> {{ $categoryName ?? 'Semua Etalase' }}</p>
-                            <p class="mb-0 text-muted">{!! nl2br(e($product->description ?? 'Belum ada deskripsi untuk produk ini.')) !!}</p>
+                            <p class="mb-2"><strong>Condition:</strong> {{ $product->is_active ? 'New' : 'Inactive' }}</p>
+                            <p class="mb-2"><strong>Minimum Order:</strong> 1 item</p>
+                            <p class="mb-2"><strong>Category:</strong> {{ $categoryName ?? 'All Categories' }}</p>
+                            <p class="mb-0 text-muted">{!! nl2br(e($product->description ?? 'No description available for this product yet.')) !!}</p>
                         </div>
                         <div class="tab-pane-content mt-2 d-none" id="tab-spec" data-tab-pane="spec" hidden>
                             <ul class="mb-0 text-muted">
@@ -116,12 +116,12 @@
                                 @foreach($specifications as $key => $value)
                                     @php
                                         $label = ucwords(str_replace('_', ' ', $key));
-                                        $displayValue = is_array($value) ? implode(', ', $value) : (is_bool($value) ? ($value ? 'Ya' : 'Tidak') : $value);
+                                        $displayValue = is_array($value) ? implode(', ', $value) : (is_bool($value) ? ($value ? 'Yes' : 'No') : $value);
                                     @endphp
                                     <li>{{ $label }}: {{ $displayValue }}</li>
                                 @endforeach
                                 @if(!$material && empty($specifications))
-                                    <li>Spesifikasi tambahan belum tersedia.</li>
+                                    <li>Additional specifications are not available yet.</li>
                                 @endif
                             </ul>
                         </div>
@@ -134,22 +134,22 @@
                     <div class="d-flex align-items-center mb-4">
                         <img src="{{ $primaryImage }}" alt="{{ $product->name }}" class="rounded-3" style="width: 70px; height: 70px; object-fit: cover;" id="selectedImagePreview" onerror="this.onerror=null;this.src='{{ $placeholderImage }}';">
                         <div class="ms-3">
-                            <div class="info-label">Pilihan varian</div>
+                            <div class="info-label">Variant selection</div>
                             <div class="variant-summary-text fw-semibold mt-1">{{ $variantSummary }}</div>
                         </div>
                     </div>
 
                     <div class="mb-4">
-                        <div class="info-label">Atur jumlah</div>
+                        <div class="info-label">Set quantity</div>
                         <div class="qty-control mt-2">
                             <button class="qty-btn" data-action="minus">-</button>
                             <input type="text" class="qty-input" id="quantity" value="1" readonly>
                             <button class="qty-btn" data-action="plus">+</button>
-                            <span class="ms-3 text-success fw-semibold stock-label">Stok: {{ number_format($product->stock, 0, ',', '.') }}</span>
+                            <span class="ms-3 text-success fw-semibold stock-label">Stock: {{ number_format($product->stock, 0, ',', '.') }}</span>
                         </div>
                         @if(empty($variantGroups))
                             <p class="variant-quantity-hint text-muted small mt-2">
-                                Masukkan jumlah produk yang ingin kamu beli.
+                                Enter the quantity you would like to purchase.
                             </p>
                         @endif
                     </div>
@@ -160,23 +160,23 @@
                     </div>
 
                     <div class="d-grid gap-3">
-                        {{-- Tambah ke Keranjang --}}
+                        {{-- Add to Cart --}}
                         <form action="{{ route('cart.add', $product->id) }}" method="POST" class="d-grid">
                             @csrf
                             <input type="hidden" name="quantity" id="cartQuantity" value="1">
                             <input type="hidden" name="variants_payload" id="cartVariantsPayload" value='@json($activeSelections)'>
                             <button type="submit" class="btn-cart">
-                                <i class="bi bi-cart-plus"></i> Keranjang
+                                <i class="bi bi-cart-plus"></i> Add to Cart
                             </button>
                         </form>
 
-                        {{-- Beli Sekarang --}}
+                        {{-- Buy Now --}}
                         <form action="{{ route('checkout.buyNow', $product->id) }}" method="POST" class="d-grid">
                             @csrf
                             <input type="hidden" name="quantity" id="buyNowQuantity" value="1">
                             <input type="hidden" name="variants_payload" id="buyNowVariantsPayload" value='@json($activeSelections)'>
                             <button type="submit" class="btn-buy">
-                                <i class="bi bi-bag-check"></i> Beli Sekarang
+                                <i class="bi bi-bag-check"></i> Buy Now
                             </button>
                         </form>
                     </div>

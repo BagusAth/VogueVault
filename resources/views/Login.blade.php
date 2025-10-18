@@ -89,12 +89,12 @@
         }
 
         .form-box h1 {
-            margin-bottom: 25px; /* Tambah jarak bawah dari heading */
+            margin-bottom: 25px; /* Add extra spacing below the heading */
         }
 
         .alert-success {
             margin-top: -5px;
-            margin-bottom: 15px; /* Tambah jarak antara alert dan input */
+            margin-bottom: 15px; /* Add space between the alert and the input */
         }
 
         @media (max-width: 850px) {
@@ -126,7 +126,7 @@
     @endphp
 
     <main class="auth-main">
-        <!-- Bagian logo dan judul -->
+    <!-- Logo and heading section -->
         <div class="header-logo">
             <img src="{{ asset('images/logo1.png') }}" alt="VogueVault Logo">
             <h2>Vogue<span>Vault</span></h2>

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Keranjang Belanja</title>
+    <title>Shopping Cart</title>
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
@@ -15,8 +15,8 @@
 
     @php
         $placeholderImage = asset('images/placeholder_img.jpg');
-        $itemCount = $cart->items->count();
-        $itemLabel = $itemCount === 1 ? 'produk' : 'produk';
+    $itemCount = $cart->items->count();
+    $itemLabel = $itemCount === 1 ? 'item' : 'items';
     @endphp
 
     <main class="cart-page">
@@ -27,8 +27,8 @@
                 @if($cart->items->isEmpty())
                     <section class="cart-empty">
                         <div class="cart-empty__hero">
-                            <h1 class="cart-empty__title">Keranjang</h1>
-                            <p class="cart-empty__subtitle">Kumpulkan produk pilihan Anda dan lanjutkan proses checkout dengan mudah.</p>
+                            <h1 class="cart-empty__title">Shopping Cart</h1>
+                            <p class="cart-empty__subtitle">Gather your favorite pieces and continue to checkout whenever you’re ready.</p>
                         </div>
 
                         <div class="cart-empty__panel">
@@ -36,9 +36,9 @@
                                 <div class="cart-empty__icon" aria-hidden="true">
                                     <i class="bi bi-inboxes"></i>
                                 </div>
-                                <p class="cart-empty__message">Belum ada produk yang masuk ke keranjang.</p>
+                                <p class="cart-empty__message">Your cart is currently empty.</p>
                                 <a href="{{ route('home') }}" class="btn btn-primary cart-empty__cta">
-                                    <i class="bi bi-compass"></i> Jelajahi produk
+                                    <i class="bi bi-compass"></i> Browse products
                                 </a>
                             </div>
                         </div>
@@ -85,7 +85,7 @@
                                                     @csrf
                                                     @method('DELETE')
                                                     <button type="submit" class="btn btn-link text-danger">
-                                                        <i class="bi bi-trash"></i> Hapus
+                                                        <i class="bi bi-trash"></i> Remove
                                                     </button>
                                                 </form>
                                             </div>
@@ -120,8 +120,8 @@
                         <div class="col-lg-4">
                             <aside class="cart-summary-card">
                                 <div class="summary-header">
-                                    <h2>Ringkasan</h2>
-                                    <p>Kami akan mengonfirmasi detail Anda di tahap checkout.</p>
+                                    <h2>Summary</h2>
+                                    <p>We will double-check your details during checkout.</p>
                                 </div>
 
                                 <dl class="summary-list">
@@ -130,12 +130,12 @@
                                         <dd data-cart-subtotal>Rp {{ number_format($cart->subtotal, 0, ',', '.') }}</dd>
                                     </div>
                                     <div class="summary-row">
-                                        <dt>Estimasi Pajak</dt>
-                                        <dd class="text-muted">Dihitung saat checkout</dd>
+                                        <dt>Estimated tax</dt>
+                                        <dd class="text-muted">Calculated at checkout</dd>
                                     </div>
                                     <div class="summary-row">
-                                        <dt>Pengiriman</dt>
-                                        <dd class="text-success">Gratis</dd>
+                                        <dt>Shipping</dt>
+                                        <dd class="text-success">Free</dd>
                                     </div>
                                 </dl>
 
@@ -149,14 +149,14 @@
                                         @csrf
                                         @method('DELETE')
                                         <button type="submit" class="btn btn-outline-secondary w-100">
-                                            <i class="bi bi-x-circle"></i> Kosongkan keranjang
+                                            <i class="bi bi-x-circle"></i> Clear cart
                                         </button>
                                     </form>
                                     <a href="{{ route('checkout.review') }}" class="btn btn-primary w-100">
-                                        Lanjut ke Checkout
+                                        Proceed to checkout
                                     </a>
                                     <a href="{{ route('home') }}" class="btn btn-link w-100">
-                                        <i class="bi bi-compass"></i> Cari produk lainnya
+                                        <i class="bi bi-compass"></i> Find more products
                                     </a>
                                 </div>
                             </aside>
@@ -193,12 +193,12 @@
                     });
 
                     if (!response.ok) {
-                        throw new Error('Permintaan gagal');
+                        throw new Error('Request failed');
                     }
 
                     const data = await response.json();
                     if (!data.success) {
-                        throw new Error('Gagal memperbarui keranjang');
+                        throw new Error('Failed to update the cart');
                     }
 
                     const input = form.querySelector('[data-quantity-input]');
@@ -220,7 +220,7 @@
                     }
                 } catch (error) {
                     console.error(error);
-                    alert('Tidak dapat memperbarui jumlah produk. Silakan coba lagi.');
+                    alert('Unable to update the product quantity. Please try again.');
                 } finally {
                     form.dataset.updating = 'false';
                     form.classList.remove('is-updating');

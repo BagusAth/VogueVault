@@ -16,7 +16,7 @@
             <header class="form-header">
                 <div class="form-header__titles">
                     <h1 class="form-title">Add New Product</h1>
-                    <p class="form-subtitle">Lengkapi detail produk berikut untuk menambahkannya ke katalog.</p>
+                    <p class="form-subtitle">Complete the details below to add this product to the catalog.</p>
                 </div>
                 <a href="{{ route('admin.products.index') }}" class="btn-secondary">
                     <i class="bi bi-arrow-left"></i>
@@ -26,7 +26,7 @@
 
             @if ($errors->any())
                 <div class="form-errors" role="alert">
-                    <strong>Periksa kembali isian berikut:</strong>
+                    <strong>Please review the following:</strong>
                     <ul>
                         @foreach ($errors->all() as $error)
                             <li>{{ $error }}</li>
@@ -42,7 +42,7 @@
                     <div class="form-grid">
                         <div class="form-group @error('name') has-error @enderror">
                             <label for="name">Product Name<span>*</span></label>
-                            <input type="text" id="name" name="name" value="{{ old('name') }}" placeholder="Contoh: Leather Chronograph Watch" required>
+                            <input type="text" id="name" name="name" value="{{ old('name') }}" placeholder="Example: Leather Chronograph Watch" required>
                             @error('name')
                                 <span class="form-error">{{ $message }}</span>
                             @enderror
@@ -50,12 +50,12 @@
 
                         <div class="form-group">
                             <label for="short_description">Short Description</label>
-                            <input type="text" id="short_description" name="short_description" value="{{ old('short_description') }}" placeholder="Deskripsi singkat produk">
+                            <input type="text" id="short_description" name="short_description" value="{{ old('short_description') }}" placeholder="Short summary of the product">
                         </div>
 
                         <div class="form-group form-group--full">
                             <label for="description">Full Description</label>
-                            <textarea id="description" name="description" rows="5" placeholder="Tuliskan detail produk, material, fitur, dan lainnya.">{{ old('description') }}</textarea>
+                            <textarea id="description" name="description" rows="5" placeholder="Describe product details, materials, features, and more.">{{ old('description') }}</textarea>
                         </div>
 
                         <div class="form-group @error('price') has-error @enderror">
@@ -77,7 +77,7 @@
                         <div class="form-group @error('category_id') has-error @enderror">
                             <label for="category_id">Category<span>*</span></label>
                             <select id="category_id" name="category_id" required>
-                                <option value="" disabled {{ old('category_id') ? '' : 'selected' }}>Pilih kategori</option>
+                                <option value="" disabled {{ old('category_id') ? '' : 'selected' }}>Select a category</option>
                                 @foreach($categories as $category)
                                     <option value="{{ $category->id }}" {{ old('category_id') == $category->id ? 'selected' : '' }}>
                                         {{ $category->name }}
@@ -95,18 +95,18 @@
                                 <div class="file-upload__label">
                                     <i class="bi bi-cloud-arrow-up"></i>
                                     <div class="file-upload__text">
-                                        <strong>Drag & drop</strong> gambar ke area ini atau klik untuk memilih.
-                                        <span>Format: JPG, PNG · Maksimal 5 gambar · 4MB per gambar</span>
+                                        <strong>Drag & drop</strong> images into this area or click to choose.
+                                        <span>Formats: JPG, PNG · Up to 5 images · 4MB per image</span>
                                     </div>
                                 </div>
                                 <button type="button" class="btn-tertiary file-upload__button" id="browse-images">
                                     <i class="bi bi-folder2-open"></i>
-                                    Pilih Gambar
+                                    Choose Images
                                 </button>
                                 <input type="file" id="images" name="images[]" accept="image/*" multiple data-max-files="5">
                             </div>
                             <div class="image-preview" id="image-preview-list">
-                                <p class="preview-placeholder">Belum ada gambar yang dipilih.</p>
+                                <p class="preview-placeholder">No images selected yet.</p>
                             </div>
                             <p class="help-text image-limit-notice" id="image-limit-notice" aria-live="polite"></p>
                             @error('images')
@@ -119,7 +119,7 @@
 
                         <div class="form-group form-group--full">
                             <label>Specifications</label>
-                            <p class="help-text">Tambahkan informasi spesifikasi seperti Material: Katun, UV Protection: UV400. Cocok untuk detail produk yang tidak dipilih pengguna.</p>
+                            <p class="help-text">Add specification info such as Material: Cotton, UV Protection: UV400. Great for details customers don't choose directly.</p>
                             <div id="specification-fields" class="attribute-list">
                                 @php
                                     $specKeys = old('specification_keys', ['']);
@@ -127,8 +127,8 @@
                                 @endphp
                                 @foreach($specKeys as $index => $key)
                                     <div class="attribute-row">
-                                        <input type="text" name="specification_keys[]" value="{{ $key }}" placeholder="Spesifikasi (cth: Material)">
-                                        <input type="text" name="specification_values[]" value="{{ $specValues[$index] ?? '' }}" placeholder="Nilai (cth: Katun)">
+                                        <input type="text" name="specification_keys[]" value="{{ $key }}" placeholder="Specification (e.g. Material)">
+                                        <input type="text" name="specification_values[]" value="{{ $specValues[$index] ?? '' }}" placeholder="Value (e.g. Cotton)">
                                         <button type="button" class="attribute-remove" aria-label="Remove specification">
                                             <i class="bi bi-x"></i>
                                         </button>
@@ -149,7 +149,7 @@
 
                         <div class="form-group form-group--full">
                             <label>Variant Options</label>
-                            <p class="help-text">Tentukan varian yang dapat dipilih pelanggan, misalnya Size dengan opsi "S, M, L" atau Color dengan opsi "Merah, Hitam". Pisahkan setiap opsi dengan koma atau baris baru.</p>
+                            <p class="help-text">Define variants customers can choose, such as Size with options "S, M, L" or Color with options "Red, Black". Separate each option with commas or line breaks.</p>
                             <div id="variant-fields" class="attribute-list">
                                 @php
                                     $variantKeys = old('variant_keys', ['']);
@@ -157,8 +157,8 @@
                                 @endphp
                                 @foreach($variantKeys as $index => $key)
                                     <div class="attribute-row">
-                                        <input type="text" name="variant_keys[]" value="{{ $key }}" placeholder="Varian (cth: Size)">
-                                        <input type="text" name="variant_values[]" value="{{ $variantValues[$index] ?? '' }}" placeholder="Daftar opsi (cth: S, M, L)">
+                                        <input type="text" name="variant_keys[]" value="{{ $key }}" placeholder="Variant (e.g. Size)">
+                                        <input type="text" name="variant_values[]" value="{{ $variantValues[$index] ?? '' }}" placeholder="List options (e.g. S, M, L)">
                                         <button type="button" class="attribute-remove" aria-label="Remove variant">
                                             <i class="bi bi-x"></i>
                                         </button>

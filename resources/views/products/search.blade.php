@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hasil Pencarian "{{ $query }}" - VogueVault</title>
+    <title>Search Results "{{ $query }}" - VogueVault</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
     <link rel="stylesheet" href="{{ asset('css/navbar.css') }}">
@@ -25,11 +25,11 @@
                 <div class="container">
                     <div class="row justify-content-center">
                         <div class="col-xl-8 col-lg-9">
-                            <h1 class="hero-tagline" style="font-size: 2.4rem;">Hasil untuk "{{ $query }}"</h1>
+                            <h1 class="hero-tagline" style="font-size: 2.4rem;">Results for "{{ $query }}"</h1>
                             <p class="text-white-50 text-center mt-3 mb-4">
-                                Menemukan {{ number_format($resultCount, 0, ',', '.') }} produk yang relevan.
+                                Found {{ number_format($resultCount, 0, ',', '.') }} matching products.
                                 @if($keywordsList->isNotEmpty())
-                                    <span class="d-block small mt-2">Kata kunci: {{ $keywordsList->implode(', ') }}</span>
+                                    <span class="d-block small mt-2">Keywords: {{ $keywordsList->implode(', ') }}</span>
                                 @endif
                             </p>
 
@@ -40,7 +40,7 @@
                                         <input type="text"
                                                class="form-control search-input"
                                                name="query"
-                                               placeholder="Cari produk lainnya..."
+                                               placeholder="Search for other products..."
                                                value="{{ $query }}">
                                         <button type="submit" class="search-submit-btn">
                                             <i class="bi bi-arrow-right"></i>
@@ -70,13 +70,13 @@
                 @if($products->count() === 0)
                     <div class="text-center py-5">
                         <div class="display-6 mb-3"><i class="bi bi-search"></i></div>
-                        <h2 class="h4">Tidak ada produk yang cocok dengan pencarian Anda.</h2>
-                        <p class="text-muted">Coba gunakan istilah yang berbeda atau pilih salah satu rekomendasi di atas.</p>
+                        <h2 class="h4">No products match your search.</h2>
+                        <p class="text-muted">Try a different term or pick one of the suggestions above.</p>
                     </div>
                 @else
                     <div class="section-header mb-4 d-flex justify-content-between align-items-center">
-                        <h2 class="section-title mb-0">Produk ditemukan</h2>
-                        <span class="badge bg-light text-dark">{{ number_format($resultCount, 0, ',', '.') }} hasil</span>
+                        <h2 class="section-title mb-0">Products found</h2>
+                        <span class="badge bg-light text-dark">{{ number_format($resultCount, 0, ',', '.') }} results</span>
                     </div>
 
                     <div class="row g-4">

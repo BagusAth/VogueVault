@@ -16,7 +16,7 @@
             <header class="content-header">
                 <div>
                     <h1 class="content-title">Orders</h1>
-                    <p class="content-subtitle">Monitor transaksi pelanggan dan kelola status pengiriman.</p>
+                    <p class="content-subtitle">Monitor customer transactions and manage fulfillment statuses.</p>
                 </div>
             </header>
 
@@ -28,7 +28,7 @@
                 @if($orders->isEmpty())
                     <div class="order-empty">
                         <i class="bi bi-inboxes"></i>
-                        <p>Belum ada order yang masuk.</p>
+                        <p>No orders have been placed yet.</p>
                     </div>
                 @else
                     <div class="order-table-wrapper">
@@ -77,7 +77,7 @@
                                                     @endforeach
                                                 </select>
                                                 <noscript>
-                                                    <button type="submit" class="status-submit">Perbarui</button>
+                                                    <button type="submit" class="status-submit">Update</button>
                                                 </noscript>
                                             </form>
                                         </td>

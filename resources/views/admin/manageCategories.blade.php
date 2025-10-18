@@ -45,7 +45,7 @@
 					<div class="alert-body">
 						<span class="alert-icon"><i class="bi bi-exclamation-triangle-fill"></i></span>
 						<div class="alert-text">
-							<strong>Perhatian</strong>
+							<strong>Attention</strong>
 							<ul>
 								@foreach($errors->all() as $error)
 									<li>{{ $error }}</li>
@@ -53,7 +53,7 @@
 							</ul>
 						</div>
 					</div>
-					<button type="button" class="alert-close" data-action="dismiss-alert" aria-label="Tutup peringatan">
+					<button type="button" class="alert-close" data-action="dismiss-alert" aria-label="Close alert">
 						<i class="bi bi-x-lg"></i>
 					</button>
 				</div>
@@ -93,7 +93,7 @@
 							<button type="button" class="file-drop-body" data-dropzone-trigger>
 								<span class="file-drop-icon"><i class="bi bi-cloud-arrow-up"></i></span>
 								<span class="file-drop-text">Drag &amp; drop or <span class="file-drop-link">browse</span> to upload</span>
-								<span class="file-drop-hint">PNG, JPG, atau WEBP hingga 2&nbsp;MB</span>
+								<span class="file-drop-hint">PNG, JPG, or WEBP up to 2&nbsp;MB</span>
 							</button>
 							<div class="file-drop-preview" data-dropzone-preview hidden>
 								<img src="" alt="Selected preview" data-dropzone-preview-img>
@@ -103,7 +103,7 @@
 								</div>
 							</div>
 						</div>
-						<span class="field-hint">Anda juga dapat menempelkan gambar langsung ke area unggah.</span>
+						<span class="field-hint">You can also paste an image directly into the upload area.</span>
 					</label>
 
 					<div class="form-actions">

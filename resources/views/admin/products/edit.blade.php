@@ -18,7 +18,7 @@
         <header class="form-header">
             <div class="form-header__titles">
                 <h1 class="form-title">Edit Product</h1>
-                <p class="form-subtitle">Ubah detail produk berikut, lalu simpan perubahan.</p>
+                <p class="form-subtitle">Adjust the product details below, then save your changes.</p>
             </div>
             <a href="{{ route('admin.products.index') }}" class="btn-secondary">
                 <i class="bi bi-arrow-left"></i> Back to All Products
@@ -28,7 +28,7 @@
         {{-- Error Validation --}}
         @if ($errors->any())
             <div class="form-errors" role="alert">
-                <strong>Periksa kembali isian berikut:</strong>
+                <strong>Please review the following:</strong>
                 <ul>
                     @foreach ($errors->all() as $error)
                         <li>{{ $error }}</li>
@@ -52,7 +52,7 @@
                         <label for="name">Product Name<span>*</span></label>
                         <input type="text" id="name" name="name"
                                value="{{ old('name', $product->name) }}"
-                               placeholder="Contoh: Leather Chronograph Watch"
+                               placeholder="Example: Leather Chronograph Watch"
                                required>
                     </div>
 
@@ -61,14 +61,14 @@
                         <label for="short_description">Short Description</label>
                         <input type="text" id="short_description" name="short_description"
                                value="{{ old('short_description', $product->short_description) }}"
-                               placeholder="Deskripsi singkat produk">
+                               placeholder="Short summary of the product">
                     </div>
 
                     {{-- Full Description --}}
                     <div class="form-group form-group--full">
                         <label for="description">Full Description</label>
                         <textarea id="description" name="description" rows="5"
-                                  placeholder="Tuliskan detail produk, material, fitur, dan lainnya.">{{ old('description', $product->description) }}</textarea>
+                                  placeholder="Describe product details, materials, features, and more.">{{ old('description', $product->description) }}</textarea>
                     </div>
 
                     {{-- Price --}}
@@ -129,13 +129,13 @@
                                     </div>
                                 @endforeach
                             @else
-                                <p class="preview-placeholder">Belum ada gambar yang diunggah.</p>
+                                <p class="preview-placeholder">No images uploaded yet.</p>
                             @endif
 
-                            {{-- Tambah Gambar Baru --}}
+                            {{-- Add New Images --}}
                             <div class="add-image-box" onclick="document.getElementById('newImages').click();">
                                 <i class="bi bi-plus-circle"></i>
-                                <p>Tambah Gambar</p>
+                                <p>Add Images</p>
                                 <input type="file" id="newImages" name="images[]" accept="image/*" multiple hidden
                                        onchange="previewNewImages(event)">
                             </div>
@@ -146,8 +146,8 @@
                     <div class="form-group form-group--full">
                         <label>Additional Attributes</label>
                         <p class="help-text">
-                            Tambahkan pasangan atribut seperti Size: Large, Color: Navy.
-                            Biarkan kosong jika tidak diperlukan.
+                            Add attribute pairs such as Size: Large or Color: Navy.
+                            Leave empty if you don't need extra details.
                         </p>
 
                         <div id="attribute-fields" class="attribute-list">
@@ -161,10 +161,10 @@
                                     $displayValue = is_array($value) ? implode(', ', $value) : $value;
                                 @endphp
                                 <div class="attribute-row">
-                                    <input type="text" name="attribute_keys[]" value="{{ $key }}"
-                                           placeholder="Attribute (cth: Size)">
-                                    <input type="text" name="attribute_values[]" value="{{ $displayValue }}"
-                                           placeholder="Value (cth: Large)">
+                     <input type="text" name="attribute_keys[]" value="{{ $key }}"
+                         placeholder="Attribute (e.g. Size)">
+                     <input type="text" name="attribute_values[]" value="{{ $displayValue }}"
+                         placeholder="Value (e.g. Large)">
                                     <button type="button" class="attribute-remove" aria-label="Remove attribute">
                                         <i class="bi bi-x"></i>
                                     </button>
@@ -205,9 +205,9 @@
     }
 
     function removeImage(button) {
-    const box = button.closest('.image-box');
-    box.remove();
-    // Kalau mau juga hapus di database nanti, bisa kirim AJAX request dari sini
+        const box = button.closest('.image-box');
+        box.remove();
+        // To remove it from storage as well, send an AJAX request from here if needed
     }
 
 
@@ -232,8 +232,8 @@
         const row = document.createElement('div');
         row.classList.add('attribute-row');
         row.innerHTML = `
-            <input type="text" name="attribute_keys[]" placeholder="Attribute (cth: Size)">
-            <input type="text" name="attribute_values[]" placeholder="Value (cth: Large)">
+            <input type="text" name="attribute_keys[]" placeholder="Attribute (e.g. Size)">
+            <input type="text" name="attribute_values[]" placeholder="Value (e.g. Large)">
             <button type="button" class="attribute-remove" aria-label="Remove attribute">
                 <i class="bi bi-x"></i>
             </button>
@@ -250,7 +250,7 @@
     @if(session('success'))
         Swal.fire({
             icon: 'success',
-            title: 'Produk berhasil diperbarui!',
+            title: 'Product updated successfully!',
             showConfirmButton: false,
             timer: 2000,
             timerProgressBar: true

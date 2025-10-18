@@ -44,9 +44,9 @@
         <div class="container-xl">
             <div class="checkout-intro">
                 <div>
-                    <p class="eyebrow">Langkah Terakhir</p>
-                    <h1>Periksa &amp; Konfirmasi Pesanan</h1>
-                    <p class="lead">Pilih alamat favoritmu, pastikan detail pesanan sudah sesuai, lalu pilih metode pembayaran yang paling nyaman.</p>
+                    <p class="eyebrow">Final Step</p>
+                    <h1>Review &amp; Confirm Your Order</h1>
+                    <p class="lead">Pick your preferred address, make sure the order details look right, then choose the payment method that suits you best.</p>
                 </div>
             </div>
 
@@ -71,18 +71,18 @@
                     <section class="card glass-card mb-4">
                         <div class="card-header d-flex justify-content-between align-items-center">
                             <div>
-                                <h2 class="card-title">Alamat Pengiriman</h2>
-                                <p class="text-muted small mb-0">Simpan beberapa alamat favorit dan ganti kapan saja.</p>
+                                <h2 class="card-title">Shipping Address</h2>
+                                <p class="text-muted small mb-0">Save multiple addresses and switch between them anytime.</p>
                             </div>
                             <button type="button" class="btn btn-outline-primary btn-sm {{ $errors->any() ? 'active' : '' }}" id="toggleAddressForm">
-                                <i class="bi bi-plus-circle me-1"></i> Tambah Alamat Baru
+                                <i class="bi bi-plus-circle me-1"></i> Add New Address
                             </button>
                         </div>
                         <div class="card-body">
                             @if($addresses->isEmpty())
                                 <div class="empty-state">
                                     <i class="bi bi-geo-alt"></i>
-                                    <p class="mb-0">Belum ada alamat tersimpan. Tambahkan alamat pengiriman pertama Anda.</p>
+                                    <p class="mb-0">You don't have any saved addresses yet. Add your first shipping address.</p>
                                 </div>
                             @else
                                 <div class="address-list">
@@ -92,7 +92,7 @@
                                             <input type="hidden" name="address_id" value="{{ $address->id }}">
                                             <div class="address-card__meta">
                                                 <span class="badge rounded-pill {{ $address->is_default ? 'text-bg-success' : 'text-bg-light' }}">
-                                                    {{ $address->label ? e($address->label) : 'Alamat' }}
+                                                    {{ $address->label ? e($address->label) : 'Address' }}
                                                 </span>
                                                 @if($address->is_default)
                                                     <span class="default-chip">Default</span>
@@ -103,11 +103,11 @@
                                             <p class="text-muted mb-3">{{ $address->address_line }}, {{ $address->city }}{{ $address->postal_code ? ', ' . $address->postal_code : '' }}</p>
                                             <div class="address-card__actions">
                                                 <button type="submit" name="action" value="select" class="btn btn-primary btn-sm">
-                                                    Gunakan Alamat Ini
+                                                    Use This Address
                                                 </button>
                                                 @if(!$address->is_default)
                                                     <button type="submit" name="action" value="make_default" class="btn btn-link btn-sm text-decoration-none">
-                                                        Jadikan Default
+                                                        Set as Default
                                                     </button>
                                                 @endif
                                             </div>
@@ -118,47 +118,47 @@
 
                             <div class="address-form-wrapper collapse {{ $errors->any() ? 'show' : '' }}" id="newAddressForm">
                                 <hr>
-                                <h3 class="h5 mb-3">Alamat Baru</h3>
+                                <h3 class="h5 mb-3">New Address</h3>
                                 <form action="{{ route('checkout.address') }}" method="POST" class="address-form">
                                     @csrf
                                     <div class="row g-3">
                                         <div class="col-md-6">
-                                            <label class="form-label">Label Alamat <span class="text-muted">(Opsional)</span></label>
-                                            <input type="text" name="label" class="form-control" placeholder="Rumah, Kantor, dll" value="{{ old('label') }}">
+                                            <label class="form-label">Address Label <span class="text-muted">(Optional)</span></label>
+                                            <input type="text" name="label" class="form-control" placeholder="Home, Office, etc." value="{{ old('label') }}">
                                             @error('label')
                                                 <div class="text-danger small mt-1">{{ $message }}</div>
                                             @enderror
                                         </div>
                                         <div class="col-md-6">
-                                            <label class="form-label">Nama Penerima</label>
+                                            <label class="form-label">Recipient Name</label>
                                             <input type="text" name="receiver_name" class="form-control" value="{{ old('receiver_name') }}" required>
                                             @error('receiver_name')
                                                 <div class="text-danger small mt-1">{{ $message }}</div>
                                             @enderror
                                         </div>
                                         <div class="col-md-6">
-                                            <label class="form-label">Nomor Telepon</label>
+                                            <label class="form-label">Phone Number</label>
                                             <input type="text" name="phone" class="form-control" value="{{ old('phone') }}" required>
                                             @error('phone')
                                                 <div class="text-danger small mt-1">{{ $message }}</div>
                                             @enderror
                                         </div>
                                         <div class="col-12">
-                                            <label class="form-label">Alamat Lengkap</label>
+                                            <label class="form-label">Full Address</label>
                                             <textarea name="address_line" rows="3" class="form-control" required>{{ old('address_line') }}</textarea>
                                             @error('address_line')
                                                 <div class="text-danger small mt-1">{{ $message }}</div>
                                             @enderror
                                         </div>
                                         <div class="col-md-6">
-                                            <label class="form-label">Kota</label>
+                                            <label class="form-label">City</label>
                                             <input type="text" name="city" class="form-control" value="{{ old('city') }}" required>
                                             @error('city')
                                                 <div class="text-danger small mt-1">{{ $message }}</div>
                                             @enderror
                                         </div>
                                         <div class="col-md-6">
-                                            <label class="form-label">Kode Pos</label>
+                                            <label class="form-label">Postal Code</label>
                                             <input type="text" name="postal_code" class="form-control" value="{{ old('postal_code') }}">
                                             @error('postal_code')
                                                 <div class="text-danger small mt-1">{{ $message }}</div>
@@ -166,13 +166,13 @@
                                         </div>
                                         <div class="col-12 d-flex align-items-center">
                                             <input type="checkbox" class="form-check-input me-2" name="set_as_default" id="setAsDefault" {{ old('set_as_default') ? 'checked' : '' }}>
-                                            <label class="form-check-label" for="setAsDefault">Jadikan sebagai alamat default</label>
+                                            <label class="form-check-label" for="setAsDefault">Set as default address</label>
                                         </div>
                                         @error('set_as_default')
                                             <div class="col-12 text-danger small">{{ $message }}</div>
                                         @enderror
                                         <div class="col-12">
-                                            <button type="submit" class="btn btn-primary">Simpan Alamat</button>
+                                            <button type="submit" class="btn btn-primary">Save Address</button>
                                         </div>
                                     </div>
                                 </form>
@@ -182,7 +182,7 @@
 
                     <section class="card glass-card">
                         <div class="card-header">
-                            <h2 class="card-title mb-0">Detail Pesanan</h2>
+                            <h2 class="card-title mb-0">Order Details</h2>
                         </div>
                         <div class="card-body">
                             @if(isset($buyNow))
@@ -223,18 +223,18 @@
                 <aside class="col-12 col-xl-4">
                     <section class="card glass-card sticky-top summary-card">
                         <div class="card-body">
-                            <h2 class="card-title mb-3">Ringkasan Pembayaran</h2>
+                            <h2 class="card-title mb-3">Payment Summary</h2>
 
                             <div class="shipping-summary mb-4">
                                 <div class="shipping-header">
-                                    <span class="badge rounded-pill text-bg-light">Alamat Aktif</span>
+                                    <span class="badge rounded-pill text-bg-light">Active Address</span>
                                 </div>
                                 @if($activeAddress)
                                     <p class="mb-1 fw-semibold">{{ $activeAddress->receiver_name }}</p>
                                     <p class="mb-1 text-muted">{{ $activeAddress->phone }}</p>
                                     <p class="mb-0 text-muted">{{ $activeAddress->address_line }}, {{ $activeAddress->city }}{{ $activeAddress->postal_code ? ', ' . $activeAddress->postal_code : '' }}</p>
                                 @else
-                                    <p class="text-muted mb-0">Tambahkan alamat baru agar pesanan dapat dikirim.</p>
+                                    <p class="text-muted mb-0">Add a shipping address so we can deliver your order.</p>
                                 @endif
                             </div>
 
@@ -244,29 +244,29 @@
                                     <label class="payment-option">
                                         <input type="radio" name="payment_method" value="gopay" required>
                                         <span>
-                                            <strong>Gopay</strong>
-                                            <small>Saldo GoPay akan terpotong otomatis</small>
+                                            <strong>GoPay</strong>
+                                            <small>Your GoPay balance will be charged automatically</small>
                                         </span>
                                     </label>
                                     <label class="payment-option">
                                         <input type="radio" name="payment_method" value="shopeepay">
                                         <span>
                                             <strong>ShopeePay</strong>
-                                            <small>Scan atau konfirmasi di aplikasi Shopee</small>
+                                            <small>Scan or confirm via the Shopee app</small>
                                         </span>
                                     </label>
                                     <label class="payment-option">
                                         <input type="radio" name="payment_method" value="qris">
                                         <span>
                                             <strong>QRIS</strong>
-                                            <small>Bayar melalui aplikasi bank favoritmu</small>
+                                            <small>Pay through your preferred banking app</small>
                                         </span>
                                     </label>
                                     <label class="payment-option">
                                         <input type="radio" name="payment_method" value="va">
                                         <span>
                                             <strong>Virtual Account</strong>
-                                            <small>Pembayaran melalui ATM atau mobile banking</small>
+                                            <small>Complete payment via ATM or mobile banking</small>
                                         </span>
                                     </label>
                                 </div>
@@ -277,25 +277,25 @@
                                         <span>{{ isset($buyNow) ? $formatCurrency($buyNow['subtotal']) : $formatCurrency($cart->subtotal) }}</span>
                                     </li>
                                     <li class="d-flex justify-content-between mb-2 text-muted">
-                                        <span>Pajak</span>
-                                        <span>Dihitung saat pembayaran</span>
+                                        <span>Tax</span>
+                                        <span>Calculated at payment</span>
                                     </li>
                                     <li class="d-flex justify-content-between mb-2 text-success">
-                                        <span>Pengiriman</span>
-                                        <span>Gratis</span>
+                                        <span>Shipping</span>
+                                        <span>Free</span>
                                     </li>
                                 </ul>
 
                                 <div class="total-line d-flex justify-content-between align-items-center mb-4">
-                                    <span>Total Tagihan</span>
+                                    <span>Order Total</span>
                                     <strong>{{ isset($buyNow) ? $formatCurrency($buyNow['subtotal']) : $formatCurrency($cart->subtotal) }}</strong>
                                 </div>
 
                                 <button type="submit" class="btn btn-primary w-100 btn-lg" {{ $activeAddress ? '' : 'disabled' }}>
-                                    Lanjut Bayar
+                                    Continue to Payment
                                 </button>
                             </form>
-                            <p class="security-note text-muted small mt-3"><i class="bi bi-shield-check me-1"></i> Pembayaran Anda terenkripsi dan aman. Kami tidak menyimpan detail kartu atau dompet digital Anda.</p>
+                            <p class="security-note text-muted small mt-3"><i class="bi bi-shield-check me-1"></i> Your payment is encrypted and secure. We never store your card or digital wallet details.</p>
                         </div>
                     </section>
                 </aside>
@@ -313,8 +313,8 @@
                 const isOpen = addressForm.classList.contains('show');
                 toggleButton.classList.toggle('active', isOpen);
                 toggleButton.innerHTML = isOpen
-                    ? '<i class="bi bi-dash-circle me-1"></i> Tutup Form Alamat'
-                    : '<i class="bi bi-plus-circle me-1"></i> Tambah Alamat Baru';
+                    ? '<i class="bi bi-dash-circle me-1"></i> Close Address Form'
+                    : '<i class="bi bi-plus-circle me-1"></i> Add New Address';
             };
 
             syncToggleState();

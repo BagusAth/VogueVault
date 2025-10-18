@@ -98,7 +98,7 @@
 										<span class="order-payment" data-payment-status>Payment: {{ ucfirst($order->payment_status ?? 'Unknown') }}</span>
 										<span class="order-updated" data-order-updated>Updated {{ optional($order->updated_at)->diffForHumans() }}</span>
 										@if($isUnpaid)
-											<a href="{{ $paymentUrl }}" class="order-card__cta btn btn-sm btn-outline-success">Bayar Sekarang</a>
+											<a href="{{ $paymentUrl }}" class="order-card__cta btn btn-sm btn-outline-success">Pay Now</a>
 										@endif
 									</div>
 								</header>
