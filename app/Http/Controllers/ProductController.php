@@ -31,6 +31,11 @@ class ProductController extends Controller
                     return asset('storage/' . $cleanPath);
                 }
 
+                $publicPath = public_path($cleanPath);
+                if (file_exists($publicPath)) {
+                    return asset($cleanPath);
+                }
+
                 return null;
             })
             ->filter()

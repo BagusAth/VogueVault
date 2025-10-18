@@ -100,9 +100,22 @@
                             @forelse($newProducts as $product)
                                 @php
                                     $primaryImage = collect($product->images ?? [])->first();
-                                    if ($primaryImage && !\Illuminate\Support\Str::startsWith($primaryImage, ['http://', 'https://'])) {
-                                        $primaryImage = asset('storage/' . ltrim($primaryImage, '/'));
+
+                                    if ($primaryImage) {
+                                        if (\Illuminate\Support\Str::startsWith($primaryImage, ['http://', 'https://'])) {
+                                            // keep full URL as-is
+                                        } else {
+                                            $cleanPath = ltrim($primaryImage, '/');
+                                            if (\Illuminate\Support\Facades\Storage::disk('public')->exists($cleanPath)) {
+                                                $primaryImage = asset('storage/' . $cleanPath);
+                                            } elseif (file_exists(public_path($cleanPath))) {
+                                                $primaryImage = asset($cleanPath);
+                                            } else {
+                                                $primaryImage = null;
+                                            }
+                                        }
                                     }
+
                                     $primaryImage = $primaryImage ?? $productPlaceholder;
                                 @endphp
                                 <div class="product-item">
