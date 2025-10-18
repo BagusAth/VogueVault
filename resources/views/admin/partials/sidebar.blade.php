@@ -4,7 +4,7 @@
             <!-- <div class="brand-icon">
                 <i class="bi bi-shop"></i>
             </div> -->
-            <img src="{{ asset('images/logo1.png') }}" alt="VogueVault logo" class="logo-image">
+            <img src="{{ asset('images/logo1.png') }}" alt="VogueVault logo" class="logo-image" style="height: 28px; width: auto;">
             VogueVault
         </div>
 
