@@ -90,14 +90,40 @@
                                         <form action="{{ route('checkout.address.select') }}" method="POST" class="address-card {{ optional($activeAddress)->id === $address->id ? 'is-active' : '' }}">
                                             @csrf
                                             <input type="hidden" name="address_id" value="{{ $address->id }}">
-                                            <div class="address-card__meta">
-                                                <span class="badge rounded-pill {{ $address->is_default ? 'text-bg-success' : 'text-bg-light' }}">
-                                                    {{ $address->label ? e($address->label) : 'Address' }}
-                                                </span>
-                                                @if($address->is_default)
-                                                    <span class="default-chip">Default</span>
-                                                @endif
-                                            </div>
+                                            <header class="address-card__header">
+                                                <div class="address-card__meta">
+                                                    <span class="badge rounded-pill {{ $address->is_default ? 'text-bg-success' : 'text-bg-light' }}">
+                                                        {{ $address->label ? e($address->label) : 'Address' }}
+                                                    </span>
+                                                    @if($address->is_default)
+                                                        <span class="default-chip">Default</span>
+                                                    @endif
+                                                </div>
+                                                <div class="address-card__tools">
+                                                    <button type="button"
+                                                        class="address-card__icon"
+                                                        data-action="edit-address"
+                                                        data-address-id="{{ $address->id }}"
+                                                        data-address-label="{{ e($address->label ?? '') }}"
+                                                        data-address-receiver="{{ e($address->receiver_name) }}"
+                                                        data-address-phone="{{ e($address->phone) }}"
+                                                        data-address-line="{{ e($address->address_line) }}"
+                                                        data-address-city="{{ e($address->city) }}"
+                                                        data-address-postal="{{ e($address->postal_code ?? '') }}"
+                                                        data-address-default="{{ $address->is_default ? '1' : '0' }}"
+                                                        title="Edit address">
+                                                        <i class="bi bi-pencil-square"></i>
+                                                    </button>
+                                                    <button type="button"
+                                                        class="address-card__icon address-card__icon--danger"
+                                                        data-action="delete-address"
+                                                        data-delete-url="{{ route('checkout.address.delete', $address->id) }}"
+                                                        data-address-name="{{ e($address->receiver_name) }}"
+                                                        title="Delete address">
+                                                        <i class="bi bi-trash"></i>
+                                                    </button>
+                                                </div>
+                                            </header>
                                             <h3>{{ $address->receiver_name }}</h3>
                                             <p class="mb-1">{{ $address->phone }}</p>
                                             <p class="text-muted mb-3">{{ $address->address_line }}, {{ $address->city }}{{ $address->postal_code ? ', ' . $address->postal_code : '' }}</p>
@@ -114,13 +140,18 @@
                                         </form>
                                     @endforeach
                                 </div>
+                                <form id="deleteAddressForm" method="POST" style="display:none;">
+                                    @csrf
+                                    @method('DELETE')
+                                </form>
                             @endif
 
                             <div class="address-form-wrapper collapse {{ $errors->any() ? 'show' : '' }}" id="newAddressForm">
                                 <hr>
-                                <h3 class="h5 mb-3">New Address</h3>
-                                <form action="{{ route('checkout.address') }}" method="POST" class="address-form">
+                                <h3 class="h5 mb-3" data-address-form-title>New Address</h3>
+                                <form action="{{ route('checkout.address') }}" method="POST" class="address-form" id="addressForm">
                                     @csrf
+                                    <input type="hidden" name="address_id" id="addressIdField" value="{{ old('address_id') }}">
                                     <div class="row g-3">
                                         <div class="col-md-6">
                                             <label class="form-label">Address Label <span class="text-muted">(Optional)</span></label>
@@ -172,7 +203,7 @@
                                             <div class="col-12 text-danger small">{{ $message }}</div>
                                         @enderror
                                         <div class="col-12">
-                                            <button type="submit" class="btn btn-primary">Save Address</button>
+                                            <button type="submit" class="btn btn-primary" data-address-submit>Save Address</button>
                                         </div>
                                     </div>
                                 </form>
@@ -304,26 +335,161 @@
     </main>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
         const toggleButton = document.getElementById('toggleAddressForm');
-        const addressForm = document.getElementById('newAddressForm');
+        const addressFormWrapper = document.getElementById('newAddressForm');
+        const addressForm = document.getElementById('addressForm');
+        const addressFormTitle = document.querySelector('[data-address-form-title]');
+        const submitButton = document.querySelector('[data-address-submit]');
+        const addressIdField = document.getElementById('addressIdField');
+        const labelField = addressForm?.querySelector('[name="label"]');
+        const receiverField = addressForm?.querySelector('[name="receiver_name"]');
+        const phoneField = addressForm?.querySelector('[name="phone"]');
+        const addressLineField = addressForm?.querySelector('[name="address_line"]');
+        const cityField = addressForm?.querySelector('[name="city"]');
+        const postalField = addressForm?.querySelector('[name="postal_code"]');
+        const defaultCheckbox = document.getElementById('setAsDefault');
 
-        if (toggleButton && addressForm) {
-            const syncToggleState = () => {
-                const isOpen = addressForm.classList.contains('show');
-                toggleButton.classList.toggle('active', isOpen);
-                toggleButton.innerHTML = isOpen
-                    ? '<i class="bi bi-dash-circle me-1"></i> Close Address Form'
-                    : '<i class="bi bi-plus-circle me-1"></i> Add New Address';
-            };
+        const initialState = {
+            id: addressIdField?.value || '',
+            label: labelField?.value || '',
+            receiver: receiverField?.value || '',
+            phone: phoneField?.value || '',
+            address: addressLineField?.value || '',
+            city: cityField?.value || '',
+            postal: postalField?.value || '',
+            isDefault: defaultCheckbox?.checked || false,
+        };
 
+        let isEditingAddress = Boolean(initialState.id);
+
+        const setFormMode = (mode) => {
+            isEditingAddress = mode === 'edit';
+            if (addressFormTitle) {
+                addressFormTitle.textContent = isEditingAddress ? 'Edit Address' : 'New Address';
+            }
+            if (submitButton) {
+                submitButton.textContent = isEditingAddress ? 'Update Address' : 'Save Address';
+            }
+            if (toggleButton && addressFormWrapper?.classList.contains('show')) {
+                toggleButton.classList.add('active');
+                toggleButton.innerHTML = isEditingAddress
+                    ? '<i class="bi bi-dash-circle me-1"></i> Close Editor'
+                    : '<i class="bi bi-dash-circle me-1"></i> Close Address Form';
+            }
+        };
+
+        const resetAddressForm = () => {
+            if (!addressForm) {
+                return;
+            }
+            setFormMode('new');
+            if (addressIdField) addressIdField.value = '';
+            if (labelField) labelField.value = initialState.label;
+            if (receiverField) receiverField.value = initialState.receiver;
+            if (phoneField) phoneField.value = initialState.phone;
+            if (addressLineField) addressLineField.value = initialState.address;
+            if (cityField) cityField.value = initialState.city;
+            if (postalField) postalField.value = initialState.postal;
+            if (defaultCheckbox) defaultCheckbox.checked = initialState.isDefault;
+        };
+
+        const fillAddressForm = (data) => {
+            if (!addressForm) {
+                return;
+            }
+            if (!addressFormWrapper?.classList.contains('show')) {
+                addressFormWrapper?.classList.add('show');
+            }
+            if (addressIdField) addressIdField.value = data.id || '';
+            if (labelField) labelField.value = data.label || '';
+            if (receiverField) receiverField.value = data.receiver || '';
+            if (phoneField) phoneField.value = data.phone || '';
+            if (addressLineField) addressLineField.value = data.address || '';
+            if (cityField) cityField.value = data.city || '';
+            if (postalField) postalField.value = data.postal || '';
+            if (defaultCheckbox) defaultCheckbox.checked = data.isDefault === '1';
+            setFormMode('edit');
             syncToggleState();
+        };
 
+        const syncToggleState = () => {
+            if (!toggleButton || !addressFormWrapper) {
+                return;
+            }
+            const isOpen = addressFormWrapper.classList.contains('show');
+            toggleButton.classList.toggle('active', isOpen);
+            if (isOpen) {
+                const label = isEditingAddress ? 'Close Editor' : 'Close Address Form';
+                toggleButton.innerHTML = `<i class="bi bi-dash-circle me-1"></i> ${label}`;
+            } else {
+                toggleButton.innerHTML = '<i class="bi bi-plus-circle me-1"></i> Add New Address';
+            }
+        };
+
+        setFormMode(isEditingAddress ? 'edit' : 'new');
+        syncToggleState();
+
+        if (toggleButton && addressFormWrapper) {
             toggleButton.addEventListener('click', () => {
-                addressForm.classList.toggle('show');
+                if (addressFormWrapper.classList.contains('show') && isEditingAddress) {
+                    resetAddressForm();
+                }
+                addressFormWrapper.classList.toggle('show');
+                if (!addressFormWrapper.classList.contains('show')) {
+                    resetAddressForm();
+                }
                 syncToggleState();
             });
         }
+
+        document.querySelectorAll('[data-action="edit-address"]').forEach((button) => {
+            button.addEventListener('click', () => {
+                const dataset = button.dataset;
+                fillAddressForm({
+                    id: dataset.addressId || '',
+                    label: dataset.addressLabel || '',
+                    receiver: dataset.addressReceiver || '',
+                    phone: dataset.addressPhone || '',
+                    address: dataset.addressLine || '',
+                    city: dataset.addressCity || '',
+                    postal: dataset.addressPostal || '',
+                    isDefault: dataset.addressDefault || '0',
+                });
+            });
+        });
+
+        const deleteForm = document.getElementById('deleteAddressForm');
+        document.querySelectorAll('[data-action="delete-address"]').forEach((button) => {
+            button.addEventListener('click', () => {
+                const url = button.getAttribute('data-delete-url');
+                if (!url || !deleteForm) {
+                    return;
+                }
+
+                const name = button.getAttribute('data-address-name') || 'this address';
+
+                Swal.fire({
+                    title: 'Delete this address?',
+                    text: `Remove ${name} from your saved addresses?`,
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonText: 'Yes, delete it',
+                    cancelButtonText: 'No, keep it',
+                    reverseButtons: true,
+                    customClass: {
+                        confirmButton: 'swal-confirm',
+                        cancelButton: 'swal-cancel',
+                    },
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        deleteForm.setAttribute('action', url);
+                        deleteForm.submit();
+                    }
+                });
+            });
+        });
     </script>
 </body>
 </html>

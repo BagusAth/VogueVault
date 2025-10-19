@@ -97,6 +97,7 @@ Route::middleware(['auth', 'customer'])->group(function () {
     Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout.review');
     Route::post('/checkout/address', [CheckoutController::class, 'saveAddress'])->name('checkout.address');
     Route::post('/checkout/address/select', [CheckoutController::class, 'selectAddress'])->name('checkout.address.select');
+    Route::delete('/checkout/address/{address}', [CheckoutController::class, 'deleteAddress'])->name('checkout.address.delete');
     Route::post('/checkout/store', [CheckoutController::class, 'store'])->name('checkout.store');
     Route::get('/checkout/payment/{order}', [CheckoutController::class, 'payment'])->name('checkout.payment');
     Route::post('/checkout/payment/{order}/complete', [CheckoutController::class, 'completePayment'])->name('checkout.payment.complete');

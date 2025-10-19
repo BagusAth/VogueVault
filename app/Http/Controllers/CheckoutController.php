@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Product;
+use App\Models\UserAddress;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -308,6 +309,47 @@ class CheckoutController extends Controller
             'status' => $order->status,
             'payment_status' => $order->payment_status,
         ]);
+    }
+
+    public function deleteAddress(UserAddress $address)
+    {
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
+
+        if ($address->user_id !== $user->id) {
+            abort(403);
+        }
+
+        $deletedId = $address->id;
+        $wasDefault = $address->is_default;
+
+        $address->delete();
+
+        $replacement = $user->addresses()
+            ->orderByDesc('is_default')
+            ->orderByDesc('created_at')
+            ->first();
+
+        if ($wasDefault && $replacement && !$replacement->is_default) {
+            $replacement->forceFill(['is_default' => true])->save();
+        }
+
+        $selectedId = session('checkout_address_id');
+
+        if ($replacement) {
+            if ((int) $selectedId === $deletedId || $selectedId === null) {
+                session([
+                    'checkout_address_id' => $replacement->id,
+                    'checkout_address' => $replacement->toShippingArray(),
+                ]);
+            }
+        } else {
+            session()->forget(['checkout_address_id', 'checkout_address']);
+        }
+
+        return redirect()
+            ->route('checkout.review')
+            ->with('success', 'Alamat berhasil dihapus.');
     }
 
     public function buyNow(Request $request, Product $product)

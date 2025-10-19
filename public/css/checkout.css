@@ -88,6 +88,14 @@ body {
     text-align: left;
 }
 
+.address-card__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 0.75rem;
+    margin-bottom: 0.5rem;
+}
+
 .address-card.is-active {
     border-color: #1f7a54;
     box-shadow: 0 18px 40px rgba(31, 122, 84, 0.12);
@@ -98,6 +106,43 @@ body {
     align-items: center;
     gap: 0.5rem;
     margin-bottom: 0.75rem;
+}
+
+.address-card__tools {
+    display: flex;
+    gap: 0.5rem;
+    flex-shrink: 0;
+}
+
+.address-card__icon {
+    border: 1px solid rgba(31, 122, 84, 0.25);
+    background: rgba(31, 122, 84, 0.08);
+    color: #1f7a54;
+    border-radius: 999px;
+    width: 34px;
+    height: 34px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    padding: 0;
+}
+
+.address-card__icon:hover {
+    background: rgba(31, 122, 84, 0.18);
+    border-color: rgba(31, 122, 84, 0.4);
+}
+
+.address-card__icon--danger {
+    border-color: rgba(216, 79, 79, 0.35);
+    background: rgba(216, 79, 79, 0.08);
+    color: #b83a3a;
+}
+
+.address-card__icon--danger:hover {
+    background: rgba(216, 79, 79, 0.18);
+    border-color: rgba(216, 79, 79, 0.5);
 }
 
 .default-chip {
@@ -254,15 +299,42 @@ body {
     background: linear-gradient(135deg, #196648, #329165);
 }
 
+.checkout-page .btn-outline-primary {
+    color: #1f7a54;
+    border-color: rgba(31, 122, 84, 0.4);
+    background: rgba(31, 122, 84, 0.08);
+    transition: all 0.2s ease;
+}
+
+.checkout-page .btn-outline-primary:hover,
+.checkout-page .btn-outline-primary:focus {
+    color: #1f7a54;
+    border-color: rgba(31, 122, 84, 0.6);
+    background: rgba(31, 122, 84, 0.18);
+}
+
 .btn-outline-primary.active {
     background: rgba(31, 122, 84, 0.12);
     color: #1f7a54;
+    border-color: rgba(31, 122, 84, 0.6);
 }
 
 .security-note {
     display: flex;
     align-items: center;
     gap: 0.4rem;
+}
+
+.swal-confirm {
+    border-radius: 999px !important;
+    background: linear-gradient(135deg, #1f7a54, #3aa374) !important;
+    box-shadow: 0 20px 36px rgba(31, 122, 84, 0.22) !important;
+}
+
+.swal-cancel {
+    border-radius: 999px !important;
+    background: rgba(31, 122, 84, 0.1) !important;
+    color: #1f7a54 !important;
 }
 
 @media (max-width: 991.98px) {
