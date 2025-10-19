@@ -282,6 +282,7 @@ form {
 }
 
 /* Alert Messages */
+/*succes and error styles*/
 .alert-success {
     background-color: #d4edda;
     color: #155724;
