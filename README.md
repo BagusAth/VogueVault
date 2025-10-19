@@ -1,61 +1,95 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+<h1 align="center">VogueVault</h1>
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+VogueVault is a fashion-focused e-commerce experience built with Laravel 12. The project combines a curated storefront, intuitive shopping flow, and an admin workspace for managing products, categories, and customer orders.
 
-## About Laravel
+## Features
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+- Home landing page that highlights new arrivals and active categories with product counts and hero imagery.
+- Advanced product search with keyword tokenization across names, descriptions, and category metadata.
+- Category browsing and product detail pages with multi-image galleries, variant selectors, specifications, and "Buy Now" shortcuts.
+- Persistent shopping cart with variant-aware line items, quantity editing, AJAX-friendly updates, and one-click clear.
+- Checkout review page featuring address book management (add, edit, delete, set default) and payment method selection (GoPay, ShopeePay, QRIS, Virtual Account).
+- Secure order creation supporting both full cart checkout and "Buy Now" flows, including inventory deduction and payment countdown timer.
+- Customer dashboard to review past orders, monitor fulfillment status, and fetch live updates via JSON endpoints.
+- Admin module for managing products, categories, and order status transitions, protected by `auth` + `admin` middleware stack.
+- Media controller that serves stored assets with long-lived caching headers for optimal storefront performance.
+- Tailored UI built with Bootstrap 5, custom CSS, and Vite-powered asset pipeline.
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## Tech Stack
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+- **Framework:** Laravel 12 (PHP 8.2)
+- **Frontend tooling:** Vite, Tailwind CSS 4 plugins, Bootstrap 5 components
+- **Database:** MySQL or compatible (configured via `.env`)
+- **Authentication:** Laravel Breeze-style session auth (login/register)
+- **Build tools:** Composer, NPM, Laravel Pint (formatting), PHPUnit (tests)
 
-## Learning Laravel
+## Getting Started
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+### Prerequisites
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+- PHP 8.2+
+- Composer 2+
+- Node.js 18+ with npm
+- MySQL 8+ (or MariaDB equivalent)
+- Git
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+### Clone & Install
 
-## Laravel Sponsors
+```bash
+git clone https://github.com/BagusAth/VogueVault.git
+cd VogueVault
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+cp .env.example .env   # Windows PowerShell: copy .env.example .env
 
-### Premium Partners
+composer install
+php artisan key:generate
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+# Update .env with your database credentials before continuing
+php artisan migrate
+php artisan db:seed --class=VogueVaultSeeder
+
+php artisan storage:link
+
+npm install
+```
+
+### Running the App
+
+```bash
+# Terminal 1
+php artisan serve
+
+# Terminal 2
+npm run dev
+```
+
+Visit `http://127.0.0.1:8000` to explore the storefront. Vite handles hot module replacement for CSS/JS changes.
+
+### Example Accounts
+
+- **Admin:** `admin@voguevault.com` / `password`
+- **Customer:** `customer@example.com` / `password`
+
+Update or remove these seeded records before deploying to production.
+
+## Project Scripts
+
+- `composer run dev` – optional helper that launches PHP server, queue listener, pail log viewer, and `npm run dev` concurrently.
+- `npm run dev` – start the Vite development server.
+- `npm run build` – compile and version production assets.
+- `composer run test` – clear config cache and execute the Laravel test suite.
+
+## Testing
+
+```bash
+php artisan test
+```
+
+Add your own feature and unit tests under `tests/Feature` and `tests/Unit` to safeguard future changes.
 
 ## Contributing
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
-
-## Code of Conduct
-
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
-
-## Security Vulnerabilities
-
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
-
-## License
-
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+1. Fork the repository and create a feature branch.
+2. Make your changes with appropriate tests.
+3. Run `composer run test` and `npm run build` to validate.
+4. Submit a pull request describing the enhancements.
