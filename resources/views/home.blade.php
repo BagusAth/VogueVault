@@ -60,11 +60,11 @@
 
                                 <!-- Search Suggestions -->
                                 <div class="search-suggestions mt-3">
-                                    <button type="button" class="btn suggestion-btn" data-query="Women's Clothes">
-                                        Women's Clothes
+                                    <button type="button" class="btn suggestion-btn" data-query="Women's Clothing">
+                                        Women's Clothing
                                     </button>
-                                    <button type="button" class="btn suggestion-btn" data-query="Men's Clothes">
-                                        Men's Clothes
+                                    <button type="button" class="btn suggestion-btn" data-query="Men's Clothing">
+                                        Men's Clothing
                                     </button>
                                     <button type="button" class="btn suggestion-btn" data-query="Accessories">
                                         Accessories
@@ -82,15 +82,17 @@
     <main class="main-content">
         <!-- New Arrivals Section -->
         <section class="products-section py-5">
-            <div class="container">
+            <div class="container-fluid px-5">
                 <!-- Section Header -->
-                <div class="section-header mb-4">
-                    <h2 class="section-title">New Arrival</h2>
+                <div class="container px-0">
+                    <div class="section-header mb-4">
+                        <h2 class="section-title">New Arrival</h2>
+                    </div>
                 </div>
                 
                 <!-- Products Carousel -->
                 <div class="products-carousel-container position-relative">
-                    <button class="carousel-nav-btn prev-btn" id="productsPrev" aria-label="Lihat produk sebelumnya">
+                    <button class="carousel-nav-btn prev-btn" id="productsPrev" aria-label="View previous products">
                         <i class="bi bi-chevron-left"></i>
                     </button>
                     <div class="products-scroll-area">
@@ -98,9 +100,22 @@
                             @forelse($newProducts as $product)
                                 @php
                                     $primaryImage = collect($product->images ?? [])->first();
-                                    if ($primaryImage && !\Illuminate\Support\Str::startsWith($primaryImage, ['http://', 'https://'])) {
-                                        $primaryImage = asset('storage/' . ltrim($primaryImage, '/'));
+
+                                    if ($primaryImage) {
+                                        if (\Illuminate\Support\Str::startsWith($primaryImage, ['http://', 'https://'])) {
+                                            // keep full URL as-is
+                                        } else {
+                                            $cleanPath = ltrim($primaryImage, '/');
+                                            if (\Illuminate\Support\Facades\Storage::disk('public')->exists($cleanPath)) {
+                                                $primaryImage = asset('storage/' . $cleanPath);
+                                            } elseif (file_exists(public_path($cleanPath))) {
+                                                $primaryImage = asset($cleanPath);
+                                            } else {
+                                                $primaryImage = null;
+                                            }
+                                        }
                                     }
+
                                     $primaryImage = $primaryImage ?? $productPlaceholder;
                                 @endphp
                                 <div class="product-item">
@@ -140,7 +155,7 @@
                     </div>
                     
                     <!-- Navigation Arrow -->
-                    <button class="carousel-nav-btn next-btn" id="productsNext" aria-label="Lihat produk berikutnya">
+                    <button class="carousel-nav-btn next-btn" id="productsNext" aria-label="View more products">
                         <i class="bi bi-chevron-right"></i>
                     </button>
                 </div>
@@ -175,7 +190,7 @@
                                     </div>
                                     <div class="category-meta">
                                         <span class="category-pill">
-                                            {{ number_format($category->products_count ?? 0, 0, ',', '.') }} produk
+                                            {{ number_format($category->products_count ?? 0, 0, ',', '.') }} products
                                         </span>
                                     </div>
                                 </div>
@@ -189,7 +204,7 @@
                                         <i class="bi bi-tag"></i>
                                     </div>
                                     <div class="category-overlay">
-                                        <h5 class="category-name">Women's Clothes</h5>
+                                        <h5 class="category-name">Women's Clothing</h5>
                                     </div>
                                 </div>
                             </div>
@@ -201,7 +216,7 @@
                                         <i class="bi bi-tag"></i>
                                     </div>
                                     <div class="category-overlay">
-                                        <h5 class="category-name">Men's Clothes</h5>
+                                        <h5 class="category-name">Men's Clothing</h5>
                                     </div>
                                 </div>
                             </div>

@@ -75,6 +75,10 @@ body {
 	transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
+.order-card--actionable {
+	cursor: pointer;
+}
+
 .order-card:hover {
 	transform: translateY(-4px);
 	box-shadow: 0 24px 70px rgba(70, 87, 81, 0.15);
@@ -109,6 +113,19 @@ body {
 	align-items: center;
 	gap: 12px;
 	flex-wrap: wrap;
+}
+
+.order-card__cta {
+	font-weight: 600;
+	border-radius: 999px;
+	padding-inline: 18px;
+}
+
+.order-card__cta:hover,
+.order-card__cta:focus {
+	background-color: var(--order-accent-dark);
+	color: #fff;
+	border-color: var(--order-accent-dark);
 }
 
 .order-status-badge {
@@ -195,6 +212,15 @@ body {
 	color: var(--order-muted);
 	display: flex;
 	gap: 12px;
+	flex-wrap: wrap;
+}
+
+.order-item__variants {
+	background-color: rgba(129, 154, 145, 0.15);
+	color: var(--order-accent-dark);
+	padding: 4px 10px;
+	border-radius: 999px;
+	font-size: 0.82rem;
 }
 
 /* Status colors */
@@ -217,8 +243,7 @@ body {
 	color: #1e7b47;
 }
 
-.status-cancelled,
-.status-refunded {
+.status-cancelled {
 	background-color: rgba(220, 53, 69, 0.18);
 	color: #a61d2b;
 }

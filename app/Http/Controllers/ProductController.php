@@ -31,6 +31,11 @@ class ProductController extends Controller
                     return asset('storage/' . $cleanPath);
                 }
 
+                $publicPath = public_path($cleanPath);
+                if (file_exists($publicPath)) {
+                    return asset($cleanPath);
+                }
+
                 return null;
             })
             ->filter()
@@ -89,11 +94,41 @@ class ProductController extends Controller
             $variantSummary = 'Default';
         }
 
-        $specifications = collect($product->specifications ?? [])
-            ->filter(fn ($value) => $value !== null && $value !== '');
+        $rawSpecifications = $product->specifications;
+        if (is_string($rawSpecifications)) {
+            $decoded = json_decode($rawSpecifications, true);
+            $rawSpecifications = is_array($decoded) ? $decoded : [];
+        }
 
-        $material = $specifications->get('material');
-        $specifications = $specifications->except('material');
+        $specItems = collect($rawSpecifications ?? []);
+
+        $specifications = collect();
+        foreach ($specItems as $key => $value) {
+            // Handle array-of-objects structure [{"label": "Material", "value": "Cotton"}, ...]
+            if (is_array($value) && array_key_exists('label', $value) && array_key_exists('value', $value)) {
+                $label = trim((string) $value['label']);
+                if ($label === '') {
+                    continue;
+                }
+
+                $specifications->put($label, $value['value']);
+                continue;
+            }
+
+            $normalizedKey = is_string($key) ? trim($key) : (is_numeric($key) ? null : $key);
+            if ($normalizedKey === null || $normalizedKey === '') {
+                continue;
+            }
+
+            $specifications->put($normalizedKey, $value);
+        }
+
+        $specifications = $specifications->filter(fn ($value) => $value !== null && $value !== '');
+
+        // Find and extract 'material' case-insensitively
+        $materialKey = $specifications->keys()->first(fn ($key) => strtolower($key) === 'material');
+        $material = $materialKey ? $specifications->get($materialKey) : null;
+        $specifications = $materialKey ? $specifications->except($materialKey) : $specifications;
 
         return view('product', [
             'product' => $product,

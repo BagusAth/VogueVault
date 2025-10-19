@@ -13,27 +13,26 @@
             <!-- Right Navigation -->
             <div class="col">
                 <div class="nav-icons-container">
-                    @auth
-                        @if(!Auth::user()->isAdmin())
-                            <!-- Orders -->
-                            <a href="{{ route('orders.index') }}" class="nav-icon" title="Orders">
-                                <i class="bi bi-receipt"></i>
-                                <span class="nav-text">Orders</span>
-                            </a>
-                        @endif
-                    @endauth
+                    @php
+                        $orderLink = route(Auth::check() && !Auth::user()->isAdmin() ? 'orders.index' : 'login');
+                    @endphp
+                    <!-- Orders -->
+                    <a href="{{ $orderLink }}" class="nav-icon" title="Orders">
+                        <i class="bi bi-receipt"></i>
+                        <span class="nav-text">Orders</span>
+                    </a>
 
                     <!-- Cart -->
-                    <a href="{{ route('cart.index') }}" class="nav-icon" title="Cart">
+                    <a href="{{ route('cart.overview') }}" class="nav-icon" title="Cart">
                         <i class="bi bi-cart3"></i>
                         <span class="nav-text">Cart</span>
                     </a>
 
                     <!-- Profile Dropdown -->
                     <div class="dropdown d-inline-block">
-                        <a class="nav-icon profile-icon dropdown-toggle text-decoration-none"
-                           href="#" id="profileDropdown" role="button"
-                           data-bs-toggle="dropdown" aria-expanded="false">
+                                <a class="nav-icon profile-icon text-decoration-none"
+                                    href="#" id="profileDropdown" role="button"
+                                    data-bs-toggle="dropdown" aria-expanded="false">
                             <i class="bi bi-person-circle"></i>
                         </a>
 
@@ -42,14 +41,6 @@
                                 <li class="dropdown-item text-center">
                                     <strong>{{ Auth::user()->name }}</strong>
                                 </li>
-                                @if(!Auth::user()->isAdmin())
-                                    <li><hr class="dropdown-divider"></li>
-                                    <li>
-                                        <a class="dropdown-item" href="{{ route('orders.index') }}">
-                                            <i class="bi bi-receipt me-1"></i> My Orders
-                                        </a>
-                                    </li>
-                                @endif
                                 <li><hr class="dropdown-divider"></li>
                                 <li>
                                     <form action="{{ route('logout') }}" method="POST">

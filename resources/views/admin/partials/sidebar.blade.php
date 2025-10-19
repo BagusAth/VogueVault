@@ -1,12 +1,12 @@
 <div class="sidebar-container">
     <aside class="sidebar">
-        <div class="brand">
+        <a href="{{ route('admin.dashboard') }}" class="brand" title="Go to dashboard">
             <!-- <div class="brand-icon">
                 <i class="bi bi-shop"></i>
             </div> -->
             <img src="{{ asset('images/logo1.png') }}" alt="VogueVault logo" class="logo-image" style="height: 28px; width: auto;">
-            VogueVault
-        </div>
+            <span>VogueVault</span>
+        </a>
 
         <nav class="nav-links">
             <a href="{{ route('admin.dashboard') }}" class="nav-item {{ ($active ?? '') === 'dashboard' ? 'active' : '' }}">
@@ -16,6 +16,10 @@
             <a href="{{ route('admin.products.index') }}" class="nav-item {{ ($active ?? '') === 'products' ? 'active' : '' }}">
                 <i class="bi bi-bag"></i>
                 Products
+            </a>
+            <a href="{{ route('admin.categories.index') }}" class="nav-item {{ ($active ?? '') === 'categories' ? 'active' : '' }}">
+                <i class="bi bi-grid-3x3-gap"></i>
+                Categories
             </a>
             <a href="{{ route('admin.orders.index') }}" class="nav-item {{ ($active ?? '') === 'orders' ? 'active' : '' }}">
                 <i class="bi bi-layout-text-window"></i>

@@ -103,4 +103,20 @@ document.addEventListener('DOMContentLoaded', () => {
 
 	pollStatuses();
 	setInterval(pollStatuses, POLL_INTERVAL);
+
+	orderCards.forEach((card) => {
+		const paymentUrl = card.dataset.paymentUrl;
+		if (!paymentUrl) {
+			return;
+		}
+
+		card.addEventListener('click', (event) => {
+			const interactive = event.target.closest('a, button');
+			if (interactive && interactive.closest('.order-card') === card) {
+				return;
+			}
+
+			window.location.href = paymentUrl;
+		});
+	});
 });

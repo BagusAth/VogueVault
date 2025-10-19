@@ -16,6 +16,7 @@ class OrderController extends Controller
     public function index(): View
     {
         $orders = Order::with('user')
+            ->with(['items.product'])
             ->latest()
             ->paginate(12);
 
@@ -25,7 +26,6 @@ class OrderController extends Controller
             'shipped' => 'Shipped',
             'delivered' => 'Delivered',
             'cancelled' => 'Cancelled',
-            'refunded' => 'Refunded',
         ];
 
         return view('admin.order', [
@@ -40,7 +40,7 @@ class OrderController extends Controller
     public function updateStatus(Request $request, Order $order): RedirectResponse
     {
         $validated = $request->validate([
-            'status' => ['required', 'in:pending,processing,shipped,delivered,cancelled,refunded'],
+            'status' => ['required', 'in:pending,processing,shipped,delivered,cancelled'],
         ]);
 
         $order->update([

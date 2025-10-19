@@ -15,6 +15,11 @@ class OrderItem extends Model
         'subtotal',
         'product_price',
         'total_price',
+        'selected_attributes',
+    ];
+
+    protected $casts = [
+        'selected_attributes' => 'array',
     ];
 
     // Relasi ke Order
@@ -27,5 +32,17 @@ class OrderItem extends Model
     public function product()
     {
         return $this->belongsTo(Product::class);
+    }
+
+    public function getVariantLabelsAttribute(): array
+    {
+        return collect($this->selected_attributes ?? [])
+            ->filter(fn ($value) => $value !== null && $value !== '')
+            ->map(function ($value, $key) {
+                $label = ucwords(str_replace(['_', '-'], ' ', (string) $key));
+                return $label . ': ' . $value;
+            })
+            ->values()
+            ->all();
     }
 }

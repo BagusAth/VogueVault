@@ -4,8 +4,9 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Str;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class Category extends Model
 {
@@ -72,7 +73,16 @@ class Category extends Model
         if (Str::startsWith($path, ['http://', 'https://'])) {
             return $path;
         }
+        $cleanPath = ltrim($path, '/');
 
-        return asset('storage/' . ltrim($path, '/'));
+        if (Storage::disk('public')->exists($cleanPath)) {
+            return route('media.show', ['path' => $cleanPath]);
+        }
+
+        if (file_exists(public_path($cleanPath))) {
+            return asset($cleanPath);
+        }
+
+        return null;
     }
 }

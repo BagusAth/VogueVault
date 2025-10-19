@@ -18,7 +18,7 @@
         <header class="form-header">
             <div class="form-header__titles">
                 <h1 class="form-title">Edit Product</h1>
-                <p class="form-subtitle">Ubah detail produk berikut, lalu simpan perubahan.</p>
+                <p class="form-subtitle">Adjust the product details below, then save your changes.</p>
             </div>
             <a href="{{ route('admin.products.index') }}" class="btn-secondary">
                 <i class="bi bi-arrow-left"></i> Back to All Products
@@ -28,7 +28,7 @@
         {{-- Error Validation --}}
         @if ($errors->any())
             <div class="form-errors" role="alert">
-                <strong>Periksa kembali isian berikut:</strong>
+                <strong>Please review the following:</strong>
                 <ul>
                     @foreach ($errors->all() as $error)
                         <li>{{ $error }}</li>
@@ -52,7 +52,7 @@
                         <label for="name">Product Name<span>*</span></label>
                         <input type="text" id="name" name="name"
                                value="{{ old('name', $product->name) }}"
-                               placeholder="Contoh: Leather Chronograph Watch"
+                               placeholder="Example: Leather Chronograph Watch"
                                required>
                     </div>
 
@@ -61,14 +61,14 @@
                         <label for="short_description">Short Description</label>
                         <input type="text" id="short_description" name="short_description"
                                value="{{ old('short_description', $product->short_description) }}"
-                               placeholder="Deskripsi singkat produk">
+                               placeholder="Short summary of the product">
                     </div>
 
                     {{-- Full Description --}}
                     <div class="form-group form-group--full">
                         <label for="description">Full Description</label>
                         <textarea id="description" name="description" rows="5"
-                                  placeholder="Tuliskan detail produk, material, fitur, dan lainnya.">{{ old('description', $product->description) }}</textarea>
+                                  placeholder="Describe product details, materials, features, and more.">{{ old('description', $product->description) }}</textarea>
                     </div>
 
                     {{-- Price --}}
@@ -108,27 +108,46 @@
                             @if($product->images && count($product->images) > 0)
                                 @foreach($product->images as $index => $image)
                                     @php
-                                        $imagePath = Str::startsWith($image, 'http')
-                                            ? $image
-                                            : asset('storage/' . ltrim($image, '/'));
+                                        if (Str::startsWith($image, ['http://', 'https://'])) {
+                                            $imagePath = $image;
+                                        } else {
+                                            $normalized = ltrim($image, '/');
+
+                                            if (Str::startsWith($normalized, 'images/')) {
+                                                $imagePath = asset($normalized);
+                                            } else {
+                                                if (Str::startsWith($normalized, 'storage/')) {
+                                                    $normalized = Str::after($normalized, 'storage/');
+                                                }
+
+                                                $imagePath = asset('storage/' . $normalized);
+                                            }
+                                        }
                                     @endphp
                                     <div class="image-box">
                                         <img src="{{ $imagePath }}" alt="Product Image" class="preview-image"
-                                             onclick="document.getElementById('fileInput{{ $index }}').click();">
+                                            onclick="document.getElementById('fileInput{{ $index }}').click();">
+
+                                        <!-- Tombol hapus -->
+                                        <button type="button" class="delete-btn" title="Hapus gambar"
+                                                onclick="removeImage(this)">
+                                            &times;
+                                        </button>
+
                                         <input type="file" id="fileInput{{ $index }}"
-                                               name="images_existing[{{ $index }}]"
-                                               accept="image/*" class="hidden-input"
-                                               onchange="previewSingleImage(event, this)">
+                                            name="images_existing[{{ $index }}]"
+                                            accept="image/*" class="hidden-input"
+                                            onchange="previewSingleImage(event, this)">
                                     </div>
                                 @endforeach
                             @else
-                                <p class="preview-placeholder">Belum ada gambar yang diunggah.</p>
+                                <p class="preview-placeholder">No images uploaded yet.</p>
                             @endif
 
-                            {{-- Tambah Gambar Baru --}}
+                            {{-- Add New Images --}}
                             <div class="add-image-box" onclick="document.getElementById('newImages').click();">
                                 <i class="bi bi-plus-circle"></i>
-                                <p>Tambah Gambar</p>
+                                <p>Add Images</p>
                                 <input type="file" id="newImages" name="images[]" accept="image/*" multiple hidden
                                        onchange="previewNewImages(event)">
                             </div>
@@ -139,8 +158,8 @@
                     <div class="form-group form-group--full">
                         <label>Additional Attributes</label>
                         <p class="help-text">
-                            Tambahkan pasangan atribut seperti Size: Large, Color: Navy.
-                            Biarkan kosong jika tidak diperlukan.
+                            Add attribute pairs such as Size: Large or Color: Navy.
+                            Leave empty if you don't need extra details.
                         </p>
 
                         <div id="attribute-fields" class="attribute-list">
@@ -154,10 +173,10 @@
                                     $displayValue = is_array($value) ? implode(', ', $value) : $value;
                                 @endphp
                                 <div class="attribute-row">
-                                    <input type="text" name="attribute_keys[]" value="{{ $key }}"
-                                           placeholder="Attribute (cth: Size)">
-                                    <input type="text" name="attribute_values[]" value="{{ $displayValue }}"
-                                           placeholder="Value (cth: Large)">
+                     <input type="text" name="attribute_keys[]" value="{{ $key }}"
+                         placeholder="Attribute (e.g. Size)">
+                     <input type="text" name="attribute_values[]" value="{{ $displayValue }}"
+                         placeholder="Value (e.g. Large)">
                                     <button type="button" class="attribute-remove" aria-label="Remove attribute">
                                         <i class="bi bi-x"></i>
                                     </button>
@@ -174,11 +193,18 @@
                 {{-- Form Actions (Kanan Bawah) --}}
                 <div class="form-actions"
                      style="display: flex; justify-content: flex-end; gap: 12px; margin-top: 40px; padding-right: 10px;">
+                    <button type="button" class="btn-danger" id="delete-product-button">
+                        <i class="bi bi-trash"></i> Delete Product
+                    </button>
                     <a href="{{ route('admin.products.index') }}" class="btn-secondary">Cancel</a>
                     <button type="submit" class="btn-primary">
                         <i class="bi bi-save"></i> Save Product
                     </button>
                 </div>
+            </form>
+            <form id="delete-product-form" action="{{ route('admin.products.destroy', $product->id) }}" method="POST" style="display: none;">
+                @csrf
+                @method('DELETE')
             </form>
         </section>
     </main>
@@ -196,6 +222,13 @@
             reader.readAsDataURL(file);
         }
     }
+
+    function removeImage(button) {
+        const box = button.closest('.image-box');
+        box.remove();
+        // To remove it from storage as well, send an AJAX request from here if needed
+    }
+
 
     function previewNewImages(event) {
         const files = event.target.files;
@@ -218,8 +251,8 @@
         const row = document.createElement('div');
         row.classList.add('attribute-row');
         row.innerHTML = `
-            <input type="text" name="attribute_keys[]" placeholder="Attribute (cth: Size)">
-            <input type="text" name="attribute_values[]" placeholder="Value (cth: Large)">
+            <input type="text" name="attribute_keys[]" placeholder="Attribute (e.g. Size)">
+            <input type="text" name="attribute_values[]" placeholder="Value (e.g. Large)">
             <button type="button" class="attribute-remove" aria-label="Remove attribute">
                 <i class="bi bi-x"></i>
             </button>
@@ -233,10 +266,47 @@
         }
     });
 
+    const deleteButton = document.getElementById('delete-product-button');
+    const deleteForm = document.getElementById('delete-product-form');
+
+    if (deleteButton && deleteForm) {
+        deleteButton.addEventListener('click', () => {
+            Swal.fire({
+                title: 'Delete this product?',
+                text: 'This action permanently removes the product from your storefront.',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Yes, delete it',
+                cancelButtonText: 'No, keep it',
+                reverseButtons: true,
+                customClass: {
+                    popup: 'swal-vogue',
+                    confirmButton: 'swal-confirm',
+                    cancelButton: 'swal-cancel'
+                },
+                backdrop: 'rgba(38, 66, 49, 0.45)'
+            }).then(result => {
+                if (result.isConfirmed) {
+                    Swal.fire({
+                        title: 'Deleting...',
+                        text: 'We are carefully removing the product.',
+                        icon: 'info',
+                        timer: 1200,
+                        showConfirmButton: false,
+                        customClass: {
+                            popup: 'swal-vogue'
+                        }
+                    });
+                    setTimeout(() => deleteForm.submit(), 300);
+                }
+            });
+        });
+    }
+
     @if(session('success'))
         Swal.fire({
             icon: 'success',
-            title: 'Produk berhasil diperbarui!',
+            title: 'Product updated successfully!',
             showConfirmButton: false,
             timer: 2000,
             timerProgressBar: true
@@ -271,6 +341,31 @@
 
     .image-box:hover img {
         opacity: 0.7;
+    }
+
+    .delete-btn {
+        position: absolute;
+        top: 6px;
+        right: 6px;
+        background-color: rgba(0, 0, 0, 0.5);
+        color: white;
+        border: none;
+        border-radius: 50%;
+        width: 24px;
+        height: 24px;
+        font-size: 18px;
+        line-height: 20px;
+        opacity: 0;
+        cursor: pointer;
+        transition: opacity 0.2s ease;
+    }
+
+    .image-box:hover .delete-btn {
+        opacity: 1;
+    }
+
+    .delete-btn:hover {
+        background-color: rgba(255, 0, 0, 0.7);
     }
 
     .preview-image {

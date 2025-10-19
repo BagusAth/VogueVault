@@ -7,7 +7,9 @@ use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\Admin\ProductController as AdminProductController;
+use App\Http\Controllers\Admin\CategoryController as AdminCategoryController;
 use App\Http\Controllers\Admin\OrderController as AdminOrderController;
+use App\Http\Controllers\MediaController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\OrderController;
@@ -18,6 +20,9 @@ use App\Http\Controllers\OrderController;
 |--------------------------------------------------------------------------
 */
 Route::get('/', [HomeController::class, 'index'])->name('home');
+Route::get('/media/{path}', [MediaController::class, 'show'])
+    ->where('path', '.*')
+    ->name('media.show');
 Route::get('/search', [HomeController::class, 'search'])->name('search');
 Route::get('/categories/{category}', [CategoryController::class, 'show'])->name('categories.show');
 
@@ -62,6 +67,15 @@ Route::middleware(['auth', 'admin'])->group(function () {
         ->name('admin.products.edit');
     Route::put('/admin/products/{product}', [AdminProductController::class, 'update'])
         ->name('admin.products.update');
+    Route::delete('/admin/products/{product}', [AdminProductController::class, 'destroy'])
+        ->name('admin.products.destroy');
+
+    // Categories
+    Route::get('/admin/categories', [AdminCategoryController::class, 'index'])->name('admin.categories.index');
+    Route::post('/admin/categories', [AdminCategoryController::class, 'store'])->name('admin.categories.store');
+    Route::get('/admin/categories/{category}/edit', [AdminCategoryController::class, 'edit'])->name('admin.categories.edit');
+    Route::put('/admin/categories/{category}', [AdminCategoryController::class, 'update'])->name('admin.categories.update');
+    Route::delete('/admin/categories/{category}', [AdminCategoryController::class, 'destroy'])->name('admin.categories.destroy');
 });
 
 
@@ -73,17 +87,19 @@ Route::middleware(['auth', 'customer'])->group(function () {
     })->name('customer.dashboard');
 
     // Cart
-    Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
+    Route::get('/cart', [CartController::class, 'index'])->name('cart.overview');
     Route::post('/cart/add/{product}', [CartController::class, 'add'])->name('cart.add');
     Route::post('/cart/update/{item}', [CartController::class, 'update'])->name('cart.update');
     Route::delete('/cart/remove/{item}', [CartController::class, 'remove'])->name('cart.remove');
     Route::delete('/cart/clear', [CartController::class, 'clear'])->name('cart.clear');
 
     // Checkout
-    Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout.index');
+    Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout.review');
     Route::post('/checkout/address', [CheckoutController::class, 'saveAddress'])->name('checkout.address');
+    Route::post('/checkout/address/select', [CheckoutController::class, 'selectAddress'])->name('checkout.address.select');
     Route::post('/checkout/store', [CheckoutController::class, 'store'])->name('checkout.store');
     Route::get('/checkout/payment/{order}', [CheckoutController::class, 'payment'])->name('checkout.payment');
+    Route::post('/checkout/payment/{order}/complete', [CheckoutController::class, 'completePayment'])->name('checkout.payment.complete');
 
     // Orders
     Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');

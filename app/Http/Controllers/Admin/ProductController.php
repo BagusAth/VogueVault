@@ -5,6 +5,8 @@ use App\Http\Controllers\Controller;
 use App\Models\Category;
 use App\Models\Product;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class ProductController extends Controller
 {
@@ -182,5 +184,41 @@ class ProductController extends Controller
 
         return redirect()->route('admin.products.edit', $product->id)
                         ->with('success', 'Produk berhasil diperbarui!');
+    }
+
+    public function destroy(Product $product)
+    {
+        $images = $product->images ?? [];
+        if (!is_array($images)) {
+            $images = $images ? [$images] : [];
+        }
+
+        foreach ($images as $path) {
+            if (Str::startsWith($path, ['http://', 'https://'])) {
+                continue;
+            }
+
+            $normalized = ltrim($path, '/');
+
+            if (Str::startsWith($normalized, 'images/')) {
+                continue;
+            }
+
+            if (Str::startsWith($normalized, 'storage/')) {
+                $normalized = Str::after($normalized, 'storage/');
+            }
+
+            if ($normalized === '') {
+                continue;
+            }
+
+            Storage::disk('public')->delete($normalized);
+        }
+
+        $product->delete();
+
+        return redirect()
+            ->route('admin.products.index')
+            ->with('success', 'Product berhasil dihapus.');
     }
 }

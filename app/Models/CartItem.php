@@ -11,6 +11,13 @@ class CartItem extends Model
         'product_id',
         'quantity',
         'unit_price',
+        'price',
+        'product_attributes',
+        'variant_signature',
+    ];
+
+    protected $casts = [
+        'product_attributes' => 'array',
     ];
 
     public function cart()
@@ -26,5 +33,17 @@ class CartItem extends Model
     public function getSubtotalAttribute()
     {
         return $this->quantity * $this->unit_price;
+    }
+
+    public function getVariantLabelsAttribute(): array
+    {
+        return collect($this->product_attributes ?? [])
+            ->filter(fn ($value) => $value !== null && $value !== '')
+            ->map(function ($value, $key) {
+                $label = ucwords(str_replace(['_', '-'], ' ', (string) $key));
+                return $label . ': ' . $value;
+            })
+            ->values()
+            ->all();
     }
 }

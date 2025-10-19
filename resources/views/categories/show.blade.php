@@ -15,13 +15,7 @@
 
     @php
         $productPlaceholder = asset('images/placeholder_img.jpg');
-        $heroBackground = $category->display_image_url ?? null;
-
-        if ($heroBackground && !\Illuminate\Support\Str::startsWith($heroBackground, ['http://', 'https://'])) {
-            $heroBackground = asset('storage/' . ltrim($heroBackground, '/'));
-        }
-
-        $heroBackground = $heroBackground ?? asset('images/background.png');
+        $heroBackground = $category->display_image_url ?? asset('images/background.png');
     @endphp
 
     <main class="main-content">
@@ -29,13 +23,14 @@
             <div class="container category-hero-content py-4">
                 <div class="row justify-content-center">
                     <div class="col-xl-8 col-lg-9 text-center text-lg-start">
-                        <h1 class="category-title">Kategori {{ $category->name }}</h1>
+                        <h1 class="category-title">Category {{ $category->name }}</h1>
                         <p class="category-subtitle mb-4">
-                            Menampilkan {{ number_format($resultCount, 0, ',', '.') }} produk dalam kategori ini.
+                            Showing {{ number_format($resultCount, 0, ',', '.') }} products in this category.
                         </p>
                         <div class="d-flex flex-wrap gap-3 category-toolbar">
-                            <a href="{{ route('home') }}#categories" class="btn btn-outline-light btn-sm">
-                                <i class="bi bi-grid"></i> Lihat kategori lain
+                            <a href="{{ route('home') }}#categories" class="btn suggestion-btn">
+                                <i class="bi bi-grid"></i>
+                                <span>Browse other categories</span>
                             </a>
                         </div>
                     </div>
@@ -48,17 +43,30 @@
                 @if($products->isEmpty())
                     <div class="text-center py-5">
                         <div class="display-6 mb-3"><i class="bi bi-box"></i></div>
-                        <h2 class="h4">Belum ada produk dalam kategori ini.</h2>
-                        <p class="text-muted">Silakan cek lagi nanti atau jelajahi kategori lainnya.</p>
+                        <h2 class="h4">No products in this category yet.</h2>
+                        <p class="text-muted">Check back soon or explore our other categories.</p>
                     </div>
                 @else
                     <div class="row g-4">
                         @foreach($products as $product)
                             @php
                                 $primaryImage = collect($product->images ?? [])->first();
-                                if ($primaryImage && !\Illuminate\Support\Str::startsWith($primaryImage, ['http://', 'https://'])) {
-                                    $primaryImage = asset('storage/' . ltrim($primaryImage, '/'));
+
+                                if ($primaryImage) {
+                                    if (\Illuminate\Support\Str::startsWith($primaryImage, ['http://', 'https://'])) {
+                                        // use as-is
+                                    } else {
+                                        $cleanPath = ltrim($primaryImage, '/');
+                                        if (\Illuminate\Support\Facades\Storage::disk('public')->exists($cleanPath)) {
+                                            $primaryImage = asset('storage/' . $cleanPath);
+                                        } elseif (file_exists(public_path($cleanPath))) {
+                                            $primaryImage = asset($cleanPath);
+                                        } else {
+                                            $primaryImage = null;
+                                        }
+                                    }
                                 }
+
                                 $primaryImage = $primaryImage ?? $productPlaceholder;
                             @endphp
                             <div class="col-12 col-sm-6 col-lg-4 col-xl-3">
@@ -91,8 +99,8 @@
             <section class="categories-section py-5" id="categories">
                 <div class="container">
                     <div class="section-header mb-4 text-center">
-                        <h2 class="section-title">Kategori Lainnya</h2>
-                        <p class="text-muted mt-2">Temukan inspirasi baru dengan koleksi kategori berikut.</p>
+                        <h2 class="section-title">More Categories</h2>
+                        <p class="text-muted mt-2">Discover fresh inspiration across these collections.</p>
                     </div>
                     <div class="categories-grid category-suggestions">
                         @foreach($otherCategories as $otherCategory)
@@ -113,7 +121,7 @@
                                         </div>
                                         <div class="category-meta">
                                             <span class="category-pill">
-                                                {{ number_format($otherCategory->products_count ?? 0, 0, ',', '.') }} produk
+                                                {{ number_format($otherCategory->products_count ?? 0, 0, ',', '.') }} products
                                             </span>
                                         </div>
                                     </div>
