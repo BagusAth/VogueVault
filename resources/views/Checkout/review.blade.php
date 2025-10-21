@@ -162,14 +162,27 @@
                                         </div>
                                         <div class="col-md-6">
                                             <label class="form-label">Recipient Name</label>
-                                            <input type="text" name="receiver_name" class="form-control" value="{{ old('receiver_name') }}" required>
+                                            <input type="text"
+                                                name="receiver_name"
+                                                class="form-control"
+                                                value="{{ old('receiver_name') }}"
+                                                required
+                                                pattern="^[A-Za-z\s]+$"
+                                                title="Recipient name may only contain letters and spaces.">
                                             @error('receiver_name')
                                                 <div class="text-danger small mt-1">{{ $message }}</div>
                                             @enderror
                                         </div>
                                         <div class="col-md-6">
                                             <label class="form-label">Phone Number</label>
-                                            <input type="text" name="phone" class="form-control" value="{{ old('phone') }}" required>
+                                            <input type="text"
+                                                name="phone"
+                                                class="form-control"
+                                                value="{{ old('phone') }}"
+                                                required
+                                                inputmode="numeric"
+                                                pattern="^[0-9]+$"
+                                                title="Phone number may only contain digits.">
                                             @error('phone')
                                                 <div class="text-danger small mt-1">{{ $message }}</div>
                                             @enderror
@@ -183,14 +196,26 @@
                                         </div>
                                         <div class="col-md-6">
                                             <label class="form-label">City</label>
-                                            <input type="text" name="city" class="form-control" value="{{ old('city') }}" required>
+                                            <input type="text"
+                                                name="city"
+                                                class="form-control"
+                                                value="{{ old('city') }}"
+                                                required
+                                                pattern="^[A-Za-z\s]+$"
+                                                title="City may only contain letters and spaces.">
                                             @error('city')
                                                 <div class="text-danger small mt-1">{{ $message }}</div>
                                             @enderror
                                         </div>
                                         <div class="col-md-6">
                                             <label class="form-label">Postal Code</label>
-                                            <input type="text" name="postal_code" class="form-control" value="{{ old('postal_code') }}">
+                                            <input type="text"
+                                                name="postal_code"
+                                                class="form-control"
+                                                value="{{ old('postal_code') }}"
+                                                inputmode="numeric"
+                                                pattern="^[0-9]+$"
+                                                title="Postal code may only contain digits.">
                                             @error('postal_code')
                                                 <div class="text-danger small mt-1">{{ $message }}</div>
                                             @enderror

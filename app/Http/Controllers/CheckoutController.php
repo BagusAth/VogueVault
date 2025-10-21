@@ -85,12 +85,17 @@ class CheckoutController extends Controller
         $request->validate([
             'address_id' => 'nullable|integer',
             'label' => 'nullable|string|max:50',
-            'receiver_name' => 'required|string|max:100',
-            'phone' => 'required|string|max:30',
+            'receiver_name' => ['required', 'string', 'max:100', 'regex:/^[\pL\s]+$/u'],
+            'phone' => ['required', 'string', 'max:30', 'regex:/^[0-9]+$/'],
             'address_line' => 'required|string|max:255',
-            'city' => 'required|string|max:100',
-            'postal_code' => 'nullable|string|max:20',
+            'city' => ['required', 'string', 'max:100', 'regex:/^[\pL\s]+$/u'],
+            'postal_code' => ['nullable', 'string', 'max:20', 'regex:/^[0-9]*$/'],
             'set_as_default' => 'nullable|accepted',
+        ], [
+            'receiver_name.regex' => 'Nama penerima hanya boleh berisi huruf dan spasi.',
+            'phone.regex' => 'Nomor telepon hanya boleh berisi angka.',
+            'city.regex' => 'Nama kota hanya boleh berisi huruf dan spasi.',
+            'postal_code.regex' => 'Kode pos hanya boleh berisi angka.',
         ]);
 
         /** @var \App\Models\User $user */
