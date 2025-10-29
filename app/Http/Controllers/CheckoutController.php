@@ -69,7 +69,7 @@ class CheckoutController extends Controller
 
         $hasItems = $buyNow !== null || ($cart && $cart->items->isNotEmpty());
         if (!$hasItems) {
-            return redirect()->route('cart.overview')->with('error', 'Keranjang kosong!');
+            return redirect()->route('cart.overview')->with('error', 'Your cart is empty!');
         }
 
         return view('checkout.review', [
@@ -92,10 +92,10 @@ class CheckoutController extends Controller
             'postal_code' => ['nullable', 'string', 'max:20', 'regex:/^[0-9]*$/'],
             'set_as_default' => 'nullable|accepted',
         ], [
-            'receiver_name.regex' => 'Nama penerima hanya boleh berisi huruf dan spasi.',
-            'phone.regex' => 'Nomor telepon hanya boleh berisi angka.',
-            'city.regex' => 'Nama kota hanya boleh berisi huruf dan spasi.',
-            'postal_code.regex' => 'Kode pos hanya boleh berisi angka.',
+            'receiver_name.regex' => 'The recipient name may only contain letters and spaces.',
+            'phone.regex' => 'The phone number may only contain digits.',
+            'city.regex' => 'The city may only contain letters and spaces.',
+            'postal_code.regex' => 'The postal code may only contain digits.',
         ]);
 
         /** @var \App\Models\User $user */
@@ -125,7 +125,7 @@ class CheckoutController extends Controller
             'checkout_address' => $address->toShippingArray(),
         ]);
 
-        return redirect()->route('checkout.review')->with('success', 'Alamat berhasil disimpan!');
+    return redirect()->route('checkout.review')->with('success', 'Address saved successfully!');
     }
 
     public function selectAddress(Request $request)
@@ -142,9 +142,9 @@ class CheckoutController extends Controller
         if ($request->input('action') === 'make_default') {
             $user->addresses()->where('id', '!=', $address->id)->update(['is_default' => false]);
             $address->forceFill(['is_default' => true])->save();
-            $message = 'Alamat default diperbarui.';
+            $message = 'Default address updated.';
         } else {
-            $message = 'Alamat pengiriman dipilih.';
+            $message = 'Shipping address selected.';
         }
 
         session([
@@ -168,7 +168,7 @@ class CheckoutController extends Controller
 
         if (!$address) {
             return redirect()->route('checkout.review')
-                ->with('error', 'Pilih atau tambahkan alamat pengiriman terlebih dahulu!');
+                ->with('error', 'Please select or add a shipping address first!');
         }
 
         $shippingAddress = $address->toShippingArray();
@@ -178,6 +178,27 @@ class CheckoutController extends Controller
 
         if (session()->has('buy_now')) {
             $buyNow = session('buy_now');
+
+            $product = Product::find($buyNow['product_id'] ?? null);
+            if (!$product) {
+                session()->forget('buy_now');
+                return redirect()->route('home')->with('error', 'Product not found.');
+            }
+
+            if ($product->stock <= 0) {
+                session()->forget('buy_now');
+                return redirect()->route('products.show', $product)->with('error', 'This product is currently out of stock.');
+            }
+
+            if ($buyNow['quantity'] > $product->stock) {
+                session()->forget('buy_now');
+
+                $message = $product->stock === 1
+                    ? 'Only 1 item left for this product.'
+                    : "Only {$product->stock} item(s) available.";
+
+                return redirect()->route('products.show', $product)->with('error', $message);
+            }
 
             $orderNumber = 'VV-' . now()->format('ymdHis') . '-U' . $user->id;
 
@@ -206,8 +227,6 @@ class CheckoutController extends Controller
                 'selected_attributes' => $buyNow['selected_attributes'] ?? null,
             ]);
 
-            Product::find($buyNow['product_id'])->decrement('stock', $buyNow['quantity']);
-
             session()->forget('buy_now');
 
             return redirect()->route('checkout.payment', ['order' => $order->id]);
@@ -215,7 +234,25 @@ class CheckoutController extends Controller
 
         $cart = $user->getCurrentCart();
         if (!$cart || $cart->items->isEmpty()) {
-            return redirect()->route('cart.overview')->with('error', 'Keranjang kosong!');
+            return redirect()->route('cart.overview')->with('error', 'Your cart is empty!');
+        }
+
+        $cart->load('items.product');
+
+        $insufficientItem = $cart->items->first(function ($item) {
+            $stock = (int) optional($item->product)->stock;
+            return $stock <= 0 || $item->quantity > $stock;
+        });
+
+        if ($insufficientItem) {
+            $available = (int) optional($insufficientItem->product)->stock;
+            $productName = optional($insufficientItem->product)->name ?? 'Product';
+
+            $message = $available <= 0
+                ? "{$productName} is no longer available."
+                : "Only {$available} item(s) available for {$productName}.";
+
+            return redirect()->route('cart.overview')->with('error', $message);
         }
 
         $order = DB::transaction(function () use ($user, $cart, $request, $shippingAddress) {
@@ -246,8 +283,6 @@ class CheckoutController extends Controller
                     'total_price'   => $item->subtotal,
                     'selected_attributes' => $item->product_attributes,
                 ]);
-
-                $item->product->decrement('stock', $item->quantity);
             }
 
             $cart->items()->delete();
@@ -290,7 +325,7 @@ class CheckoutController extends Controller
         if ($order->payment_status === 'paid') {
             return response()->json([
                 'success' => true,
-                'message' => 'Pesanan sudah dibayar.',
+                'message' => 'This order is already paid.',
                 'status' => $order->status,
                 'payment_status' => $order->payment_status,
             ]);
@@ -299,18 +334,48 @@ class CheckoutController extends Controller
         if ($order->expires_at && now()->greaterThan($order->expires_at)) {
             return response()->json([
                 'success' => false,
-                'message' => 'Batas waktu pembayaran telah berakhir. Hubungi dukungan untuk bantuan.',
+                'message' => 'The payment window has expired. Please contact support for assistance.',
             ], 422);
         }
 
-        $order->forceFill([
-            'payment_status' => 'paid',
-            'status' => 'processing',
-        ])->save();
+        try {
+            DB::transaction(function () use ($order) {
+                $order->loadMissing(['items']);
+
+                foreach ($order->items as $item) {
+                    $product = Product::whereKey($item->product_id)
+                        ->lockForUpdate()
+                        ->first();
+
+                    if (!$product) {
+                        throw new \RuntimeException('Product ' . $item->product_name . ' was not found.');
+                    }
+
+                    $currentStock = (int) $product->stock;
+                    if ($currentStock < $item->quantity) {
+                        throw new \RuntimeException("Insufficient stock for {$product->name} to complete the order.");
+                    }
+
+                    $product->decrement('stock', $item->quantity);
+                }
+
+                $order->forceFill([
+                    'payment_status' => 'paid',
+                    'status' => 'processing',
+                ])->save();
+            });
+        } catch (\RuntimeException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage(),
+            ], 422);
+        }
+
+        $order->refresh();
 
         return response()->json([
             'success' => true,
-            'message' => 'Pembayaran berhasil dikonfirmasi.',
+            'message' => 'Payment confirmed successfully.',
             'status' => $order->status,
             'payment_status' => $order->payment_status,
         ]);
@@ -354,7 +419,7 @@ class CheckoutController extends Controller
 
         return redirect()
             ->route('checkout.review')
-            ->with('success', 'Alamat berhasil dihapus.');
+            ->with('success', 'Address removed successfully.');
     }
 
     public function buyNow(Request $request, Product $product)
@@ -395,7 +460,7 @@ class CheckoutController extends Controller
             if ($missingSelection !== null) {
                 return redirect()->back()
                     ->withInput()
-                    ->with('error', 'Silakan pilih varian lengkap sebelum melanjutkan.');
+                    ->with('error', 'Please complete the variant selection before proceeding.');
             }
         }
 
@@ -406,6 +471,22 @@ class CheckoutController extends Controller
             })
             ->values()
             ->implode(' · ');
+
+        if ($product->stock <= 0) {
+            return redirect()->back()
+                ->withInput()
+                ->with('error', 'This product is currently out of stock.');
+        }
+
+        if ($quantity > $product->stock) {
+            $message = $product->stock === 1
+                ? 'Only 1 item left for this product.'
+                : "Only {$product->stock} item(s) available.";
+
+            return redirect()->back()
+                ->withInput()
+                ->with('error', $message);
+        }
 
         $rawImage = collect($product->images ?? [])->first();
         if ($rawImage) {

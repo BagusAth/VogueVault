@@ -27,6 +27,12 @@ class CartController extends Controller
 
         $quantity = (int) $request->input('quantity', 1);
 
+        if ($product->stock <= 0) {
+            return redirect()->back()
+                ->withInput()
+                ->with('error', 'This product is currently out of stock.');
+        }
+
         $selectedVariants = [];
         $payload = $request->input('variants_payload');
         if ($payload) {
@@ -56,16 +62,22 @@ class CartController extends Controller
             if ($missingSelection !== null) {
                 return redirect()->back()
                     ->withInput()
-                    ->with('error', 'Silakan pilih varian lengkap sebelum menambahkan ke keranjang.');
+                    ->with('error', 'Please select all variants before adding this item to your cart.');
             }
         }
 
         /** @var \App\Models\User $user */
         $user = Auth::user();
         $cart = $user->getCurrentCart();
-        $cart->addProduct($product, $selectedVariants, $quantity);
+        try {
+            $cart->addProduct($product, $selectedVariants, $quantity);
+        } catch (\DomainException $e) {
+            return redirect()->back()
+                ->withInput()
+                ->with('error', $e->getMessage());
+        }
 
-        return redirect()->back()->with('success', 'Produk berhasil ditambahkan ke keranjang!');
+    return redirect()->back()->with('success', 'Product added to your cart!');
     }
 
     public function update(Request $request, CartItem $item)
@@ -79,7 +91,23 @@ class CartController extends Controller
             'quantity' => 'required|integer|min:1',
         ]);
 
-        $item->quantity = $validated['quantity'];
+        $newQuantity = $validated['quantity'];
+
+        $productStock = (int) optional($item->product)->stock;
+
+        if ($productStock <= 0) {
+            return $this->handleQuantityFailure($request, $item, 'This product is no longer available. Please remove it from your cart.');
+        }
+
+        if ($newQuantity > $productStock) {
+            $message = $productStock === 1
+                ? 'Only 1 item left for this product.'
+                : "Only {$productStock} item(s) available for this product.";
+
+            return $this->handleQuantityFailure($request, $item, $message, $productStock);
+        }
+
+        $item->quantity = $newQuantity;
         $item->price = $item->unit_price * $item->quantity;
         $item->save();
 
@@ -99,10 +127,25 @@ class CartController extends Controller
                 'cart_subtotal_formatted' => 'Rp ' . number_format($cart->subtotal, 0, ',', '.'),
                 'cart_total_items' => $cart->total_items,
                 'cart_total_formatted' => 'Rp ' . number_format($cart->subtotal, 0, ',', '.'),
+                'available_stock' => $productStock,
             ]);
         }
 
-        return redirect()->route('cart.overview')->with('success', 'Jumlah produk diperbarui.');
+    return redirect()->route('cart.overview')->with('success', 'Quantity updated.');
+    }
+
+    private function handleQuantityFailure(Request $request, CartItem $item, string $message, ?int $availableStock = null)
+    {
+        if ($request->expectsJson()) {
+            return response()->json([
+                'success' => false,
+                'message' => $message,
+                'item_id' => $item->id,
+                'available_stock' => $availableStock,
+            ], 422);
+        }
+
+        return redirect()->route('cart.overview')->with('error', $message);
     }
 
     public function remove(CartItem $item)
@@ -114,7 +157,7 @@ class CartController extends Controller
         $item->delete();
         $item->cart->recalculateTotals();
 
-        return redirect()->route('cart.overview')->with('success', 'Produk dihapus dari keranjang.');
+    return redirect()->route('cart.overview')->with('success', 'Product removed from the cart.');
     }
 
     public function clear()
@@ -125,7 +168,7 @@ class CartController extends Controller
         $cart->items()->delete();
         $cart->recalculateTotals();
 
-        return redirect()->route('cart.overview')->with('success', 'Keranjang dikosongkan.');
+    return redirect()->route('cart.overview')->with('success', 'Cart cleared.');
     }
     
 }

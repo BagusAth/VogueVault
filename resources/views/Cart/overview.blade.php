@@ -69,6 +69,8 @@
 
                                         $imageUrl = $imageUrl ?? $placeholderImage;
                                         $variantLabels = collect($item->variant_labels ?? []);
+                                        $availableStock = (int) optional($item->product)->stock;
+                                        $isOutOfStock = $availableStock <= 0;
                                     @endphp
 
                                     <article class="cart-item-card">
@@ -99,18 +101,29 @@
                                             @endif
 
                                             <div class="cart-item-footer">
-                                                <form action="{{ route('cart.update', $item) }}" method="POST" class="quantity-form" data-item-id="{{ $item->id }}">
+                                                <form action="{{ route('cart.update', $item) }}" method="POST" class="quantity-form" data-item-id="{{ $item->id }}" data-available-stock="{{ max(0, $availableStock) }}">
                                                     @csrf
                                                     <div class="input-group quantity-group">
-                                                        <button type="button" class="btn btn-outline-secondary qty-btn" data-action="decrement">−</button>
-                                                        <input type="number" name="quantity" value="{{ $item->quantity }}" min="1" class="form-control form-control-sm qty-input" data-quantity-input>
-                                                        <button type="button" class="btn btn-outline-secondary qty-btn" data-action="increment">+</button>
+                                                        <button type="button" class="btn btn-outline-secondary qty-btn" data-action="decrement" {{ $item->quantity <= 1 ? 'disabled' : '' }}>−</button>
+                                                        <input type="number" name="quantity" value="{{ $item->quantity }}" min="1" class="form-control form-control-sm qty-input" data-quantity-input {{ $isOutOfStock ? 'readonly' : '' }}>
+                                                        <button type="button" class="btn btn-outline-secondary qty-btn" data-action="increment" {{ ($isOutOfStock || $item->quantity >= $availableStock) ? 'disabled' : '' }}>+</button>
                                                     </div>
                                                 </form>
                                                 <div class="item-subtotal">
                                                     <span class="label">Subtotal</span>
                                                     <span class="value" data-item-subtotal="{{ $item->id }}">Rp {{ number_format($item->subtotal, 0, ',', '.') }}</span>
                                                 </div>
+                                            </div>
+                                            <div class="mt-2">
+                                                @if($isOutOfStock)
+                                                    <span class="badge text-bg-danger">Out of stock</span>
+                                                    <p class="text-danger small mb-0">This product is no longer available. Please remove it from your cart.</p>
+                                                @elseif($item->quantity > $availableStock)
+                                                    <span class="badge text-bg-warning text-dark">Low stock</span>
+                                                    <p class="text-warning small mb-0">Only {{ $availableStock }} item(s) left. Please update your quantity.</p>
+                                                @else
+                                                    <p class="text-muted small mb-0">Available stock: {{ number_format($availableStock, 0, ',', '.') }}</p>
+                                                @endif
                                             </div>
                                         </div>
                                     </article>
@@ -173,9 +186,53 @@
             const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
             const summarySubtotal = document.querySelector('[data-cart-subtotal]');
             const summaryTotal = document.querySelector('[data-cart-total]');
+            const forms = Array.from(document.querySelectorAll('.quantity-form'));
 
-            const sendUpdateRequest = async (form, quantity) => {
+            const showError = (message) => {
+                window.alert(message);
+            };
+
+            const updateSummaryTotals = (data) => {
+                if (summarySubtotal && data?.cart_subtotal_formatted) {
+                    summarySubtotal.textContent = data.cart_subtotal_formatted;
+                }
+
+                if (summaryTotal && data?.cart_total_formatted) {
+                    summaryTotal.textContent = data.cart_total_formatted;
+                }
+            };
+
+            const updateControlState = (form) => {
+                const input = form.querySelector('[data-quantity-input]');
+                const incrementBtn = form.querySelector('[data-action="increment"]');
+                const decrementBtn = form.querySelector('[data-action="decrement"]');
+                const availableStock = parseInt(form.dataset.availableStock || '0', 10);
+                const quantity = parseInt(input?.value || '1', 10) || 1;
+
+                if (decrementBtn) {
+                    decrementBtn.disabled = quantity <= 1;
+                }
+
+                if (incrementBtn) {
+                    if (availableStock <= 0) {
+                        incrementBtn.disabled = true;
+                    } else {
+                        incrementBtn.disabled = quantity >= availableStock;
+                    }
+                }
+
+                if (input) {
+                    if (availableStock <= 0) {
+                        input.setAttribute('readonly', 'readonly');
+                    } else {
+                        input.removeAttribute('readonly');
+                    }
+                }
+            };
+
+            const sendUpdateRequest = async (form, quantity, inputEl) => {
                 const url = form.getAttribute('action');
+                const input = inputEl || form.querySelector('[data-quantity-input]');
 
                 form.dataset.updating = 'true';
                 form.classList.add('is-updating');
@@ -192,35 +249,44 @@
                         body: JSON.stringify({ quantity }),
                     });
 
-                    if (!response.ok) {
-                        throw new Error('Request failed');
+                    const data = await response.json().catch(() => null);
+
+                    if (!response.ok || !data?.success) {
+                        const error = new Error(data?.message || 'Unable to update the cart.');
+                        if (data && Object.prototype.hasOwnProperty.call(data, 'available_stock')) {
+                            error.availableStock = data.available_stock;
+                        }
+                        throw error;
                     }
 
-                    const data = await response.json();
-                    if (!data.success) {
-                        throw new Error('Failed to update the cart');
+                    if (typeof data.available_stock !== 'undefined') {
+                        form.dataset.availableStock = String(data.available_stock ?? 0);
                     }
 
-                    const input = form.querySelector('[data-quantity-input]');
                     if (input) {
                         input.value = data.quantity;
                     }
+                    form.dataset.confirmedQuantity = String(data.quantity);
 
                     const itemSubtotalTarget = document.querySelector(`[data-item-subtotal="${data.item_id}"]`);
                     if (itemSubtotalTarget) {
                         itemSubtotalTarget.textContent = data.item_subtotal_formatted;
                     }
 
-                    if (summarySubtotal) {
-                        summarySubtotal.textContent = data.cart_subtotal_formatted;
+                    updateSummaryTotals(data);
+                    updateControlState(form);
+                } catch (error) {
+                    if (typeof error.availableStock !== 'undefined') {
+                        form.dataset.availableStock = String(error.availableStock ?? 0);
                     }
 
-                    if (summaryTotal) {
-                        summaryTotal.textContent = data.cart_total_formatted;
+                    const confirmed = parseInt(form.dataset.confirmedQuantity || '1', 10) || 1;
+                    if (input) {
+                        input.value = confirmed;
                     }
-                } catch (error) {
-                    console.error(error);
-                    alert('Unable to update the product quantity. Please try again.');
+                    updateControlState(form);
+
+                    showError(error.message || 'Unable to update the product quantity. Please try again.');
                 } finally {
                     form.dataset.updating = 'false';
                     form.classList.remove('is-updating');
@@ -229,51 +295,104 @@
                         const pending = parseInt(form.dataset.pendingQuantity, 10);
                         delete form.dataset.pendingQuantity;
                         if (!Number.isNaN(pending)) {
-                            sendUpdateRequest(form, pending);
+                            sendUpdateRequest(form, pending, input);
                         }
                     }
                 }
             };
 
-            document.querySelectorAll('.quantity-form').forEach(form => {
+            const dispatchUpdate = (form, input, desiredQuantity) => {
+                const availableStock = parseInt(form.dataset.availableStock || '0', 10);
+                let quantity = Math.max(1, parseInt(desiredQuantity, 10) || 1);
+
+                if (availableStock > 0 && quantity > availableStock) {
+                    quantity = availableStock;
+                }
+
+                if (String(quantity) !== input.value) {
+                    input.value = quantity;
+                }
+
+                updateControlState(form);
+
+                const confirmedQuantity = parseInt(form.dataset.confirmedQuantity || input.value, 10) || 1;
+                if (quantity === confirmedQuantity) {
+                    return;
+                }
+
+                if (form.dataset.updating === 'true') {
+                    form.dataset.pendingQuantity = quantity;
+                } else {
+                    sendUpdateRequest(form, quantity, input);
+                }
+            };
+
+            forms.forEach(form => {
                 const input = form.querySelector('[data-quantity-input]');
+                if (!input) {
+                    return;
+                }
+
+                if (!form.dataset.confirmedQuantity) {
+                    form.dataset.confirmedQuantity = input.value;
+                }
+
+                updateControlState(form);
+
                 const buttons = form.querySelectorAll('.qty-btn');
-
-                const dispatchUpdate = (newQuantity) => {
-                    const quantity = Math.max(1, parseInt(newQuantity || '1', 10));
-                    if (String(quantity) !== input.value) {
-                        input.value = quantity;
-                    }
-
-                    if (form.dataset.updating === 'true') {
-                        form.dataset.pendingQuantity = quantity;
-                    } else {
-                        sendUpdateRequest(form, quantity);
-                    }
-                };
-
                 buttons.forEach(button => {
                     button.addEventListener('click', () => {
-                        let current = parseInt(input.value || '1', 10);
+                        const availableStock = parseInt(form.dataset.availableStock || '0', 10);
+                        let current = parseInt(input.value || '1', 10) || 1;
+
                         if (button.dataset.action === 'decrement') {
-                            current = Math.max(1, current - 1);
-                        } else {
+                            if (current <= 1) {
+                                return;
+                            }
+                            current -= 1;
+                        } else if (button.dataset.action === 'increment') {
+                            if (availableStock <= 0) {
+                                showError('This product is no longer available.');
+                                updateControlState(form);
+                                return;
+                            }
+
+                            if (current >= availableStock) {
+                                const message = availableStock === 1
+                                    ? 'Only 1 item left for this product.'
+                                    : `Only ${availableStock} item(s) available.`;
+                                showError(message);
+                                updateControlState(form);
+                                return;
+                            }
+
                             current += 1;
                         }
+
                         input.value = current;
-                        dispatchUpdate(current);
+                        updateControlState(form);
+                        dispatchUpdate(form, input, current);
                     });
                 });
 
                 input.addEventListener('change', () => {
-                    dispatchUpdate(input.value);
+                    dispatchUpdate(form, input, input.value);
                 });
 
                 input.addEventListener('input', () => {
-                    // Prevent negative values during typing
-                    if (parseInt(input.value, 10) < 1) {
-                        input.value = '1';
+                    let numericValue = parseInt(input.value, 10) || 1;
+                    const availableStock = parseInt(form.dataset.availableStock || '0', 10);
+
+                    if (numericValue < 1) {
+                        numericValue = 1;
                     }
+
+                    if (availableStock > 0 && numericValue > availableStock) {
+                        numericValue = availableStock;
+                    }
+
+                    input.value = numericValue;
+                    updateControlState(form);
                 });
             });
         })();

@@ -1,9 +1,13 @@
-document.addEventListener('DOMContentLoaded', () => {
+﻿document.addEventListener('DOMContentLoaded', () => {
     const productContainer = document.querySelector('.product-container');
-    if (!productContainer) return;
+    if (!productContainer) {
+        return;
+    }
 
     const basePrice = parseFloat(productContainer.dataset.basePrice || '0');
-    const stock = parseInt(productContainer.dataset.stock || '0', 10);
+    const parsedStock = parseInt(productContainer.dataset.stock || '0', 10);
+    const stock = Number.isFinite(parsedStock) ? parsedStock : 0;
+    const isOutOfStock = stock <= 0;
     const placeholderImage = productContainer.dataset.placeholder || '/images/placeholder_img.jpg';
 
     const mainImage = document.getElementById('productMainImage');
@@ -12,15 +16,25 @@ document.addEventListener('DOMContentLoaded', () => {
     const subtotalEl = document.getElementById('subtotal');
     const cartQty = document.getElementById('cartQuantity');
     const buyQty = document.getElementById('buyNowQuantity');
+    const qtyButtons = Array.from(document.querySelectorAll('.qty-btn'));
+    const addToCartButton = document.querySelector('.btn-cart');
+    const buyNowButton = document.querySelector('.btn-buy');
 
     // Image thumbnail functionality
     document.querySelectorAll('.thumbnail-strip .thumbnail').forEach(thumb => {
-        thumb.addEventListener('click', function() {
-            document.querySelectorAll('.thumbnail-strip .thumbnail.active').forEach(t => t.classList.remove('active'));
+        thumb.addEventListener('click', function () {
+            document.querySelectorAll('.thumbnail-strip .thumbnail.active').forEach(activeThumb => {
+                activeThumb.classList.remove('active');
+            });
+
             this.classList.add('active');
             const newSrc = this.querySelector('img').src;
-            if (mainImage) mainImage.src = newSrc;
-            if (previewImage) previewImage.src = newSrc;
+            if (mainImage) {
+                mainImage.src = newSrc;
+            }
+            if (previewImage) {
+                previewImage.src = newSrc;
+            }
         });
     });
 
@@ -104,7 +118,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
 
-        return parts.length ? parts.join(' · ') : 'Pilih varian';
+    return parts.length ? parts.join(' · ') : 'Pilih varian';
     };
 
     const updateSummaryDisplays = () => {
@@ -137,7 +151,6 @@ document.addEventListener('DOMContentLoaded', () => {
             url.searchParams.set(`variant[${groupKey}]`, optionValue);
         });
 
-        // Remove stale variant selections from URL
         const toRemove = [];
         url.searchParams.forEach((value, key) => {
             const match = key.match(/^variant\[(.+)\]$/);
@@ -180,55 +193,82 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         });
 
-        // Ensure summaries are accurate on initial load
         updateSummaryDisplays();
         updateVariantQueryParams();
     }
 
-    // Quantity control functionality
     const syncQuantityFields = () => {
-        if (!qtyInput) return;
+        if (!qtyInput) {
+            return;
+        }
+
         const value = qtyInput.value;
-        if (cartQty) cartQty.value = value;
-        if (buyQty) buyQty.value = value;
+        if (cartQty) {
+            cartQty.value = value;
+        }
+        if (buyQty) {
+            buyQty.value = value;
+        }
     };
 
     const updateSubtotal = () => {
         if (qtyInput && subtotalEl) {
-            const quantity = parseInt(qtyInput.value, 10) || 1;
+            const quantity = Math.max(0, parseInt(qtyInput.value, 10) || 0);
             const newSubtotal = basePrice * quantity;
             subtotalEl.textContent = `Rp ${newSubtotal.toLocaleString('id-ID')}`;
         }
         syncQuantityFields();
     };
 
-    document.querySelectorAll('.qty-btn').forEach(button => {
-        button.addEventListener('click', function() {
-            if (!qtyInput) return;
-            let quantity = parseInt(qtyInput.value, 10);
-            const action = this.dataset.action;
+    qtyButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            if (!qtyInput || isOutOfStock) {
+                return;
+            }
 
-            if (action === 'plus') {
+            let quantity = parseInt(qtyInput.value, 10) || 1;
+            if (button.dataset.action === 'plus') {
                 if (quantity < stock) {
-                    quantity++;
+                    quantity += 1;
                 }
-            } else if (action === 'minus') {
+            } else if (button.dataset.action === 'minus') {
                 if (quantity > 1) {
-                    quantity--;
+                    quantity -= 1;
                 }
             }
+
             qtyInput.value = quantity;
             updateSubtotal();
         });
     });
 
-    // Fallback for images that fail to load
     document.querySelectorAll('img').forEach(img => {
-        img.addEventListener('error', function() {
+        img.addEventListener('error', function () {
             this.src = placeholderImage;
         });
     });
 
-    // Initial call to set subtotal
     updateSubtotal();
+
+    if (isOutOfStock) {
+        if (qtyInput) {
+            qtyInput.value = '0';
+        }
+        if (cartQty) {
+            cartQty.value = '0';
+        }
+        if (buyQty) {
+            buyQty.value = '0';
+        }
+        qtyButtons.forEach(button => {
+            button.disabled = true;
+        });
+        if (addToCartButton) {
+            addToCartButton.disabled = true;
+        }
+        if (buyNowButton) {
+            buyNowButton.disabled = true;
+        }
+        updateSubtotal();
+    }
 });

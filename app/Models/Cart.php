@@ -35,6 +35,11 @@ class Cart extends Model
     {
         $quantity = max(1, (int) $quantity);
 
+        $availableStock = max(0, (int) $product->stock);
+        if ($availableStock === 0) {
+            throw new \DomainException('This product is currently unavailable.');
+        }
+
         $normalized = collect($attributes)
             ->filter(fn ($value) => $value !== null && $value !== '')
             ->mapWithKeys(function ($value, $key) {
@@ -64,7 +69,24 @@ class Cart extends Model
             $item->unit_price = $product->price;
         }
 
-        $item->quantity += $quantity;
+        $currentQuantity = (int) $item->quantity;
+        $newQuantity = $currentQuantity + $quantity;
+
+        if ($newQuantity > $availableStock) {
+            $remaining = $availableStock - $currentQuantity;
+
+            if ($remaining <= 0) {
+                throw new \DomainException('The quantity in your cart already matches the available stock.');
+            }
+
+            $message = $remaining === 1
+                ? 'You can only add 1 more item for this product.'
+                : "You can only add up to {$remaining} more item(s) for this product.";
+
+            throw new \DomainException($message);
+        }
+
+        $item->quantity = $newQuantity;
         $item->price = $item->unit_price * $item->quantity;
         $item->product_attributes = $normalized->all();
         $item->variant_signature = $signature;

@@ -17,6 +17,7 @@
     $primaryImage = $images[0] ?? $placeholderImage;
     $formattedPrice = number_format($product->price, 0, ',', '.');
     $categoryName = optional($product->category)->name;
+    $isOutOfStock = (int) $product->stock <= 0;
 
         $formatGroupLabel = function (string $key): string {
             return ucwords(str_replace(['_', '-'], ' ', $key));
@@ -34,8 +35,9 @@
 
     <div class="container product-container"
          data-base-price="{{ $product->price }}"
-         data-stock="{{ $product->stock }}"
-         data-placeholder="{{ $placeholderImage }}">
+        data-stock="{{ $product->stock }}"
+        data-placeholder="{{ $placeholderImage }}"
+        data-out-of-stock="{{ $isOutOfStock ? '1' : '0' }}">
         <div class="row g-4">
             <div class="col-xl-4 col-lg-5">
                 <nav class="product-breadcrumb mb-3" aria-label="Breadcrumb">
@@ -66,7 +68,11 @@
                     <div>
                         <h1 class="product-title">{{ $product->name }}</h1>
                         <div class="meta-row mb-3">
-                            <span class="meta-stock"><i class="bi bi-box-seam"></i> Stock {{ number_format($product->stock, 0, ',', '.') }}</span>
+                            @if($isOutOfStock)
+                                <span class="badge bg-danger-subtle text-danger border border-danger-subtle"><i class="bi bi-exclamation-triangle me-1"></i> Out of stock</span>
+                            @else
+                                <span class="meta-stock"><i class="bi bi-box-seam"></i> Stock {{ number_format($product->stock, 0, ',', '.') }}</span>
+                            @endif
                         </div>
                         <div class="product-price mb-3">Rp {{ $formattedPrice }}</div>
 
@@ -142,15 +148,20 @@
                     <div class="mb-4">
                         <div class="info-label">Set quantity</div>
                         <div class="qty-control mt-2">
-                            <button class="qty-btn" data-action="minus">-</button>
-                            <input type="text" class="qty-input" id="quantity" value="1" readonly>
-                            <button class="qty-btn" data-action="plus">+</button>
-                            <span class="ms-3 text-success fw-semibold stock-label">Stock: {{ number_format($product->stock, 0, ',', '.') }}</span>
+                            <button class="qty-btn" data-action="minus" {{ $isOutOfStock ? 'disabled' : '' }}>-</button>
+                            <input type="text" class="qty-input" id="quantity" value="{{ $isOutOfStock ? 0 : 1 }}" readonly>
+                            <button class="qty-btn" data-action="plus" {{ $isOutOfStock ? 'disabled' : '' }}>+</button>
+                            <span class="ms-3 fw-semibold stock-label {{ $isOutOfStock ? 'text-danger' : 'text-success' }}">
+                                {{ $isOutOfStock ? 'Out of stock' : 'Stock: ' . number_format($product->stock, 0, ',', '.') }}
+                            </span>
                         </div>
                         @if(empty($variantGroups))
                             <p class="variant-quantity-hint text-muted small mt-2">
                                 Enter the quantity you would like to purchase.
                             </p>
+                        @endif
+                        @if($isOutOfStock)
+                            <p class="text-danger small mt-2 mb-0">This product is temporarily unavailable. Please check again later.</p>
                         @endif
                     </div>
 
@@ -163,9 +174,9 @@
                         {{-- Add to Cart --}}
                         <form action="{{ route('cart.add', $product->id) }}" method="POST" class="d-grid">
                             @csrf
-                            <input type="hidden" name="quantity" id="cartQuantity" value="1">
+                            <input type="hidden" name="quantity" id="cartQuantity" value="{{ $isOutOfStock ? 0 : 1 }}">
                             <input type="hidden" name="variants_payload" id="cartVariantsPayload" value='@json($activeSelections)'>
-                            <button type="submit" class="btn-cart">
+                            <button type="submit" class="btn-cart" {{ $isOutOfStock ? 'disabled' : '' }}>
                                 <i class="bi bi-cart-plus"></i> Add to Cart
                             </button>
                         </form>
@@ -173,9 +184,9 @@
                         {{-- Buy Now --}}
                         <form action="{{ route('checkout.buyNow', $product->id) }}" method="POST" class="d-grid">
                             @csrf
-                            <input type="hidden" name="quantity" id="buyNowQuantity" value="1">
+                            <input type="hidden" name="quantity" id="buyNowQuantity" value="{{ $isOutOfStock ? 0 : 1 }}">
                             <input type="hidden" name="variants_payload" id="buyNowVariantsPayload" value='@json($activeSelections)'>
-                            <button type="submit" class="btn-buy">
+                            <button type="submit" class="btn-buy" {{ $isOutOfStock ? 'disabled' : '' }}>
                                 <i class="bi bi-bag-check"></i> Buy Now
                             </button>
                         </form>
@@ -194,7 +205,7 @@
         toast: true,
         position: 'top-end',
         icon: 'success',
-        title: '{{ session('success') }}',
+    title: "{{ addslashes(session('success')) }}",
         showConfirmButton: false,
         timer: 2000,
         timerProgressBar: true
